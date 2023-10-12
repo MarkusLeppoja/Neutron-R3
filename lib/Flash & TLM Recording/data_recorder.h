@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <vehicle_configs.h>
-#include "flash.h"
+#include <flash.h>
 
 /*
     Init flash and open a file during startup. Only write notification data to it until (boolean) enable_flight_telemetry_recording is true.
@@ -25,70 +25,47 @@
     _recorder_log_to_flash
 */
 
+// @brief Ensures that contents inside recorder_update run at correct frequency
 extern uint64_t _recorder_serial_prev, _recorder_flash_prev;
 
+// @brief Internal variable to be set by the set_recorder_..._update_interval function
+// @note (DO NOT MANUALLY UPDATE)
 extern uint64_t _recorder_flash_update_interval, _recorder_serial_update_interval;
 
-void set_recorder_flash_update_interval(uint64_t interval);
-void set_recorder_serial_update_interval(uint64_t interval);
-
-#include "data_recorder.h"
-
-flash_device recorder_flash_instance;
-
-uint64_t _recorder_micros_prev;
-
-void set_recorder_flash_update_interval(uint64_t interval)
-{
-    _recorder_flash_update_interval = interval;
-}
-
-void set_recorder_serial_update_interval(uint64_t interval)
-{
-    _recorder_serial_update_interval = interval;
-}
-
-int recorder_begin(boolean enable_flash_capture)
-{
-    return recorder_flash_instance.init(enable_flash_capture);
-}
-
-void recorder_update()
-{
-    update_mcu_clock();
-
-    if (Clock.microseconds - _recorder_flash_prev >= _recorder_flash_update_interval &&)
 
 
+// @brief Set the flash chip log rate. Interval must be in microseconds (1s = 1,000,000 ms)
+void set_recorder_flash_update_interval(uint64_t interval = 10^6);
 
+// @brief Set the serial print rate. Interval must be in microseconds (1s = 1,000,000 ms)
+void set_recorder_serial_update_interval(uint64_t interval = 10^6);
 
+// @brief Begins the flash chip and the filesystem on it. Returns false if failed. True if succeeded
+int recorder_begin(boolean enable_flash_capture);
 
-    //if (Clock.microseconds - _recorder_micros_prev <= recording_speed_or_smt)
+// @brief General function for logging / printing data to flash / serial
+void recorder_update();
 
-    if (!recorder_flash_instance.get_flash_chip_usability_status()) return;
+// @brief Prints all alerts onto serial
+void cast_all_notifications_to_serial();
 
-}
+// @brief Special update function for flash chip
+void _flash_update();
 
-int recorder_delete_file(String path)
-{
-    return recorder_flash_instance.remove_file(path);
-}
+// @brief Special update function for serial casting
+void _serial_update();
 
-void recorder_print_file_content(String path)
-{
-    recorder_flash_instance.read_and_display_all_content(path);
-}
+// @brief Removes the file on given path
+int recorder_delete_file(String path);
 
-void _recorder_convert_data_to_flash_string(String &end_result_inst)
-{
+// @brief Casts all content of a file to serial.
+// @note This doesn't delete the file, only reads it.
+void recorder_print_file_content(String path);
 
+// @brief Converts all flight telemetry onto a string 
+void _recorder_convert_data_to_string(String &end_result_inst);
 
-}
-    
-void _recorder_log_to_flash(String end_result_inst)
-{
-    recorder_flash_instance.write_file_line(end_result_inst);
-}
-
+// @brief Saves given string to flash
+void _recorder_log_to_flash(String end_result_inst);
 
 #endif

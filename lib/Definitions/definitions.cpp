@@ -1,8 +1,6 @@
 #include "definitions.h"
-#include "vehicle_configs.h"
 
-
-Neutron_Vehicle_Config *active_vehicle_config = Electron_Flight_5_Config;
+Neutron_Vehicle_Config_t active_vehicle_config = Electron_Test_Config;
 
 s_clock Clock;
 

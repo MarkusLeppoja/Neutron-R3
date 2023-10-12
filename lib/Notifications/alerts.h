@@ -20,16 +20,23 @@
 
 
 
-// Has a max size of 50 alerts
-extern String alert_buffer[];
+// @brief Stores temporarely new alerts, until they get logged to flash. 
+// @note Has a max size of 48 alerts
+extern String _alert_buffer[];
 
-// A check for data logging class to see if new data is inside the buffer. If the value isn't 0 then the buffer is filled until the given value
-extern uint8_t alert_buffer_size;
+// @brief Returns the fullness of the _alert_buffer. If 0 then buffer is empty
+extern uint8_t _alert_buffer_size;
+
+// @brief Will contain all alerts from the start to end
+extern String _alert_string;
 
 void clear_alert_buffer();
 
 // @brief Logs a given alert to buffer if free space is present. Also has overflow protection
 void save_alert_to_buffer(String alert);
+
+// @brief Returns the alert string
+String get_all_alerts();
 
 enum e_alert_type 
 {

@@ -15,23 +15,23 @@ typedef struct {
 
     /* Data logging */
     // Toggle whether data gets streamed, logged
-    bool enable_flash_log : 0;
-    bool enable_serial_stream : 0;
+    bool enable_flash_log;
+    bool enable_serial_stream;
 
     // Toggle what data gets logged to flash
-    bool enable_flash_telemetry_log : 0;
-    bool enable_flash_notification_log : 0;
+    bool enable_flash_telemetry_log;
+    bool enable_flash_notification_log;
     // Toggle what data gets streamed to serial
-    bool enable_serial_telemetry_stream : 0;
-    bool enable_serial_notification_stream : 0;
+    bool enable_serial_telemetry_stream;
+    bool enable_serial_notification_stream;
 
     // Change data stream, log mode intervals. Intervals are in microseconds (1,000,000)
-    uint32_t serial_stream_interval_mode_0 : 10^6;
-    uint32_t serial_stream_interval_mode_1 : 10^6;
-    uint32_t serial_stream_interval_mode_2 : 10^6;
-    uint32_t flash_log_interval_mode_0 : 10^6;
-    uint32_t flash_log_interval_mode_0 : 10^6;
-    uint32_t flash_log_interval_mode_0 : 10^6;
+    uint32_t serial_stream_interval_mode_0;
+    uint32_t serial_stream_interval_mode_1;
+    uint32_t serial_stream_interval_mode_2;
+    uint32_t flash_log_interval_mode_0;
+    uint32_t flash_log_interval_mode_1;
+    uint32_t flash_log_interval_mode_2;
 
   //file name, format, 
 
@@ -40,7 +40,7 @@ typedef struct {
     /* */
 
 
-} Neutron_Vehicle_Config;
+} Neutron_Vehicle_Config_t;
 
 
 #define Electron_Flight_5_Config                  \
@@ -53,12 +53,12 @@ typedef struct {
     .enable_serial_telemetry_stream = true,       \
     .enable_serial_notification_stream = true,    \
     .serial_stream_interval_mode_0 = 0,           \
-    .serial_stream_interval_mode_0 = 0,           \
-    .serial_stream_interval_mode_0 = 0,           \
+    .serial_stream_interval_mode_1 = 0,           \
+    .serial_stream_interval_mode_2 = 0,           \
     .flash_log_interval_mode_0 = 0,               \
-    .flash_log_interval_mode_0 = 0,               \
-    .flash_log_interval_mode_0 = 0,               \
-  }
+    .flash_log_interval_mode_1 = 0,               \
+    .flash_log_interval_mode_2 = 0,               \
+  }                                              
 
 #define Electron_Test_Config                      \
   {                                               \
@@ -70,12 +70,12 @@ typedef struct {
     .enable_serial_telemetry_stream = true,       \
     .enable_serial_notification_stream = true,    \
     .serial_stream_interval_mode_0 = 0,           \
-    .serial_stream_interval_mode_0 = 0,           \
-    .serial_stream_interval_mode_0 = 0,           \
+    .serial_stream_interval_mode_1 = 0,           \
+    .serial_stream_interval_mode_2 = 0,           \
     .flash_log_interval_mode_0 = 0,               \
-    .flash_log_interval_mode_0 = 0,               \
-    .flash_log_interval_mode_0 = 0,               \
-  }
+    .flash_log_interval_mode_1 = 0,               \
+    .flash_log_interval_mode_2 = 0,               \
+  }                                               
 
-extern Neutron_Vehicle_Config *active_vehicle_config;
+extern Neutron_Vehicle_Config_t active_vehicle_config;
 #endif

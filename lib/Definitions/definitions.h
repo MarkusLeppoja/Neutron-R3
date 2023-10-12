@@ -2,6 +2,7 @@
 #define __DEFINITIONS_H__
 
 #include <Arduino.h>
+#include "vehicle_configs.h"
 
 void update_mcu_clock();
 
