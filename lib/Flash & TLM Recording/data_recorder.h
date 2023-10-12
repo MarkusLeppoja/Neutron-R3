@@ -41,7 +41,7 @@ void set_recorder_flash_update_interval(uint64_t interval = 10^6);
 void set_recorder_serial_update_interval(uint64_t interval = 10^6);
 
 // @brief Begins the flash chip and the filesystem on it. Returns false if failed. True if succeeded
-int recorder_begin(boolean enable_flash_capture);
+int recorder_begin();
 
 // @brief General function for logging / printing data to flash / serial
 void recorder_update();
@@ -55,15 +55,23 @@ void _flash_update();
 // @brief Special update function for serial casting
 void _serial_update();
 
+// @brief Converts all flight telemetry onto a string 
+void _recorder_convert_data_to_string(String &end_result_inst);
+
+// @brief Creates a file on flash
+int recorder_create_file(String path, String format);
+
+// @brief Opens a pre-existing file
+// @note Returns 0 if file doesn't exist
+int recorder_open_file(String path, oflag_t oFlag);
+
 // @brief Removes the file on given path
 int recorder_delete_file(String path);
 
-// @brief Casts all content of a file to serial.
-// @note This doesn't delete the file, only reads it.
+// @brief Casts all content of a file to serial
+// @note This doesn't delete the file, only reads it
 void recorder_print_file_content(String path);
 
-// @brief Converts all flight telemetry onto a string 
-void _recorder_convert_data_to_string(String &end_result_inst);
 
 // @brief Saves given string to flash
 void _recorder_log_to_flash(String end_result_inst);

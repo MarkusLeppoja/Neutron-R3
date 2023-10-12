@@ -69,11 +69,11 @@ typedef struct {
     .enable_flash_notification_log = true,        \
     .enable_serial_telemetry_stream = true,       \
     .enable_serial_notification_stream = true,    \
-    .serial_stream_interval_mode_0 = 0,           \
-    .serial_stream_interval_mode_1 = 0,           \
+    .serial_stream_interval_mode_0 = 10^6 * 2,           \
+    .serial_stream_interval_mode_1 = 10^6 * 0.5,           \
     .serial_stream_interval_mode_2 = 0,           \
-    .flash_log_interval_mode_0 = 0,               \
-    .flash_log_interval_mode_1 = 0,               \
+    .flash_log_interval_mode_0 = 10^6,               \
+    .flash_log_interval_mode_1 = 10^6 * 2,               \
     .flash_log_interval_mode_2 = 0,               \
   }                                               
 
