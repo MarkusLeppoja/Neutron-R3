@@ -2,7 +2,7 @@
 #define __DATA_RECORDER_H__
 
 #include <Arduino.h>
-#include <vehicle_configs.h>
+#include <definitions.h>
 #include <flash.h>
 
 /*

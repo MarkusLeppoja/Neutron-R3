@@ -15,7 +15,7 @@ int flash_device::init(boolean _enable)
     if (!_enable) 
     {
         flash_alerts.create_alert(e_alert_type::warning, "Flash chip is disabled!");
-        sw_flash_chip_usability = 0;
+        Booleans.sw_flash_chip_usability = 0;
         return 1;
     }
 
@@ -25,7 +25,7 @@ int flash_device::init(boolean _enable)
     if (!flash.begin())
     {
         flash_alerts.create_alert(e_alert_type::error, "Can't find flash chip.");
-        sw_flash_chip_usability = 0;
+        Booleans.sw_flash_chip_usability = 0;
         return 0;
     }
     
@@ -36,13 +36,13 @@ int flash_device::init(boolean _enable)
     if (!fatfs.begin(&flash))
     {
         flash_alerts.create_alert(e_alert_type::error, "Failed to mount newly formatted filesystem!");
-        sw_flash_chip_usability = 0;
+        Booleans.sw_flash_chip_usability = 0;
         return 0;
     }
 
     // Indicate flash startup success and enable flash usability in software
     flash_alerts.create_alert(e_alert_type::success, "Flash startup complete");
-    sw_flash_chip_usability = 1;
+    Booleans.sw_flash_chip_usability = 1;
 
     return 1;
 }
@@ -144,18 +144,18 @@ int flash_device::remove_file(String file_path)
 
 int flash_device::erase_chip()
 {
-    if (!flash.eraseChip()) {
+    if (!flash.eraseChip()) 
+    {
         flash_alerts.create_alert(e_alert_type::error, "Failed to erase the flash chip!");
         return 0;
     }
 
     flash.waitUntilReady();
-    flash_alerts.create_alert(e_alert_type::success, "Erase entire flash chip");
+    flash_alerts.create_alert(e_alert_type::success, "Erased the entire flash chip");
     return 1;
 }
 
-
 int flash_device::get_flash_chip_usability_status()
 {
-    return sw_flash_chip_usability;
+    return Booleans.sw_flash_chip_usability;
 }

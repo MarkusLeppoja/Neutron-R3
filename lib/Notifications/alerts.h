@@ -2,6 +2,7 @@
 #define __ALERTS_H__
 
 #include <Arduino.h>
+#include <definitions.h>
 
 // @brief Stores temporarely new alerts, until they get logged to flash. 
 // @note Has a max size of 48 alerts

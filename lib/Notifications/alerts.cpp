@@ -10,8 +10,8 @@ void save_alert_to_buffer(String alert)
 {
     _alert_string += alert;
 
-    // @note If flash logging isn't enabled this buffer will be filled up to 48 events and then nothing will happen after that until
-    if (_alert_buffer_size >= 49) return;
+    // @note If flash functionality isn't enabled or buffer is full then don't log to buffer anymore
+    if (_alert_buffer_size >= 49 || !Booleans.sw_flash_chip_usability) return;
     _alert_buffer[_alert_buffer_size] = alert;
     _alert_buffer_size++;
 }

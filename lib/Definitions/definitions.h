@@ -14,8 +14,17 @@ struct s_clock
 
     // In seconds
     float mission_duration, mission_begin_time;
-}; 
+};
 extern s_clock Clock;
+
+struct s_booleans 
+{
+    // Automatically updated variable that determines if flash is working correctly to be used
+    boolean sw_flash_chip_usability;
+
+
+};
+extern s_booleans Booleans;
 
 enum e_pins : const uint8_t {
     pin_uart_tx = 0,

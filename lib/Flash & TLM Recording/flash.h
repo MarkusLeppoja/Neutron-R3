@@ -24,9 +24,6 @@
 
 class flash_device
 {
-private:
-    // Automatically updated variable that determines if flash is working correctly to be used
-    boolean sw_flash_chip_usability;
 public:
 
     // @brief Begins the flash chip and the filesystem on it
