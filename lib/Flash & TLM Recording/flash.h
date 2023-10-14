@@ -21,6 +21,7 @@
 */
 
 
+
 class flash_device
 {
 private:
@@ -55,6 +56,10 @@ public:
 
     // @brief If flash_init was successful, then removes the file on given path
     int remove_file(String file_path);
+
+    // @brief Erases the entire flash chip.
+    // @note This action is UNDOABLE
+    int erase_chip();
 
     // @brief Returns if flash chip is usable
     int get_flash_chip_usability_status();

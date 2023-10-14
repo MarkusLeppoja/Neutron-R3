@@ -8,6 +8,8 @@ Alerts flash_alerts("Flash");
 FatVolume fatfs;
 File32 data_file; 
 
+
+
 int flash_device::init(boolean _enable)
 {
     if (!_enable) 
@@ -47,8 +49,12 @@ int flash_device::init(boolean _enable)
 
 int flash_device::create_file(String file_name, String file_format)
 {
-    if (!sw_flash_chip_usability) return 0;
-
+    if (!get_flash_chip_usability_status()) 
+    {
+        flash_alerts.create_alert(e_alert_type::warning, "Failed to create a new file because sw_flash_chip_usability is 0");
+        return 0;
+    }
+    
     //Check if file exists
     uint8_t exit_counter;
     while (fatfs.exists(file_name + file_format))
@@ -75,7 +81,7 @@ int flash_device::create_file(String file_name, String file_format)
         flash_alerts.create_alert(e_alert_type::error, "Failed to create a file. File name: " + file_name + file_format);
         return 0;
     }
-
+    
     // Indicate successful file creation
     flash_alerts.create_alert(e_alert_type::success, "Created file: " + file_name + file_format);
     return 1;
@@ -83,7 +89,7 @@ int flash_device::create_file(String file_name, String file_format)
 
 int flash_device::open_file(String file_path, oflag_t file_oFlag)
 {
-    if (!sw_flash_chip_usability) return 0;
+    if (!get_flash_chip_usability_status()) return 0;
 
     // Open file with given path
     data_file = fatfs.open(file_path, file_oFlag);
@@ -109,13 +115,13 @@ int flash_device::close_file()
 
 void flash_device::write_file_line(String write_data)
 {
-    if (!sw_flash_chip_usability || !data_file.isOpen()) return;
+    if (!get_flash_chip_usability_status() || !data_file.isOpen()) return;
     data_file.println(write_data.c_str());
 }
 
 int flash_device::read_and_display_all_content(String file_path)
 {
-    if (!sw_flash_chip_usability) return 0;
+    if (!get_flash_chip_usability_status()) return 0;
     if (!data_file.isOpen()) open_file(file_path, FILE_READ);
 
     // Display's all available content to Serial(1) 
@@ -125,18 +131,29 @@ int flash_device::read_and_display_all_content(String file_path)
         Serial.print(c);
         delayMicroseconds(50);
     }
-
-    close_file();
     return 1;
 }
 
 int flash_device::remove_file(String file_path)
 {
-    if (!sw_flash_chip_usability || !fatfs.exists(file_path)) return 0;
+    if (!get_flash_chip_usability_status() || !fatfs.exists(file_path)) return 0;
     uint8_t remove_status = fatfs.remove(file_path);
     flash_alerts.create_alert(e_alert_type::alert, "Removing file named: " + file_path + " Remove status: " + String(remove_status));
     return remove_status;
 }
+
+int flash_device::erase_chip()
+{
+    if (!flash.eraseChip()) {
+        flash_alerts.create_alert(e_alert_type::error, "Failed to erase the flash chip!");
+        return 0;
+    }
+
+    flash.waitUntilReady();
+    flash_alerts.create_alert(e_alert_type::success, "Erase entire flash chip");
+    return 1;
+}
+
 
 int flash_device::get_flash_chip_usability_status()
 {

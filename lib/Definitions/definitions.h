@@ -10,11 +10,10 @@ void update_mcu_clock();
 struct s_clock
 {
     uint64_t microseconds, milliseconds;
-    float seconds, minutes, hours;
+    float seconds;
 
     // In seconds
     float mission_duration, mission_begin_time;
-    String time_format;
 }; 
 extern s_clock Clock;
 

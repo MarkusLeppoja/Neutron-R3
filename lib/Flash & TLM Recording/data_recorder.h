@@ -72,8 +72,10 @@ int recorder_delete_file(String path);
 // @note This doesn't delete the file, only reads it
 void recorder_print_file_content(String path);
 
-
 // @brief Saves given string to flash
 void _recorder_log_to_flash(String end_result_inst);
+
+// @brief Closes the currently open file
+void recorder_close_file();
 
 #endif

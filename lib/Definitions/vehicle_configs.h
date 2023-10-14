@@ -52,29 +52,29 @@ typedef struct {
     .enable_flash_notification_log = true,        \
     .enable_serial_telemetry_stream = true,       \
     .enable_serial_notification_stream = true,    \
-    .serial_stream_interval_mode_0 = 0,           \
-    .serial_stream_interval_mode_1 = 0,           \
-    .serial_stream_interval_mode_2 = 0,           \
-    .flash_log_interval_mode_0 = 0,               \
-    .flash_log_interval_mode_1 = 0,               \
-    .flash_log_interval_mode_2 = 0,               \
+    .serial_stream_interval_mode_0 = 1000000,           \
+    .serial_stream_interval_mode_1 = 1000000,           \
+    .serial_stream_interval_mode_2 = 1000000,           \
+    .flash_log_interval_mode_0 = 1000000,               \
+    .flash_log_interval_mode_1 = 1000000,               \
+    .flash_log_interval_mode_2 = 1000000,               \
   }                                              
 
 #define Electron_Test_Config                      \
   {                                               \
     .vehicle_name = "Electron",                   \
-    .enable_flash_log = true,                     \
+    .enable_flash_log = true,                    \
     .enable_serial_stream = true,                 \
     .enable_flash_telemetry_log = true,           \
     .enable_flash_notification_log = true,        \
     .enable_serial_telemetry_stream = true,       \
     .enable_serial_notification_stream = true,    \
-    .serial_stream_interval_mode_0 = 10^6 * 2,           \
-    .serial_stream_interval_mode_1 = 10^6 * 0.5,           \
-    .serial_stream_interval_mode_2 = 0,           \
-    .flash_log_interval_mode_0 = 10^6,               \
-    .flash_log_interval_mode_1 = 10^6 * 2,               \
-    .flash_log_interval_mode_2 = 0,               \
+    .serial_stream_interval_mode_0 = 1000000,     \
+    .serial_stream_interval_mode_1 = 2000000,     \
+    .serial_stream_interval_mode_2 = 250000,      \
+    .flash_log_interval_mode_0 = 1000000,            \
+    .flash_log_interval_mode_1 = 2000000,        \
+    .flash_log_interval_mode_2 = 3000000,               \
   }                                               
 
 extern Neutron_Vehicle_Config_t active_vehicle_config;

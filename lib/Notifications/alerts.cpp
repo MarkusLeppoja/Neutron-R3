@@ -10,11 +10,11 @@ void save_alert_to_buffer(String alert)
 {
     _alert_string += alert;
 
+    // @note If flash logging isn't enabled this buffer will be filled up to 48 events and then nothing will happen after that until
     if (_alert_buffer_size >= 49) return;
     _alert_buffer[_alert_buffer_size] = alert;
     _alert_buffer_size++;
 }
-
 
 void clear_alert_buffer()
 {
@@ -24,7 +24,6 @@ void clear_alert_buffer()
     }
     _alert_buffer_size = 0;
 }
-
 
 String get_all_alerts()
 {
@@ -36,7 +35,6 @@ Alerts::Alerts(String alert_orgin)
     alert_orgin_class = alert_orgin;
 }
 
-
 void Alerts::create_alert(e_alert_type alert_type, String message)
 {
     calculate_mcu_on_time();
@@ -44,19 +42,17 @@ void Alerts::create_alert(e_alert_type alert_type, String message)
     save_alert_to_buffer(current_alert_instance);
 }
 
-
 void Alerts::calculate_mcu_on_time()
 {
     uint64_t milliseconds = millis();
 
-    uint16_t ms = milliseconds % 1000;
+    uint32_t ms = milliseconds % 1000;
     uint8_t second = (milliseconds / 1000) % 60;
     uint8_t minute = (milliseconds / 60000) % 60;
     uint8_t hour = (milliseconds / 3600000) % 24;
     
     current_time_formatted = String(hour) + ":" + String(minute) + ":" + String(second) + "." + String(ms);
 }
-
 
 void Alerts::create_full_alert_text(e_alert_type alert_type, String message, String alert_orgin, String& alert_instance)
 {

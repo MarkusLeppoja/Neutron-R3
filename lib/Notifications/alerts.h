@@ -38,7 +38,6 @@ enum e_alert_type
 
 class Alerts {
 private:
-
     String s_alert_type[5] = 
     {
         "None",
@@ -66,7 +65,7 @@ private:
     // @param alert_orgin Where is the alert originated
     void create_full_alert_text(e_alert_type alert_type, String message, String alert_orgin, String& alert_instance);
 public:
-
+    // @brief Create instance of alerts class. Define what file the alert is coming from
     Alerts(String alert_orgin);
     
     // @brief Save an event to the RP2040 onboard flash
