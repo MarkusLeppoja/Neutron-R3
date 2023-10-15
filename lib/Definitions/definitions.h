@@ -46,8 +46,17 @@ enum e_pins : const uint8_t {
     pin_spi_mosi = 19,
     pin_spi_miso = 20,
     pin_voltage_divider = 26,
-    pin_pyro_2_continuity = 27,
-    pin_pyro_1_continuity = 28
+    pin_pyro_2_voltage = 27,
+    pin_pyro_1_voltage = 28
 };
+
+struct s_sensors
+{
+
+    // Pyro
+    boolean pyro_1_fire_status, pyro_2_fire_status;
+    float pyro_1_voltage, pyro_2_voltage;
+};
+extern s_sensors Sensors;
 
 #endif  
