@@ -1,8 +1,8 @@
 #include "flash.h"
 
 // Instances
-SPIClassRP2040 spi_instance(spi0, e_pins::pin_spi_miso, e_pins::pin_cs_flash, e_pins::pin_spi_sck, e_pins::pin_spi_mosi);
-Adafruit_FlashTransport_SPI flashTransport(e_pins::pin_cs_flash, &spi_instance);
+SPIClassRP2040 spi_flash_instance(spi0, e_pins::pin_spi_miso, e_pins::pin_cs_flash, e_pins::pin_spi_sck, e_pins::pin_spi_mosi);
+Adafruit_FlashTransport_SPI flashTransport(e_pins::pin_cs_flash, &spi_flash_instance);
 Adafruit_SPIFlash flash(&flashTransport);
 Alerts flash_alerts("Flash");
 FatVolume fatfs;
@@ -18,8 +18,6 @@ int flash_device::init(boolean _enable)
         Booleans.sw_flash_chip_usability = 0;
         return 1;
     }
-
-    spi_instance.begin();
 
     // Check if a flash device exists
     if (!flash.begin())

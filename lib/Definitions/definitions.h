@@ -4,27 +4,7 @@
 #include <Arduino.h>
 #include "vehicle_configs.h"
 
-void update_mcu_clock();
 
-
-struct s_clock
-{
-    uint64_t microseconds, milliseconds;
-    float seconds;
-
-    // In seconds
-    float mission_duration, mission_begin_time;
-};
-extern s_clock Clock;
-
-struct s_booleans 
-{
-    // Automatically updated variable that determines if flash is working correctly to be used
-    boolean sw_flash_chip_usability;
-
-
-};
-extern s_booleans Booleans;
 
 enum e_pins : const uint8_t {
     pin_uart_tx = 0,
@@ -50,13 +30,98 @@ enum e_pins : const uint8_t {
     pin_pyro_1_voltage = 28
 };
 
+void update_mcu_clock();
+
+
+
+struct s_clock
+{
+    uint64_t microseconds, milliseconds;
+    float seconds;
+
+    // In seconds
+    float mission_duration, mission_begin_time;
+};
+extern s_clock Clock;
+
+struct s_booleans 
+{
+    // Automatically updated variable that determines if flash is working correctly to be used
+    boolean sw_flash_chip_usability;
+
+    // Automatically updated variable that determines if sensors can be used or not
+    boolean sw_sensors_usability;
+    boolean sw_sensors_imu_usability;
+    boolean sw_sensors_baro_usability;
+    boolean sw_sensors_gnss_usability;
+    boolean sw_sensors_mag_usability;
+
+
+};
+extern s_booleans Booleans;
+
+
+
+struct vector_3d {
+    float x,y,z;
+};
+
+struct vector_2d {
+    float x,y;
+};
+
 struct s_sensors
 {
 
-    // Pyro
+    /* IMU (Bmi088) */
+    // Raw readings
+    vector_3d raw_gyro_velocity;
+    vector_3d raw_accel;
+    float raw_accel_temp;
+
+    /* Baro (BMP388) */
+    float raw_baro_pressure;
+    float raw_baro_altitude;
+    float raw_baro_temperature;
+
+
+    /* Pyro */
     boolean pyro_1_fire_status, pyro_2_fire_status;
     float pyro_1_voltage, pyro_2_voltage;
+
+    /* Voltage divider */
+    float system_voltage;
+
+
+
+
+
+    /* Profiler */
+    // IMU
+    uint64_t profiler_imu_function_duration;
+    uint64_t profiler_imu_loop;
+
+    // Baro
+    uint64_t profiler_baro_function_duration;
+    uint64_t profiler_baro_loop;
+
+    // GNSS
+    uint64_t profiler_gnss_function_duration;
+    uint64_t profiler_gnss_loop;
+
+    // Mag
+    uint64_t profiler_mag_function_duration;
+    uint64_t profiler_mag_loop;
+
+    // Voltage Divider
+    uint64_t profiler_voltage_divider_function_duration;
+    uint64_t profiler_voltage_divider_loop;
+
+
+    //TODO: FLASH, DATARECORDER, PYRO, STATE INDICATION, MAIN LOOP,
+
 };
 extern s_sensors Sensors;
+
 
 #endif  

@@ -2,7 +2,6 @@
 #define __FLASH_H__
 
 #include <Arduino.h>
-#include <SPI.h>
 #include <Adafruit_FlashTransport.h>
 #include <Adafruit_SPIFlash.h>
 #include <SdFat.h>

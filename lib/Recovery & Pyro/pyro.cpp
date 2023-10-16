@@ -6,10 +6,14 @@ uint64_t pyro_prev;
 Alerts alerts_pyro("Pyro");
 
 
+void pyro_init()
+{
+    pinMode(e_pins::pin_pyro_1, OUTPUT);
+    pinMode(e_pins::pin_pyro_2, OUTPUT);
+    pinMode(e_pins::pin_pyro_1_voltage, INPUT);
+    pinMode(e_pins::pin_pyro_2_voltage, INPUT);
+}
 
-// Ensures that pyro channels get turned off after allowed on-time has exceeded
-// Here we don't check if pyro functionality is armed or not. Adding this check here can cause the pyro to be left ON in some cases
-// In example if a pyro is active while (boolean) pyro_armed_status was made false 
 void update_pyro()
 {
     update_mcu_clock();
@@ -27,8 +31,6 @@ void update_pyro()
     Sensors.pyro_2_voltage = (float) analogRead(e_pins::pin_pyro_2_voltage) * active_vehicle_config.pyro_voltage_divider_ratio;
 }
 
-
-// @brief Activates pyro channel nr 1
 void pyro_1_fire()
 {
     // Check if pyro functionality is enabled 
@@ -45,8 +47,6 @@ void pyro_1_fire()
     alerts_pyro.create_alert(e_alert_type::alert, "Pyro channel 1 activated");
 }
 
-
-// @brief Activates pyro channel nr 2
 void pyro_2_fire()
 {
     // Check if pyro functionality is enabled 
@@ -63,8 +63,6 @@ void pyro_2_fire()
     alerts_pyro.create_alert(e_alert_type::alert, "Pyro channel 2 activated");
 }
 
-
-// @brief Deactivates pyro channel nr 1
 void _pyro_1_deactivate()
 {
     // Close pyro 1 mosfet
@@ -75,8 +73,6 @@ void _pyro_1_deactivate()
     alerts_pyro.create_alert(e_alert_type::alert, "Pyro channel 1 deactivated");
 }
 
-
-// @brief Deactivates pyro channel nr 2
 void _pyro_2_deactivate()
 {
     // Close pyro 2 mosfet

@@ -1,10 +1,12 @@
 #include "definitions.h"
 
+
+
 Neutron_Vehicle_Config_t active_vehicle_config = Electron_Test_Config;
 
 s_clock Clock;
 s_booleans Booleans;
-
+s_sensors Sensors;
 
 void update_mcu_clock()
 {

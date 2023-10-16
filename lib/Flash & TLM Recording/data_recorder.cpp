@@ -104,6 +104,20 @@ void _serial_update()
 
 void _recorder_convert_data_to_string(String &end_result_inst)
 {
+    // TODO: Time (milliseconds)
+    /*
+     * Time (millis)
+     * Mission time
+     * Mission state
+     * sensor data
+     * pyro stuff
+     * 
+     * optional:
+     * all sensor profiler stuff
+    */
+   //TODO: test how big the file is when all optional things are enabled, prevent overflow and ensure all data gets sent / delivered to flash / serial
+
+
 
     end_result_inst = "this is a nice empty end result that is supposed to be replaced with actual telemetry which comes from the sensors and other orgins and they all get collected to definitions file where it is taken and put here.";
 }
