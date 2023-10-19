@@ -32,8 +32,6 @@ enum e_pins : const uint8_t {
 
 void update_mcu_clock();
 
-
-
 struct s_clock
 {
     uint64_t microseconds, milliseconds;
@@ -61,8 +59,6 @@ struct s_booleans
 };
 extern s_booleans Booleans;
 
-
-
 struct vector_3d {
     float x,y,z;
 };
@@ -75,8 +71,7 @@ struct s_sensors
 {
     const float gravity = -9.817823;
 
-
-    /* IMU (Bmi088) */
+    /* IMU (BMI088) */
     // Raw readings
     vector_3d raw_gyro_velocity;
     vector_3d raw_accel;
@@ -95,9 +90,6 @@ struct s_sensors
 
     /* Voltage divider */
     float system_voltage;
-
-
-
 
 
     /* Profiler */
@@ -121,6 +113,8 @@ struct s_sensors
     float profiler_voltage_divider_function_duration;
     float profiler_voltage_divider_loop;
 
+    // Pyro
+    float profiler_pyro_loop;
 
     //TODO: FLASH, DATARECORDER, PYRO, STATE INDICATION, MAIN LOOP,
 

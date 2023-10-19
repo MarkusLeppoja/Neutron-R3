@@ -3,14 +3,13 @@
 
 #include <Arduino.h>
 #include <Servo.h>
-
 #include <definitions.h>
 #include <alerts.h>
     
 
 
 // @brief Attaches servo / begins pyro
-void init_recovery();
+void recovery_begin();
 
 // @brief Checks if servo is attached. Locks the servo at fds_servo_lock_angle.
 void recovery_arm();

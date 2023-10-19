@@ -4,9 +4,9 @@ uint64_t pyro_fire_start_time[2];
 uint64_t pyro_prev;
 
 Alerts alerts_pyro("Pyro");
+Profiler profiler_pyro;
 
-
-void pyro_init()
+void pyro_begin()
 {
     pinMode(e_pins::pin_pyro_1, OUTPUT);
     pinMode(e_pins::pin_pyro_2, OUTPUT);
@@ -17,10 +17,12 @@ void pyro_init()
 void update_pyro()
 {
     update_mcu_clock();
+    profiler_pyro.begin_loop();
 
     // Only update after 50 milliseconds (50000 microseconds = 50 milliseconds)
     if (Clock.microseconds - pyro_prev < 50000) return;
     pyro_prev = Clock.microseconds;
+    profiler_pyro.end_loop(Sensors.profiler_pyro_loop);
 
     // Disable pyro if it was previously enabled and it's fire duration exceeded the allowed time.
     if (Clock.microseconds - pyro_fire_start_time[0] >= active_vehicle_config.pyro_1_fire_duration && Sensors.pyro_1_fire_status) _pyro_1_deactivate();

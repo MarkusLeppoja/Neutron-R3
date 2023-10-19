@@ -1,13 +1,11 @@
 #include "state_estimation.h"
 
-
-
 // Instances
 // Communication protocol custom instance
 SPIClassRP2040 spi_sensors_instance(spi0, e_pins::pin_spi_miso, e_pins::pin_cs_flash, e_pins::pin_spi_sck, e_pins::pin_spi_mosi);
 TwoWire i2c_sensors_instance(&i2c1_inst, e_pins::pin_i2c_sda, e_pins::pin_i2c_scl);
 
-// Sensors custom instances
+// Sensors class instances
 Bmi088Accel accel_instance(i2c_sensors_instance, 0x18);
 Bmi088Gyro gyro_instance(i2c_sensors_instance, 0x68);
 BMP388_DEV baro_instance(i2c_sensors_instance);
@@ -273,7 +271,7 @@ void _v_divider_update()
 
 
 
-int sensors_init()
+int sensors_begin()
 {
     if (!active_vehicle_config.enable_sensors)
     {

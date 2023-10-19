@@ -2,10 +2,10 @@
 #define __FLASH_H__
 
 #include <Arduino.h>
+#include <SPI.h>
 #include <Adafruit_FlashTransport.h>
 #include <Adafruit_SPIFlash.h>
 #include <SdFat.h>
-
 #include <definitions.h>
 #include <alerts.h>
 
@@ -27,7 +27,7 @@ public:
 
     // @brief Begins the flash chip and the filesystem on it
     // Returns false if failed. True if succeeded
-    int init(boolean _enable);
+    int init(boolean enable);
 
     // @brief if flash_init was successful then tries to create a new file
     // @param file_name the name of the file

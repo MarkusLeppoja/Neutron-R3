@@ -166,6 +166,5 @@ typedef struct {
     .enable_datasave_profiler_sensors_duration = true,                            \
   }
 
-
 extern Neutron_Vehicle_Config_t active_vehicle_config;
 #endif

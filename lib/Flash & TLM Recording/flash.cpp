@@ -10,9 +10,9 @@ File32 data_file;
 
 
 
-int flash_device::init(boolean _enable)
+int flash_device::init(boolean enable)
 {
-    if (!_enable) 
+    if (!enable) 
     {
         flash_alerts.create_alert(e_alert_type::warning, "Flash chip is disabled!");
         Booleans.sw_flash_chip_usability = 0;
@@ -29,6 +29,7 @@ int flash_device::init(boolean _enable)
     
     // Log basic flash info
     flash_alerts.create_alert(e_alert_type::alert, "Flash chip JEDEC ID: 0x" + String(flash.getJEDECID(), HEX));
+    flash_alerts.create_alert(e_alert_type::alert, "Flash size: " + String(flash.size() / 1024) + " KB");
 
     // Check if a filesystem is present
     if (!fatfs.begin(&flash))
@@ -49,7 +50,7 @@ int flash_device::create_file(String file_name, String file_format)
 {
     if (!get_flash_chip_usability_status()) 
     {
-        flash_alerts.create_alert(e_alert_type::warning, "Failed to create a new file because sw_flash_chip_usability is 0");
+        flash_alerts.create_alert(e_alert_type::warning, "Failed to create a new file because flash isn't usable");
         return 0;
     }
     
@@ -67,6 +68,7 @@ int flash_device::create_file(String file_name, String file_format)
         // Add an underscore to the file name to differentiate it
         file_name += "_";
 
+        // Integrate exit counter value
         exit_counter++;
     }
 
@@ -99,7 +101,7 @@ int flash_device::open_file(String file_path, oflag_t file_oFlag)
     }
 
     // Indicate successful file opening
-    flash_alerts.create_alert(e_alert_type::success, "Opened file: " + file_path + " With oFlag: " + String(file_oFlag));
+    flash_alerts.create_alert(e_alert_type::success, "Opened file: " + file_path + " with oFlag: " + String(file_oFlag));
     return 1;
 }
 
@@ -127,6 +129,8 @@ int flash_device::read_and_display_all_content(String file_path)
     {
         char c = data_file.read();
         Serial.print(c);
+
+        // Compensate for serial slowness
         delayMicroseconds(50);
     }
     return 1;
@@ -136,7 +140,7 @@ int flash_device::remove_file(String file_path)
 {
     if (!get_flash_chip_usability_status() || !fatfs.exists(file_path)) return 0;
     uint8_t remove_status = fatfs.remove(file_path);
-    flash_alerts.create_alert(e_alert_type::alert, "Removing file named: " + file_path + " Remove status: " + String(remove_status));
+    flash_alerts.create_alert(e_alert_type::alert, "Removing file named: " + file_path + ". Remove status: " + String(remove_status));
     return remove_status;
 }
 

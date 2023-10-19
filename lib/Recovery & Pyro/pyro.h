@@ -4,13 +4,17 @@
 #include <Arduino.h>
 #include <definitions.h>
 #include <alerts.h>
+#include <profiler.h>
     
+
+
 extern uint64_t pyro_fire_start_time[];
 extern uint64_t pyro_prev;
 
 
+
 // @brief Initializes pyro channel pins
-void pyro_init();
+void pyro_begin();
 
 // @brief Ensures that pyro channels get turned off after allowed on-time has exceeded
 // @brief Here we don't check if pyro functionality is armed or not. Adding this check here can cause the pyro to be left ON in some cases

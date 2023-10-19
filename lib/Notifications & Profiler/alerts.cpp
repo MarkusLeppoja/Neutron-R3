@@ -57,9 +57,8 @@ void Alerts::calculate_mcu_on_time()
 void Alerts::create_full_alert_text(e_alert_type alert_type, String message, String alert_orgin, String& alert_instance)
 {
     alert_instance =
-    "[" + String(current_time_formatted) + "]" +
+    "\n[" + String(current_time_formatted) + "]" +
     "[" + String(s_alert_type[alert_type]) + "]" +
     "[" + String(alert_orgin) + "]" + 
-    "[" + String(message) + "]" +
-    "\n";
+    "[" + String(message) + "]";
 }

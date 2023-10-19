@@ -29,7 +29,7 @@ void _accel_update();
 void _gyro_update();
 void _baro_update();
 void _v_divider_update();
-int sensors_init();
+int sensors_begin();
 void update_sensors();
 
 // @todo maybe log these values into flash

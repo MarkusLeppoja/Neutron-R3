@@ -1,6 +1,7 @@
 #include "data_recorder.h"
 
-// Instance
+
+// Instances
 flash_device recorder_flash_instance;
 uint64_t _recorder_serial_prev, _recorder_flash_prev;
 uint64_t _recorder_flash_update_interval = 1000000, _recorder_serial_update_interval = 1000000;
@@ -93,17 +94,17 @@ void cast_all_notifications_to_serial()
 void _serial_update()
 {
     // Check if serial telemetry stream functionality is enabled. 
-    if (active_vehicle_config.enable_serial_telemetry_stream)
-    {
-        // Temp string instance
-        String _serial_log_string;
+    if (!active_vehicle_config.enable_serial_telemetry_stream) return;
+    
+    // Temp string instance
+    String _serial_log_string;
 
-        // Convert all data to a string
-        _recorder_convert_data_to_string(_serial_log_string);
+    // Convert all data to a string
+    _recorder_convert_data_to_string(_serial_log_string);
 
-        // Cast string over serial
-        Serial.println(_serial_log_string);
-    }
+    // Cast string over serial
+    Serial.println(_serial_log_string);
+    
 }
 
 
@@ -116,6 +117,7 @@ void _serial_update()
 
 void _recorder_convert_data_to_string(String &end_result_inst)
 {
+    // Reset buffer
     _recorder_string_buffer[0] = 0;
 
     /* General */
@@ -194,6 +196,7 @@ void _recorder_convert_data_to_string(String &end_result_inst)
         _convert_var_to_string(Sensors.profiler_imu_loop, 6, 2);
         _convert_var_to_string(Sensors.profiler_baro_loop, 6, 2);
         _convert_var_to_string(Sensors.profiler_voltage_divider_loop, 6, 2);
+        _convert_var_to_string(Sensors.profiler_pyro_loop, 6, 2);
 
         // @todo gnss, mag
     } 
@@ -295,6 +298,7 @@ void _recorder_create_csv_layout(String &layout_inst)
         _convert_var_to_string_wo_coma("PF IMU Loop");
         _convert_var_to_string_wo_coma("PF Baro Loop");
         _convert_var_to_string_wo_coma("PF Voltage Divider Loop");
+        _convert_var_to_string_wo_coma("PF Pyro Loop");
 
         // @todo gnss, mag
     } 

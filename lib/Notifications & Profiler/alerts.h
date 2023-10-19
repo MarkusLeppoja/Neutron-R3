@@ -4,6 +4,8 @@
 #include <Arduino.h>
 #include <definitions.h>
 
+
+
 // @brief Stores temporarely new alerts, until they get logged to flash. 
 // @note Has a max size of 48 alerts
 extern String _alert_buffer[];
@@ -13,6 +15,15 @@ extern uint8_t _alert_buffer_size;
 
 // @brief Will contain all alerts from the start to end
 extern String _alert_string;
+
+enum e_alert_type 
+{
+    none = 0,
+    alert = 1,
+    success = 2,
+    warning = 3,
+    error = 4
+};
 
 
 
@@ -25,17 +36,6 @@ void save_alert_to_buffer(String alert);
 
 // @brief Returns the alert string containing all alerts
 String get_all_alerts();
-
-
-
-enum e_alert_type 
-{
-    none = 0,
-    alert = 1,
-    success = 2,
-    warning = 3,
-    error = 4
-};
 
 class Alerts {
 private:
@@ -67,11 +67,11 @@ private:
     void create_full_alert_text(e_alert_type alert_type, String message, String alert_orgin, String& alert_instance);
 public:
     // @brief Create instance of alerts class. Define what file the alert is coming from
-    Alerts(String alert_orgin);
+    Alerts(String alert_orgin = "UNKNOWN");
     
     // @brief Save an event to the RP2040 onboard flash
     // @param type Type of an alert
     // @param message Description of the alert
-    void create_alert(e_alert_type alert_type, String message);
+    void create_alert(e_alert_type alert_type = e_alert_type::alert, String message = "Example Message");
 };
 #endif
