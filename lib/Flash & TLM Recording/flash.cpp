@@ -157,3 +157,8 @@ int flash_device::get_flash_chip_usability_status()
 {
     return Booleans.sw_flash_chip_usability;
 }
+
+int flash_device::is_file_open()
+{
+    return data_file.isOpen();
+}

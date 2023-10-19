@@ -17,12 +17,7 @@
     sw_flash_chip_usage - If true then flash chip can be used.
 
     TODO:
-    recorder_begin - setup flash, create file, log test string
-    recorder_update - check state (mission), check if logging enabled (tlm || notification), log based on set speed, print to serial if enabled.
-    recorder_delete_file
-    recorder_print_file_content
-    _recorder_convert_data_to_flash_string
-    _recorder_log_to_flash
+    // Profiler
 */
 
 // @brief Ensures that contents inside recorder_update run at correct frequency
@@ -32,7 +27,11 @@ extern uint64_t _recorder_serial_prev, _recorder_flash_prev;
 // @note (DO NOT MANUALLY UPDATE)
 extern uint64_t _recorder_flash_update_interval, _recorder_serial_update_interval;
 
+// @brief For _convert_var_to_string, they hold data temporarely
+extern char _recorder_char_buffer[], _recorder_string_buffer[];
 
+// @brief Erase the entire chip TODO: add confirmation
+void recorder_earase_flash_chip();
 
 // @brief Set the flash chip log rate. Interval must be in microseconds (1s = 1,000,000 ms)
 void set_recorder_flash_update_interval(uint64_t interval = 10^6);
@@ -44,7 +43,7 @@ void set_recorder_serial_update_interval(uint64_t interval = 10^6);
 int recorder_begin();
 
 // @brief General function for logging / printing data to flash / serial
-void recorder_update();
+void update_recorder();
 
 // @brief Prints all alerts onto serial
 void cast_all_notifications_to_serial();
@@ -56,7 +55,28 @@ void _flash_update();
 void _serial_update();
 
 // @brief Converts enabled datasave categories onto telemetry string
+// @note Every change here should be reflected in _recorder_create_csv_layout
 void _recorder_convert_data_to_string(String &end_result_inst);
+
+// @brief Creates a new csv layout based on what datasave categories are enabled
+// @note Every change here should be reflected in _recorder_convert_data_to_string
+void _recorder_create_csv_layout(String &layout_inst);
+
+// @brief Converts then adds a given variable into a string, doesn't add a coma
+void _convert_var_to_string_wo_coma(String data);
+
+// @brief Converts then adds a given variable into a string 
+// @note This is legacy code imported from Neutron R2 code
+void _convert_var_to_string(String data);
+
+// @brief Converts then adds a given variable into a string 
+// @note If buffer size is over 9 the function skips to avoid crash
+// @note This is legacy code imported from Neutron R2 code
+void _convert_var_to_string(float data, int min_width, int decimal_place);
+
+// @brief Converts then adds a given variable into a string 
+// @note This is legacy code imported from Neutron R2 code
+void _convert_var_to_string(int data);
 
 // @brief Creates a file on flash
 int recorder_create_file(String path, String format);
@@ -77,5 +97,6 @@ void _recorder_log_to_flash(String end_result_inst);
 
 // @brief Closes the currently open file
 void recorder_close_file();
+
 
 #endif

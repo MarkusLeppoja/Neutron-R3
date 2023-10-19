@@ -59,5 +59,8 @@ public:
 
     // @brief Returns if flash chip is usable
     int get_flash_chip_usability_status();
+
+    // @brief Returns true if any file is currently open
+    int is_file_open();
 };
 #endif

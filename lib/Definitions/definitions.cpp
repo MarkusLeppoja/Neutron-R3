@@ -12,7 +12,7 @@ void update_mcu_clock()
 {
     Clock.microseconds = micros();
     Clock.milliseconds = Clock.microseconds / 1000;
-    Clock.seconds = Clock.microseconds / 1000.f;
+    Clock.seconds = Clock.milliseconds / 1000.f;
 
     /*
     if (is_mission_active)

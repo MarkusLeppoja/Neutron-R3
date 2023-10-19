@@ -1,91 +1,58 @@
 #include <Arduino.h>
 #include <data_recorder.h>
 #include <state_estimation.h>
-//#include <alerts.h>
+#include <recovery.h>
+#include <pyro.h>
+#include <profiler.h>
 
 // Create a debug_mode  boolean that if enabled
 
 // Automatically build a .csv string based on the enables for ground control and flash.csv logging Im not going to rewrite the csv string layout every time
-
+// Every time that something gets toggeled in datasave, we should regenerate the csv layout and print it to flash & serial 
 
 //Neutron checklist: Ensure debug modes, unnessesary profiler prints are disabled
 void setup() 
 {
   Serial.begin(115200);
+  delay(5000);
   Serial.setTimeout(0);
+  pyro_init();
   sensors_init();
+
+  /*recorder_begin();
+  recorder_create_file(active_vehicle_config.flash_data_file_name, active_vehicle_config.flash_data_file_format);*/
+  set_recorder_flash_update_interval(active_vehicle_config.flash_log_interval_mode_1);
+  set_recorder_serial_update_interval(active_vehicle_config.serial_stream_interval_mode_0);
+
+  /*String csv_layout;
+  _recorder_create_csv_layout(csv_layout);
+  _recorder_log_to_flash(csv_layout);*/
+
   pinMode(e_pins::pin_led_rgb_r, OUTPUT);
   pinMode(e_pins::pin_led_rgb_g, OUTPUT);
   pinMode(e_pins::pin_led_rgb_b, OUTPUT);
-  digitalWrite(e_pins::pin_led_rgb_r, HIGH);
+  /*digitalWrite(e_pins::pin_led_rgb_r, HIGH);
   digitalWrite(e_pins::pin_led_rgb_g, HIGH);
-  digitalWrite(e_pins::pin_led_rgb_b, HIGH);
+  digitalWrite(e_pins::pin_led_rgb_b, HIGH);*/
 
-  delay(1000);
 }
 
-/*void setup1()
-{
-}*/
-
 uint64_t sds, dsd;
-boolean dsadsa = true;
 void loop() 
 {
+  update_pyro();
   update_sensors();
-  //delay(1);
-  if (micros() - sds >= 2000000)
+  update_recorder();
+
+  if (micros() - sds >= 10000000)
   {
     sds = micros();
-    dsadsa = !dsadsa;
-    digitalWrite(e_pins::pin_led_rgb_r, dsadsa);
-    //cast_all_notifications_to_serial();
-    
   }
 
-  if (micros() - dsd >= 50000)
+  if (micros() - dsd >= 1000000)
   {
     dsd = micros();
-
-    Serial.print("Accel X: ");
-    Serial.print(String(Sensors.raw_accel.x));
-    Serial.print(" Y: ");
-    Serial.print(String(Sensors.raw_accel.y));
-
-    Serial.print(" Z: ");
-    Serial.print(String(Sensors.raw_accel.z));
-
-    Serial.print(" Gyro X: ");
-    Serial.print(String(Sensors.raw_gyro_velocity.x));
-    Serial.print(" Y: ");
-    Serial.print(String(Sensors.raw_gyro_velocity.y));
-    Serial.print(" Z: ");
-    Serial.println(String(Sensors.raw_gyro_velocity.z));
-
-    /*Serial.print(" Accel Temp: ");
-    Serial.print(String(Sensors.raw_accel_temp));
-    Serial.print(" Baro Temp: ");
-    Serial.print(String(Sensors.raw_baro_temperature));
-
-    Serial.print(" Pressure: ");
-    Serial.print(String(Sensors.raw_baro_pressure));
-    Serial.print(" Altitude: ");
-    Serial.print(String(Sensors.raw_baro_altitude));
-
-    Serial.print(" Voltage: ");
-    Serial.println(String(Sensors.system_voltage));
-
-    Serial.print(" Profiler IMU loop: ");
-    Serial.print(Sensors.profiler_imu_loop);
-    Serial.print(" duration: ");
-    Serial.print(Sensors.profiler_imu_function_duration);
-
-
-    Serial.print("    Profiler Baro loop: ");
-    Serial.print(Sensors.profiler_baro_loop);
-    Serial.print(" duration: ");
-    Serial.println(Sensors.profiler_baro_function_duration);*/
-
+    cast_all_notifications_to_serial();
   }
 }
 
@@ -94,3 +61,6 @@ void loop()
 
 }*/
 
+/*void setup1()
+{
+}*/
