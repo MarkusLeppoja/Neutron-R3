@@ -1,12 +1,11 @@
 #ifndef __VEHICLE_CONFIGS_H__
 #define __VEHICLE_CONFIGS_H__
 
+/* Vehicle config struct */
 typedef struct {
-    /* Vehicle config */
+    /* General */
     const String vehicle_name;
-
-    const float voltage_divider_ratio; //TODO: 3.3 / 4095 * 10
-
+    const float voltage_divider_ratio;
 
     /* Sensors */
     bool enable_sensors;
@@ -19,11 +18,21 @@ typedef struct {
     // Debug features
     bool enable_gnss_debug;
 
-  
-
-
-
-
+    // Offsets & deviation
+    float _gyro_offset_x;
+    float _gyro_offset_y;
+    float _gyro_offset_z;
+    float _accel_offset_x;
+    float _accel_offset_y;
+    float _accel_offset_z;
+    float _baro_offset_altitude;
+    float _gyro_standard_deviation_x;
+    float _gyro_standard_deviation_y;
+    float _gyro_standard_deviation_z;
+    float _accel_standard_deviation_x;
+    float _accel_standard_deviation_y;
+    float _accel_standard_deviation_z;
+    float _baro_standard_deviation_altitude;
 
     /* Recovery */
     // Toggle fds (Fairing Deployment System) servo usability
@@ -42,8 +51,7 @@ typedef struct {
     const uint64_t pyro_2_fire_duration;
 
     // This * pyro_voltage_reading gives you the voltage going thru the pyro channel
-    const float pyro_voltage_divider_ratio; //TODO: 0.03206256F
-
+    const float pyro_voltage_divider_ratio; 
 
     /* Data logging */
     // Toggle whether data gets streamed, logged
@@ -70,29 +78,24 @@ typedef struct {
     const String flash_data_file_format;
 
     /* Toggle printing / saving different kind of data */
-    // IMU Sensor data
+    // General
+    bool enable_datasave_general;
 
-    // Baro Sensor data
-
-    // GNSS Sensor data
-
-    // Voltage Divider Sensor data
-
+    // Pyro
+    bool enable_datasave_pyro;
+    
+    // Sensor data
+    bool enable_datasave_imu_data;
+    bool enable_datasave_baro_data;
+    bool enable_datasave_gnss_data;
+    bool enable_datasave_v_divider_data;
+    bool enable_datasave_mag_data;
+    bool enable_datasave_3d_pos_kf_data;
+    bool enable_datasave_ori_kf_data;
 
     // Profilers 
-    bool enable_datasave_profiler_imu_loop;
-    bool enable_datasave_profiler_imu_function_duration;
-    bool enable_datasave_profiler_baro_loop;
-    bool enable_datasave_profiler_baro_function_duration;
-    bool enable_datasave_profiler_gnss_loop;
-    bool enable_datasave_profiler_gnss_function_duration;
-    bool enable_datasave_profiler_mag_loop;
-    bool enable_datasave_profiler_mag_function_duration;
-    bool enable_datasave_profiler_voltage_divider_loop;
-    bool enable_datasave_profiler_voltage_divider_function_duration;
-
-
-
+    bool enable_datasave_profiler_sensors_loop;
+    bool enable_datasave_profiler_sensors_duration;
 
     /* */
 
@@ -100,7 +103,7 @@ typedef struct {
 } Neutron_Vehicle_Config_t;
 
 
-#define Electron_Test_sConfig                      \
+#define Electron_Flight_Config                      \
   {                                               \
     .vehicle_name = "Electron",                   \
     .enable_flash_log = true,                    \
@@ -150,16 +153,17 @@ typedef struct {
     .flash_log_interval_mode_2 = 1000000,                                         \
     .flash_data_file_name = "Neutron Dev Test",                                   \
     .flash_data_file_format = ".csv",                                             \
-    .enable_datasave_profiler_imu_loop = true,                                    \
-    .enable_datasave_profiler_imu_function_duration = true,                       \
-    .enable_datasave_profiler_baro_loop = true,                                   \
-    .enable_datasave_profiler_baro_function_duration = true,                      \
-    .enable_datasave_profiler_gnss_loop = true,                                   \
-    .enable_datasave_profiler_gnss_function_duration = true,                      \
-    .enable_datasave_profiler_mag_loop = true,                                    \
-    .enable_datasave_profiler_mag_function_duration = true,                       \
-    .enable_datasave_profiler_voltage_divider_loop = true,                        \
-    .enable_datasave_profiler_voltage_divider_function_duration = true,           \
+    .enable_datasave_general = true,                                              \
+    .enable_datasave_pyro = true,                                                 \
+    .enable_datasave_imu_data = true,                                             \
+    .enable_datasave_baro_data = true,                                            \
+    .enable_datasave_gnss_data = true,                                            \
+    .enable_datasave_v_divider_data = true,                                       \
+    .enable_datasave_mag_data = true,                                             \
+    .enable_datasave_3d_pos_kf_data = true,                                       \
+    .enable_datasave_ori_kf_data = true,                                          \
+    .enable_datasave_profiler_sensors_loop = true,                                \
+    .enable_datasave_profiler_sensors_duration = true,                            \
   }
 
 

@@ -55,7 +55,7 @@ void _flash_update();
 // @brief Special update function for serial casting
 void _serial_update();
 
-// @brief Converts all flight telemetry onto a string 
+// @brief Converts enabled datasave categories onto telemetry string
 void _recorder_convert_data_to_string(String &end_result_inst);
 
 // @brief Creates a file on flash

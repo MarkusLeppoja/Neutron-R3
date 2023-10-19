@@ -14,22 +14,24 @@ void Profiler::begin_loop()
     }
 }
 
-void Profiler::end_loop(uint64_t &t_loop_dt)
+void Profiler::end_loop(float &t_loop_dt)
 {
     enable_loop_measure = false;
 
     end_loop_time = micros();
-    if (loop_start_time != 0){
-        t_loop_dt = (end_loop_time - loop_start_time) / 1000;
+    if (loop_start_time != 0)
+    {
+        t_loop_dt = (end_loop_time - loop_start_time) / 1000.f;
         loop_start_time = 0;
     }
 }
 
-void Profiler::end_function(uint64_t &t_function_duration)
+void Profiler::end_function(float &t_function_duration)
 {
     end_function_time = micros();
-    if (function_start_time != 0){
-        t_function_duration = (end_function_time - function_start_time) / 1000;
+    if (function_start_time != 0)
+    {
+        t_function_duration = (end_function_time - function_start_time) / 1000.f;
         function_start_time = 0;
     }
 }

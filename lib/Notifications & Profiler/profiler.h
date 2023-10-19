@@ -8,7 +8,7 @@
 class Profiler
 {
 private:
-    uint64_t loop_start_time, function_start_time, end_function_time, end_loop_time;
+    uint32_t loop_start_time, function_start_time, end_function_time, end_loop_time;
     boolean enable_loop_measure;
 public:
     // @brief Calling this will begin measuring the delta time of a loop in milliseconds.
@@ -17,9 +17,9 @@ public:
     void begin_function();
     // @brief Calling this will measure and point the delta time of a function in milliseconds.
     // @note This should be called at the start of a loop
-    void end_loop(uint64_t &t_loop_dt);
+    void end_loop(float &t_loop_dt);
     // @brief Calling this will measure and point the duration of a function in milliseconds.
     // @note This should be called at the end of a function
-    void end_function(uint64_t &t_function_duration);
+    void end_function(float &t_function_duration);
 };
 #endif

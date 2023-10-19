@@ -14,6 +14,12 @@ void setup()
   Serial.begin(115200);
   Serial.setTimeout(0);
   sensors_init();
+  pinMode(e_pins::pin_led_rgb_r, OUTPUT);
+  pinMode(e_pins::pin_led_rgb_g, OUTPUT);
+  pinMode(e_pins::pin_led_rgb_b, OUTPUT);
+  digitalWrite(e_pins::pin_led_rgb_r, HIGH);
+  digitalWrite(e_pins::pin_led_rgb_g, HIGH);
+  digitalWrite(e_pins::pin_led_rgb_b, HIGH);
 
   delay(1000);
 }
@@ -23,14 +29,18 @@ void setup()
 }*/
 
 uint64_t sds, dsd;
+boolean dsadsa = true;
 void loop() 
 {
   update_sensors();
-  delay(1);
+  //delay(1);
   if (micros() - sds >= 2000000)
   {
     sds = micros();
-    cast_all_notifications_to_serial();
+    dsadsa = !dsadsa;
+    digitalWrite(e_pins::pin_led_rgb_r, dsadsa);
+    //cast_all_notifications_to_serial();
+    
   }
 
   if (micros() - dsd >= 50000)
@@ -41,6 +51,7 @@ void loop()
     Serial.print(String(Sensors.raw_accel.x));
     Serial.print(" Y: ");
     Serial.print(String(Sensors.raw_accel.y));
+
     Serial.print(" Z: ");
     Serial.print(String(Sensors.raw_accel.z));
 
@@ -49,9 +60,9 @@ void loop()
     Serial.print(" Y: ");
     Serial.print(String(Sensors.raw_gyro_velocity.y));
     Serial.print(" Z: ");
-    Serial.print(String(Sensors.raw_gyro_velocity.z));
+    Serial.println(String(Sensors.raw_gyro_velocity.z));
 
-    Serial.print(" Accel Temp: ");
+    /*Serial.print(" Accel Temp: ");
     Serial.print(String(Sensors.raw_accel_temp));
     Serial.print(" Baro Temp: ");
     Serial.print(String(Sensors.raw_baro_temperature));
@@ -63,6 +74,17 @@ void loop()
 
     Serial.print(" Voltage: ");
     Serial.println(String(Sensors.system_voltage));
+
+    Serial.print(" Profiler IMU loop: ");
+    Serial.print(Sensors.profiler_imu_loop);
+    Serial.print(" duration: ");
+    Serial.print(Sensors.profiler_imu_function_duration);
+
+
+    Serial.print("    Profiler Baro loop: ");
+    Serial.print(Sensors.profiler_baro_loop);
+    Serial.print(" duration: ");
+    Serial.println(Sensors.profiler_baro_function_duration);*/
 
   }
 }

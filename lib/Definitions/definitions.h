@@ -55,7 +55,8 @@ struct s_booleans
     boolean sw_sensors_baro_usability;
     boolean sw_sensors_gnss_usability;
     boolean sw_sensors_mag_usability;
-
+    boolean sw_sensors_imu_enable_calibration;
+    boolean sw_sensors_baro_enable_calibration;
 
 };
 extern s_booleans Booleans;
@@ -72,6 +73,8 @@ struct vector_2d {
 
 struct s_sensors
 {
+    const float gravity = -9.817823;
+
 
     /* IMU (Bmi088) */
     // Raw readings
@@ -82,6 +85,7 @@ struct s_sensors
     /* Baro (BMP388) */
     float raw_baro_pressure;
     float raw_baro_altitude;
+    float raw_baro_altitude_wo_bias;
     float raw_baro_temperature;
 
 
@@ -98,24 +102,24 @@ struct s_sensors
 
     /* Profiler */
     // IMU
-    uint64_t profiler_imu_function_duration;
-    uint64_t profiler_imu_loop;
+    float profiler_imu_function_duration;
+    float profiler_imu_loop;
 
     // Baro
-    uint64_t profiler_baro_function_duration;
-    uint64_t profiler_baro_loop;
+    float profiler_baro_function_duration;
+    float profiler_baro_loop;
 
     // GNSS
-    uint64_t profiler_gnss_function_duration;
-    uint64_t profiler_gnss_loop;
+    float profiler_gnss_function_duration;
+    float profiler_gnss_loop;
 
     // Mag
-    uint64_t profiler_mag_function_duration;
-    uint64_t profiler_mag_loop;
+    float profiler_mag_function_duration;
+    float profiler_mag_loop;
 
     // Voltage Divider
-    uint64_t profiler_voltage_divider_function_duration;
-    uint64_t profiler_voltage_divider_loop;
+    float profiler_voltage_divider_function_duration;
+    float profiler_voltage_divider_loop;
 
 
     //TODO: FLASH, DATARECORDER, PYRO, STATE INDICATION, MAIN LOOP,

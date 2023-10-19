@@ -104,17 +104,78 @@ void _serial_update()
 
 void _recorder_convert_data_to_string(String &end_result_inst)
 {
-    // TODO: Time (milliseconds)
-    /*
-     * Time (millis)
-     * Mission time
-     * Mission state
-     * sensor data
-     * pyro stuff
-     * 
-     * optional:
-     * all sensor profiler stuff
-    */
+    /* General */
+    if (active_vehicle_config.enable_datasave_general)
+    {
+        // Time ms
+        // Mission time
+        // Mission state
+        // mass (total) TODO: calulate mass based on acceleratinon
+        // thrust
+    }
+
+    /* Pyro */
+    if (active_vehicle_config.enable_datasave_pyro)
+    {
+        // pyro status
+        // voltage
+    }
+
+    /* Sensors */
+    if (active_vehicle_config.enable_datasave_imu_data)
+    {
+        // raw accel, gyro, temp
+        // filtered accel, gyro ang vel and ori, total velocity.
+    }
+
+    // Baro
+    if (active_vehicle_config.enable_datasave_baro_data)
+    {
+        // raw temp, pressure, altitude, altitude - bias
+        //filtered altitude
+    }
+
+    // GNSS @todo Future stuff
+    if (active_vehicle_config.enable_datasave_gnss_data){}
+    
+    // Voltage divider
+    if (active_vehicle_config.enable_datasave_v_divider_data)
+    {
+        // raw voltage
+    }
+
+    // Mag @todo Future stuff
+    if (active_vehicle_config.enable_datasave_mag_data){}
+    
+    // Voltage divider
+    if (active_vehicle_config.enable_datasave_3d_pos_kf_data)
+    {
+        // all estimates and kalman gains
+    }
+
+    // 3D Kalman filter 
+    if (active_vehicle_config.enable_datasave_3d_pos_kf_data)
+    {
+        // all estimates and kalman gains
+    } 
+
+    // Orientation Kalman filter
+    if (active_vehicle_config.enable_datasave_ori_kf_data)
+    {
+        // all estimates and kalman gains
+    } 
+
+    /* Profiler */
+    if (active_vehicle_config.enable_datasave_profiler_sensors_loop)
+    {
+        // imu, baro, v_divider, mag, gnss loop rates
+    } 
+    
+    if (active_vehicle_config.enable_datasave_profiler_sensors_duration)
+    {
+        // imu, baro, v_divider, mag, gnss function durations
+    } 
+
    //TODO: test how big the file is when all optional things are enabled, prevent overflow and ensure all data gets sent / delivered to flash / serial
 
 
