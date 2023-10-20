@@ -6,6 +6,21 @@
 
 
 
+enum e_mission_state : const uint8_t {
+    startup = 0,
+    navigation_startup = 1,
+    ground_locked = 2,
+    pad_idle = 3,
+    ascent = 4,
+    ballistic_decent = 5,
+    chute_decent = 6,
+    landed = 7,
+    startup_failed = 8
+};
+extern e_mission_state active_mission_state;
+
+e_mission_state get_mission_state();
+
 enum e_pins : const uint8_t {
     pin_uart_tx = 0,
     pin_uart_rx = 1,

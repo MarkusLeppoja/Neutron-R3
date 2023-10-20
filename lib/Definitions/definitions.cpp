@@ -1,6 +1,12 @@
 #include "definitions.h"
 
 
+e_mission_state active_mission_state;
+
+e_mission_state get_mission_state()
+{
+    return active_mission_state;
+}
 
 Neutron_Vehicle_Config_t active_vehicle_config = Electron_Test_Config;
 

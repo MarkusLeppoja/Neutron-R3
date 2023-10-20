@@ -11,18 +11,35 @@
 // Every time that something gets toggeled in datasave, we should regenerate the csv layout and print it to flash & serial 
 
 //Neutron checklist: @YTFurys Ensure debug modes (@YTFurys What are debug modes?)
+// TODO:
+// Kalman filter for orientation
+// Kalman filter for position
+// Communication file (include state transition in there)
+// State transition
+// State indication (Import and rework legacy code)
+
+
 
 void begin()
 {
   Serial.begin(115200);
   Serial.setTimeout(0);
 
+
+  uint8_t startup_status;
   // Startup
   pyro_begin();
   recovery_begin();
-  recorder_begin();
-  sensors_begin();
+  startup_status += recorder_begin();
+  startup_status += sensors_begin();
   // indicator_begin();
+
+  if (startup_status != 2)
+  {
+    //alert
+    //set_mission_state startup_failed
+    return;
+  }
 
   // Configure
   set_recorder_flash_update_interval(active_vehicle_config.flash_log_interval_mode_1);
