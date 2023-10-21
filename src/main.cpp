@@ -4,6 +4,8 @@
 #include <recovery.h>
 #include <pyro.h>
 #include <profiler.h>
+#include <Indicator.h>
+#include <Coms.h>
 
 // Create a debug_mode  boolean that if enabled
 
@@ -30,9 +32,9 @@ void begin()
   // Startup
   pyro_begin();
   recovery_begin();
+  indicator_begin();
   startup_status += recorder_begin();
   startup_status += sensors_begin();
-  // indicator_begin();
 
   if (startup_status != 2)
   {
@@ -68,14 +70,17 @@ void loop()
   update_pyro();
   update_sensors();
   update_recorder();
+  update_indicator();
 
+  update_communication();
 
-  if (micros() - dsd >= 1000000)
+  if (micros() - dsd >= 10000000)
   {
     dsd = micros();
-    cast_all_notifications_to_serial();
+    
   }
 }
+
 
 /* @todo Consider
 void loop1()

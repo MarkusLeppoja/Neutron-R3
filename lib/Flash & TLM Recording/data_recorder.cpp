@@ -125,7 +125,7 @@ void _recorder_convert_data_to_string(String &end_result_inst)
     {
         _convert_var_to_string(Clock.seconds, 6, 2);
         _convert_var_to_string(Clock.mission_duration, 6, 2);
-        //_convert_var_to_string();
+        _convert_var_to_string(get_mission_state());
         //_convert_var_to_string();
         //_convert_var_to_string();
 
@@ -227,7 +227,7 @@ void _recorder_create_csv_layout(String &layout_inst)
     {
         _convert_var_to_string_wo_coma("VOT (Sec)");
         _convert_var_to_string_wo_coma("MT (Sec)");
-        //_convert_var_to_string_wo_coma();
+        _convert_var_to_string_wo_coma("State");
         //_convert_var_to_string_wo_coma();
         //_convert_var_to_string_wo_coma();
 

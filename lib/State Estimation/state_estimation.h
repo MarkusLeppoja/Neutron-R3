@@ -9,13 +9,28 @@
 #include <alerts.h>
 #include <BMI088.h>
 #include <BMP388_DEV.h>
+#include <BasicLinearAlgebra.h>
 
-
+using namespace BLA;
 extern uint64_t _imu_update_prev, _baro_update_prev, _gnss_update_prev, _v_divider_update_prev, _mag_update_prev; 
 extern float _sensors_imu_accel_cal_x[], _sensors_imu_accel_cal_y[], _sensors_imu_accel_cal_z[];
 extern float _sensors_imu_gyro_cal_x[], _sensors_imu_gyro_cal_y[], _sensors_imu_gyro_cal_z[];
 extern float _sensors_baro_altitude_cal[];
 extern uint16_t _sensors_imu_calibration_list_index, _sensors_baro_calibration_list_index;
+
+
+class position_kalman_filter
+{
+private:
+    Matrix<9, 9> state;
+    Matrix<9, 9> state;
+
+
+public:
+    void predict_accel(vector_3d accel_data);
+    void update_baro(float accel_data);
+};
+
 
 
 

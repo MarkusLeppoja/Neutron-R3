@@ -343,7 +343,7 @@ void _imu_calibrate()
 {
     if (!Booleans.sw_sensors_imu_enable_calibration) return;
 
-    _sensors_imu_calibration_list_index >= 400 ? _imu_calibrate_calculate_deviation() : _imu_calibrate_update();
+    _sensors_imu_calibration_list_index > 399 ? _imu_calibrate_calculate_deviation() : _imu_calibrate_update();
 }
 
 void _imu_calibrate_calculate_deviation()
@@ -437,7 +437,7 @@ void _baro_calibrate()
 {
     if (!Booleans.sw_sensors_baro_enable_calibration) return;
 
-    _sensors_baro_calibration_list_index >= 100 ? _baro_calibrate_calculate_deviation() : _baro_calibrate_update();
+    _sensors_baro_calibration_list_index >= 99 ? _baro_calibrate_calculate_deviation() : _baro_calibrate_update();
 }
 
 void _baro_calibrate_update()

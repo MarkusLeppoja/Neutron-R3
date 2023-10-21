@@ -97,7 +97,14 @@ typedef struct {
     bool enable_datasave_profiler_sensors_loop;
     bool enable_datasave_profiler_sensors_duration;
 
-    /* */
+    /* Indicator */
+    bool enable_led;
+    bool enable_buzzer;
+    bool enable_indicator;
+
+    /* Communications */
+    bool enable_coms;
+    bool enable_coms_message_echo;
 
 
 } Neutron_Vehicle_Config_t;
@@ -143,7 +150,7 @@ typedef struct {
     .enable_serial_stream = true,                                                 \
     .enable_flash_telemetry_log = false,                                          \
     .enable_flash_notification_log = false,                                       \
-    .enable_serial_telemetry_stream = true,                                       \
+    .enable_serial_telemetry_stream = false,                                       \
     .enable_serial_notification_stream = true,                                    \
     .serial_stream_interval_mode_0 = 100000,                                      \
     .serial_stream_interval_mode_1 = 1000000,                                     \
@@ -164,6 +171,11 @@ typedef struct {
     .enable_datasave_ori_kf_data = false,                                         \
     .enable_datasave_profiler_sensors_loop = true,                                \
     .enable_datasave_profiler_sensors_duration = true,                            \
+    .enable_led = true,                                                           \
+    .enable_buzzer = true,                                                        \
+    .enable_indicator = true,                                                     \
+    .enable_coms = true,                                                          \
+    .enable_coms_message_echo = true,                                             \
   }
 
 extern Neutron_Vehicle_Config_t active_vehicle_config;
