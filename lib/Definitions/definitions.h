@@ -89,7 +89,7 @@ struct s_sensors
     /* IMU (BMI088) */
     // Raw readings
     vector_3d raw_gyro_velocity;
-    vector_3d raw_accel;
+    vector_3d raw_accel, world_accel;
     float raw_accel_temp;
 
     /* Baro (BMP388) */
@@ -97,6 +97,10 @@ struct s_sensors
     float raw_baro_altitude;
     float raw_baro_altitude_wo_bias;
     float raw_baro_temperature;
+
+    /* Kalman filter */
+    float altitude, velocity;
+    vector_3d gyro_velocity, accel;
 
 
     /* Pyro */

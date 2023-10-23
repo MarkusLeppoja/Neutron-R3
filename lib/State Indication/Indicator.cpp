@@ -1,4 +1,4 @@
-#include "Indicator.h"
+#include "indicator.h"
 
 e_event_options _indicator_event_queue[3];
 boolean _indicator_indication_power_on_status;
@@ -39,7 +39,7 @@ boolean is_event_queue_empty()
             return false;
         }
     }
-    return false;
+    return true;
 }
 
 void update_special_indicator_queue()
@@ -99,7 +99,7 @@ void update_indicator()
 
 
 
-void _indicate_special_events()
+void  _indicate_special_events()
 {
     switch (get_event_queue()[0])
     {

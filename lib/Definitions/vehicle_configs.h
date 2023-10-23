@@ -39,7 +39,7 @@ typedef struct {
     bool enable_fds_servo;
 
     // What angle should the servo be at during fds lock and release
-    const float fds_servo_release_angle, fds_servo_lock_angle;
+    const int fds_servo_release_angle, fds_servo_lock_angle;
 
 
     /* Pyrotechnics */
@@ -90,8 +90,6 @@ typedef struct {
     bool enable_datasave_gnss_data;
     bool enable_datasave_v_divider_data;
     bool enable_datasave_mag_data;
-    bool enable_datasave_3d_pos_kf_data;
-    bool enable_datasave_ori_kf_data;
 
     // Profilers 
     bool enable_datasave_profiler_sensors_loop;
@@ -140,17 +138,17 @@ typedef struct {
     .enable_mag = false,                                                          \
     .enable_gnss_debug = false,                                                   \
     .enable_fds_servo = true,                                                     \
-    .fds_servo_release_angle = 0,                                                 \
-    .fds_servo_lock_angle = 0,                                                    \
+    .fds_servo_release_angle = 140,                                               \
+    .fds_servo_lock_angle = 176,                                                  \
     .enable_pyrotechnics = false,                                                 \
     .pyro_1_fire_duration = 1000000,                                              \
     .pyro_2_fire_duration = 1000000,                                              \
     .pyro_voltage_divider_ratio = 0.00806,                                        \
     .enable_flash_log = false,                                                    \
     .enable_serial_stream = true,                                                 \
-    .enable_flash_telemetry_log = false,                                          \
-    .enable_flash_notification_log = false,                                       \
-    .enable_serial_telemetry_stream = false,                                       \
+    .enable_flash_telemetry_log = true,                                           \
+    .enable_flash_notification_log = true,                                        \
+    .enable_serial_telemetry_stream = true,                                       \
     .enable_serial_notification_stream = true,                                    \
     .serial_stream_interval_mode_0 = 100000,                                      \
     .serial_stream_interval_mode_1 = 1000000,                                     \
@@ -158,22 +156,20 @@ typedef struct {
     .flash_log_interval_mode_0 = 1000000,                                         \
     .flash_log_interval_mode_1 = 22000,                                           \
     .flash_log_interval_mode_2 = 50000,                                           \
-    .flash_data_file_name = "Neutron Dev Test",                                   \
+    .flash_data_file_name = "Neutron Dev Lift",                                   \
     .flash_data_file_format = ".csv",                                             \
     .enable_datasave_general = true,                                              \
-    .enable_datasave_pyro = true,                                                 \
+    .enable_datasave_pyro = false,                                                \
     .enable_datasave_imu_data = true,                                             \
     .enable_datasave_baro_data = true,                                            \
     .enable_datasave_gnss_data = false,                                           \
     .enable_datasave_v_divider_data = true,                                       \
     .enable_datasave_mag_data = false,                                            \
-    .enable_datasave_3d_pos_kf_data = false,                                      \
-    .enable_datasave_ori_kf_data = false,                                         \
     .enable_datasave_profiler_sensors_loop = true,                                \
     .enable_datasave_profiler_sensors_duration = true,                            \
-    .enable_led = true,                                                           \
-    .enable_buzzer = true,                                                        \
-    .enable_indicator = true,                                                     \
+    .enable_led = false,                                                          \
+    .enable_buzzer = false,                                                       \
+    .enable_indicator = false,                                                    \
     .enable_coms = true,                                                          \
     .enable_coms_message_echo = true,                                             \
   }

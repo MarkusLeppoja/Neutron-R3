@@ -144,13 +144,14 @@ void _recorder_convert_data_to_string(String &end_result_inst)
     /* Sensors */
     if (active_vehicle_config.enable_datasave_imu_data)
     {
-        _convert_var_to_string(Sensors.raw_accel.x, 6, 2);
-        _convert_var_to_string(Sensors.raw_accel.y, 6, 2);
-        _convert_var_to_string(Sensors.raw_accel.z, 6, 2);
-        _convert_var_to_string(Sensors.raw_gyro_velocity.x, 6, 2);
-        _convert_var_to_string(Sensors.raw_gyro_velocity.y, 6, 2);
-        _convert_var_to_string(Sensors.raw_gyro_velocity.z, 6, 2);
+        _convert_var_to_string(Sensors.accel.x, 6, 2);
+        _convert_var_to_string(Sensors.accel.y, 6, 2);
+        _convert_var_to_string(Sensors.accel.z, 6, 2);
+        _convert_var_to_string(Sensors.gyro_velocity.x, 6, 2);
+        _convert_var_to_string(Sensors.gyro_velocity.y, 6, 2);
+        _convert_var_to_string(Sensors.gyro_velocity.z, 6, 2);
         _convert_var_to_string(Sensors.raw_accel_temp, 5, 2);
+
 
         // @todo filtered accel, gyro ang vel and ori, total velocity.
     }
@@ -162,6 +163,8 @@ void _recorder_convert_data_to_string(String &end_result_inst)
         _convert_var_to_string(Sensors.raw_baro_altitude_wo_bias, 7, 2);
         _convert_var_to_string(Sensors.raw_baro_pressure, 7, 2);
         _convert_var_to_string(Sensors.raw_baro_temperature, 5, 2);
+        _convert_var_to_string(Sensors.altitude, 8, 2);
+        _convert_var_to_string(Sensors.velocity, 6, 2);
 
         // @todo filtered altitude
     }
@@ -177,18 +180,6 @@ void _recorder_convert_data_to_string(String &end_result_inst)
 
     // Mag @todo Future stuff
     if (active_vehicle_config.enable_datasave_mag_data){}
-
-    // 3D Kalman filter 
-    if (active_vehicle_config.enable_datasave_3d_pos_kf_data)
-    {
-        // @todo all estimates and kalman gains
-    } 
-
-    // Orientation Kalman filter
-    if (active_vehicle_config.enable_datasave_ori_kf_data)
-    {
-        // @todo all estimates and kalman gains
-    }
 
     /* Profiler */
     if (active_vehicle_config.enable_datasave_profiler_sensors_loop)
@@ -246,13 +237,14 @@ void _recorder_create_csv_layout(String &layout_inst)
     /* Sensors */
     if (active_vehicle_config.enable_datasave_imu_data)
     {
-        _convert_var_to_string_wo_coma("Accel X (RAW)");
-        _convert_var_to_string_wo_coma("Accel Y (RAW)");
-        _convert_var_to_string_wo_coma("Accel Z (RAW)");
-        _convert_var_to_string_wo_coma("Gyro Vel X (RAW)");
-        _convert_var_to_string_wo_coma("Gyro Vel Y (RAW)");
-        _convert_var_to_string_wo_coma("Gyro Vel Z (RAW)");
+        _convert_var_to_string_wo_coma("Accel X");
+        _convert_var_to_string_wo_coma("Accel Y");
+        _convert_var_to_string_wo_coma("Accel Z");
+        _convert_var_to_string_wo_coma("Gyro Vel X");
+        _convert_var_to_string_wo_coma("Gyro Vel Y");
+        _convert_var_to_string_wo_coma("Gyro Vel Z");
         _convert_var_to_string_wo_coma("IMU Temp");
+
 
         // @todo filtered accel, gyro ang vel and ori, total velocity.
     }
@@ -264,6 +256,8 @@ void _recorder_create_csv_layout(String &layout_inst)
         _convert_var_to_string_wo_coma("Baro Alt (RAW & W.O Bias)");
         _convert_var_to_string_wo_coma("Air Pressure");
         _convert_var_to_string_wo_coma("Baro Temp");
+        _convert_var_to_string_wo_coma("Altitude");
+        _convert_var_to_string_wo_coma("Velocity");
 
         // @todo filtered altitude
     }
@@ -280,17 +274,6 @@ void _recorder_create_csv_layout(String &layout_inst)
     // Mag @todo Future stuff
     if (active_vehicle_config.enable_datasave_mag_data){}
 
-    // 3D Kalman filter 
-    if (active_vehicle_config.enable_datasave_3d_pos_kf_data)
-    {
-        // @todo all estimates and kalman gains
-    } 
-
-    // Orientation Kalman filter
-    if (active_vehicle_config.enable_datasave_ori_kf_data)
-    {
-        // @todo all estimates and kalman gains
-    }
 
     /* Profiler */
     if (active_vehicle_config.enable_datasave_profiler_sensors_loop)

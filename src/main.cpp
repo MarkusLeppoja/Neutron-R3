@@ -20,6 +20,7 @@
 // State transition
 // State indication (Import and rework legacy code)
 
+//TODO: lAUNCH CHECKILIST: Ensure datalogging is happening (Get it to print the status of the file, if its open)
 
 
 void begin()
@@ -62,6 +63,8 @@ void prepare_for_logging()
 void setup() 
 {
   begin();
+
+
 }
 
 uint64_t sds, dsd;  // @todo remove
@@ -74,10 +77,12 @@ void loop()
 
   update_communication();
 
-  if (micros() - dsd >= 10000000)
+  if (micros() - dsd >= 10000000 && sds != 100)
   {
-    dsd = micros();
-    
+    baro_enable_calibration();
+    imu_enable_calibration();
+    cast_all_notifications_to_serial();
+    sds = 100;
   }
 }
 

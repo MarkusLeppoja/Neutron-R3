@@ -4,6 +4,11 @@
 #include <Arduino.h>
 #include <definitions.h>
 #include <alerts.h>
+#include <state_estimation.h>
+#include <recovery.h>
+#include <data_recorder.h>
+#include <pyro.h>
+#include <indicator.h>
 
 
 
