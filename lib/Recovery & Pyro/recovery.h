@@ -4,10 +4,10 @@
 #include <Arduino.h>
 #include <definitions.h>
 #include <Servo.h>
-//#include <pyro.h>
+#include <pyro.h>
 #include <alerts.h>
     
-
+//TODO: Create custom function to set the servo at specific degree, or have it rotate 360 degrees
 
 // @brief Attaches servo / begins pyro
 void recovery_begin();

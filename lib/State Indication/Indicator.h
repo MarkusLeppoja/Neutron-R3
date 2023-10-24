@@ -8,7 +8,7 @@
 // @brief This class contains all code for visual / audio indication for Neutron R3
 // @note This mostly legacy code from Neutron R2 & Neutron R3 DEV rename & improved
 
-
+//TODO: Test if special indicators work
 enum e_event_options {
     null,
     event_command_received,

@@ -1,29 +1,33 @@
 #include "coms.h"
 
-const char start_indicator = '<', end_indicator = '>';
+const char start_indicator = '<', end_indicator = '>', empty_char = ' ';
 boolean is_receiving_in_process;
-char _serial_char_buffer[512];
+char _serial_char_buffer[128];
 int _serial_buffer_index;
 int _received_command;
 String _temp_conversion_string;
-Alerts coms_alerts("COMS");
+Alerts coms_alerts("Communication");
 
 void update_communication()
 {
-    // Return if coms isn't enabled
-    if (!active_vehicle_config.enable_coms) return;
+  // Return if coms isn't enabled
+  if (!active_vehicle_config.enable_coms) return;
 
   if (Serial.available() < 0) return;
 
-  char rec_char = Serial.read();
+
+  char rec_char = Serial.read();//TODO: Test incomplete message bug
 
   switch (rec_char)
   {
+  case empty_char:
+    is_receiving_in_process = true;
+    _serial_char_buffer[0] = 0;
+  break;
   case start_indicator:
     is_receiving_in_process = true;
     _serial_char_buffer[0] = 0;
-    break;
-
+  break;
   case end_indicator:
     is_receiving_in_process = false;
     _serial_buffer_index = 0;
@@ -39,26 +43,31 @@ void update_communication()
     {
       Serial.println(_received_command);
     }
-    break;
+  break;
 
   default:
     // Receive and add inc char to buffer
     if (!is_receiving_in_process) return;
     _serial_char_buffer[_serial_buffer_index] = rec_char;
     _serial_buffer_index++;
-    break;
+  break;
   }
 }
 //TODO: JSON Format active_vehicle_config all toggelable statuses
+//TODO: ENSURE all the commands are lined up with the document
 void _execute_command_from_list(int command)
 {
   String temp_string;
 
   coms_alerts.create_alert(e_alert_type::alert, "Valid command received. Executing command: " + String(command));
-  recovery_arm(command);
-  return;
+  add_special_indicator_to_queue(e_event_options::event_command_received);
+  
+
   switch (command)
   {
+  case 0:
+    return;
+  break;
   case 1:
     coms_alerts.create_alert(e_alert_type::alert, "Set enable_sensors status to " + String(!active_vehicle_config.enable_sensors));
     active_vehicle_config.enable_sensors = !active_vehicle_config.enable_sensors;
@@ -240,7 +249,7 @@ void _execute_command_from_list(int command)
   break;
   case 51:
     coms_alerts.create_alert(e_alert_type::alert, "Casting current mission state to serial");
-    Serial.println("<" + String(get_mission_state()) + ">");
+    Serial.println(String(get_mission_state()));
   break;
   case 52:
     coms_alerts.create_alert(e_alert_type::alert, "Set flash update mode to 0");
@@ -286,7 +295,7 @@ void _execute_command_from_list(int command)
     recorder_open_file(active_vehicle_config.flash_data_file_name + active_vehicle_config.flash_data_file_format, EXFAT_READ_ONLY);
   break;
   case 62:
-    coms_alerts.create_alert(e_alert_type::alert, "Deleating file with AVC data");
+    coms_alerts.create_alert(e_alert_type::alert, "Deleting file with AVC data");
     recorder_delete_file(active_vehicle_config.flash_data_file_name + active_vehicle_config.flash_data_file_format);
   break;
   case 63:
@@ -298,19 +307,19 @@ void _execute_command_from_list(int command)
     recorder_close_file();
   break;
   case 65:
-    coms_alerts.create_alert(e_alert_type::alert, "Beginning Pyro");
-    pyro_begin();
+    coms_alerts.create_alert(e_alert_type::alert, "Beginning recorder");
+    recorder_begin();;
   break;
   case 66:
-    coms_alerts.create_alert(e_alert_type::alert, "Fireing pyro channel 1");
+    coms_alerts.create_alert(e_alert_type::alert, "Firing pyro channel 1");
     pyro_1_fire();
   break;
   case 67:
-    coms_alerts.create_alert(e_alert_type::alert, "Fireing pyro channel 2");
+    coms_alerts.create_alert(e_alert_type::alert, "Firing pyro channel 2");
     pyro_2_fire();
   break;
   case 68:
-    coms_alerts.create_alert(e_alert_type::alert, "Deactivating pyro channel 2");
+    coms_alerts.create_alert(e_alert_type::alert, "Deactivating pyro channel 1");
     _pyro_1_deactivate();
   break;
   case 69:
@@ -323,7 +332,7 @@ void _execute_command_from_list(int command)
   break;
   case 71:
     coms_alerts.create_alert(e_alert_type::alert, "Arming FDS");
-    //recovery_arm();
+    recovery_arm();
   break;
   case 72:
     coms_alerts.create_alert(e_alert_type::alert, "Deploying FDS");
@@ -366,7 +375,8 @@ void _execute_command_from_list(int command)
     //reset_alman
   break;
   case 82:
-    coms_alerts.create_alert(e_alert_type::alert, "");
+    coms_alerts.create_alert(e_alert_type::alert, "Erasing all of the flash chip. NOTE! This removes the filesystem. Meaning you have to reformat to create files");
+    recorder_earase_flash_chip();
   break;
   case 83:
     coms_alerts.create_alert(e_alert_type::alert, "");

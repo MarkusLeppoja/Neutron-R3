@@ -1,6 +1,6 @@
 #include "indicator.h"
 
-e_event_options _indicator_event_queue[3];
+e_event_options _indicator_event_queue[4];
 boolean _indicator_indication_power_on_status;
 float _indicator_counter;
 uint64_t indicator_prev;
@@ -12,6 +12,9 @@ void indicator_begin()
     pinMode(e_pins::pin_led_rgb_r, OUTPUT);
     pinMode(e_pins::pin_led_rgb_g, OUTPUT);
     pinMode(e_pins::pin_led_rgb_b, OUTPUT);
+
+    // Disable led
+    set_rgb_led_color(1,1,1);
 }
 
 e_event_options *get_event_queue()
@@ -31,15 +34,7 @@ void reset_power_on_indication()
 
 boolean is_event_queue_empty()
 {
-    for (uint8_t i = 0; i < 3; i++)
-    {
-        if (_indicator_event_queue[i] != e_event_options::null) 
-        {
-            update_special_indicator_queue();
-            return false;
-        }
-    }
-    return true;
+    return (_indicator_event_queue[0] != e_event_options::null) ? false : true;
 }
 
 void update_special_indicator_queue()
@@ -47,7 +42,7 @@ void update_special_indicator_queue()
     // Checks if current slot is empty, if so then move the indicator queue position 
     for (uint8_t i = 0; i < 2; i++)
     {
-        if (_indicator_event_queue[i] == e_event_options::null)
+        if (_indicator_event_queue[i] == e_event_options::null && _indicator_event_queue[i+1] != e_event_options::null)
         {
             _indicator_event_queue[i] = _indicator_event_queue[i+1];
             _indicator_event_queue[i+1] = e_event_options::null;
@@ -68,7 +63,7 @@ void add_special_indicator_to_queue(e_event_options event)
             if (i == 0) _indicator_counter = 0; 
 
             _indicator_event_queue[i] = event;
-            break;
+            return;
         }
     }
 }
@@ -88,7 +83,7 @@ void update_indicator()
     _indicator_counter++;
 
     // Indicates mission state unless event queue contains special events
-    is_event_queue_empty ? _indicate_mission_state() : _indicate_special_events();
+    is_event_queue_empty() ? _indicate_mission_state() : _indicate_special_events();
 }
 
 
@@ -99,24 +94,24 @@ void update_indicator()
 
 
 
-void  _indicate_special_events()
+void _indicate_special_events()
 {
     switch (get_event_queue()[0])
     {
     case e_event_options::event_command_received:
         _indicator_event_command_received();
-        break;
+    break;
     case e_event_options::event_usb_connection_changed:
         _indicator_event_usb_connection_changed();
-        break;
+    break;
     case e_event_options::event_mission_abort:
         _indicator_event_mission_abort();
-        break;
+    break;
     case e_event_options::event_error:
         _indicator_event_error();
-        break;
+    break;
     default:
-        break;
+    break;
     }
 }
 
@@ -126,34 +121,39 @@ void _indicate_mission_state()
     {
     case e_mission_state::startup:
         _indicator_startup();
-        break;
+    break;
     case e_mission_state::navigation_startup:
         _indicator_navigation_startup();
-        break;
+    break;
     case e_mission_state::ground_locked:
         _indicator_ground_lock();
-        break;
+    break;
     case e_mission_state::pad_idle:
         _indicator_pad_idle();
-        break;
-        break;
+    break;
+    case e_mission_state::ascent:
+        _indicator_ascent();
+    break;
+    case e_mission_state::ballistic_decent:
+        _indicator_ballistic_decent();
+    break;
     case e_mission_state::chute_decent:
         _indicator_chute_decent();
-        break;
+    break;
     case e_mission_state::landed:
         _indicator_landed();
-        break;
+    break;
     case e_mission_state::startup_failed:
         _indicator_startup_fail();
-        break;
+    break;
     default:
-        break;
+    break;
     }
 }
 
 boolean _indicator_is_value_between(float value, float min, float max)
 {
-    return (value > min && value <= max) ? true : false;
+    return (value >= min && value <= max) ? true : false;
 }
 
 void set_buzzer_tone(uint16_t freq, boolean power_status)
@@ -385,10 +385,10 @@ void _indicator_event_command_received()
     }
     else if (_indicator_counter >= 12)
     {
+        _indicator_counter = 0;
         set_buzzer_tone(0, false);
         set_rgb_led_color(1,1,1);
         remove_latest_special_indicator_from_queue();
-        _indicator_counter = 0;
     }
 }
 

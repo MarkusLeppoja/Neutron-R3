@@ -170,7 +170,7 @@ void _recorder_convert_data_to_string(String &end_result_inst)
     }
 
     // GNSS @todo Future stuff
-    if (active_vehicle_config.enable_datasave_gnss_data){}
+    //if (active_vehicle_config.enable_datasave_gnss_data){}
     
     // Voltage divider
     if (active_vehicle_config.enable_datasave_v_divider_data)
@@ -179,7 +179,7 @@ void _recorder_convert_data_to_string(String &end_result_inst)
     }
 
     // Mag @todo Future stuff
-    if (active_vehicle_config.enable_datasave_mag_data){}
+    //if (active_vehicle_config.enable_datasave_mag_data){}
 
     /* Profiler */
     if (active_vehicle_config.enable_datasave_profiler_sensors_loop)
@@ -216,9 +216,9 @@ void _recorder_create_csv_layout(String &layout_inst)
     /* General */
     if (active_vehicle_config.enable_datasave_general)
     {
-        _convert_var_to_string_wo_coma("VOT (Sec)");
-        _convert_var_to_string_wo_coma("MT (Sec)");
-        _convert_var_to_string_wo_coma("State");
+        _convert_var_to_string_wo_coma("VOT (Sec) ");
+        _convert_var_to_string_wo_coma("MT (Sec) ");
+        _convert_var_to_string_wo_coma("State ");
         //_convert_var_to_string_wo_coma();
         //_convert_var_to_string_wo_coma();
 
@@ -228,22 +228,22 @@ void _recorder_create_csv_layout(String &layout_inst)
     /* Pyro */
     if (active_vehicle_config.enable_datasave_pyro)
     {
-        _convert_var_to_string_wo_coma("Pyro 1 Fire");
-        _convert_var_to_string_wo_coma("Pyro 1 Voltage");
-        _convert_var_to_string_wo_coma("Pyro 2 Fire");
-        _convert_var_to_string_wo_coma("Pyro 2 Voltage");
+        _convert_var_to_string_wo_coma("Pyro 1 Fire ");
+        _convert_var_to_string_wo_coma("Pyro 1 Voltage ");
+        _convert_var_to_string_wo_coma("Pyro 2 Fire ");
+        _convert_var_to_string_wo_coma("Pyro 2 Voltage ");
     }
 
     /* Sensors */
     if (active_vehicle_config.enable_datasave_imu_data)
     {
-        _convert_var_to_string_wo_coma("Accel X");
-        _convert_var_to_string_wo_coma("Accel Y");
-        _convert_var_to_string_wo_coma("Accel Z");
-        _convert_var_to_string_wo_coma("Gyro Vel X");
-        _convert_var_to_string_wo_coma("Gyro Vel Y");
-        _convert_var_to_string_wo_coma("Gyro Vel Z");
-        _convert_var_to_string_wo_coma("IMU Temp");
+        _convert_var_to_string_wo_coma("Accel X ");
+        _convert_var_to_string_wo_coma("Accel Y ");
+        _convert_var_to_string_wo_coma("Accel Z ");
+        _convert_var_to_string_wo_coma("Gyro Vel X ");
+        _convert_var_to_string_wo_coma("Gyro Vel Y ");
+        _convert_var_to_string_wo_coma("Gyro Vel Z ");
+        _convert_var_to_string_wo_coma("IMU Temp ");
 
 
         // @todo filtered accel, gyro ang vel and ori, total velocity.
@@ -252,45 +252,45 @@ void _recorder_create_csv_layout(String &layout_inst)
     // Baro
     if (active_vehicle_config.enable_datasave_baro_data)
     {
-        _convert_var_to_string_wo_coma("Baro Alt (RAW)");
-        _convert_var_to_string_wo_coma("Baro Alt (RAW & W.O Bias)");
-        _convert_var_to_string_wo_coma("Air Pressure");
-        _convert_var_to_string_wo_coma("Baro Temp");
-        _convert_var_to_string_wo_coma("Altitude");
-        _convert_var_to_string_wo_coma("Velocity");
+        _convert_var_to_string_wo_coma("Baro Alt (RAW) ");
+        _convert_var_to_string_wo_coma("Baro Alt (RAW & W.O Bias) ");
+        _convert_var_to_string_wo_coma("Air Pressure ");
+        _convert_var_to_string_wo_coma("Baro Temp ");
+        _convert_var_to_string_wo_coma("Altitude ");
+        _convert_var_to_string_wo_coma("Velocity ");
 
         // @todo filtered altitude
     }
 
     // GNSS @todo Future stuff
-    if (active_vehicle_config.enable_datasave_gnss_data){}
+    //if (active_vehicle_config.enable_datasave_gnss_data){}
     
     // Voltage divider
     if (active_vehicle_config.enable_datasave_v_divider_data)
     {
-        _convert_var_to_string_wo_coma("Voltage (V)");
+        _convert_var_to_string_wo_coma("Voltage (V) ");
     }
 
     // Mag @todo Future stuff
-    if (active_vehicle_config.enable_datasave_mag_data){}
+    //if (active_vehicle_config.enable_datasave_mag_data){}
 
 
     /* Profiler */
     if (active_vehicle_config.enable_datasave_profiler_sensors_loop)
     {
-        _convert_var_to_string_wo_coma("PF IMU Loop");
-        _convert_var_to_string_wo_coma("PF Baro Loop");
-        _convert_var_to_string_wo_coma("PF Voltage Divider Loop");
-        _convert_var_to_string_wo_coma("PF Pyro Loop");
+        _convert_var_to_string_wo_coma("PF IMU Loop ");
+        _convert_var_to_string_wo_coma("PF Baro Loop ");
+        _convert_var_to_string_wo_coma("PF Voltage Divider Loop ");
+        _convert_var_to_string_wo_coma("PF Pyro Loop ");
 
         // @todo gnss, mag
     } 
     
     if (active_vehicle_config.enable_datasave_profiler_sensors_duration)
     {
-        _convert_var_to_string_wo_coma("PF IMU Func Dur");
-        _convert_var_to_string_wo_coma("PF Baro Func Dur");
-        _convert_var_to_string_wo_coma("PF Voltage Divider Func Dur");
+        _convert_var_to_string_wo_coma("PF IMU Func Dur ");
+        _convert_var_to_string_wo_coma("PF Baro Func Dur ");
+        _convert_var_to_string_wo_coma("PF Voltage Divider Func Dur ");
         // @todo gnss, mag
     }
 
@@ -319,7 +319,7 @@ void _convert_var_to_string(String data)
 
 void _convert_var_to_string(float data, int min_width, int decimal_place)
 {
-    if (min_width > 9) return;
+    if (min_width > 10) return;
     dtostrf(data, min_width, decimal_place, _recorder_char_buffer);
     strcat(_recorder_string_buffer, _recorder_char_buffer);
     strcat(_recorder_string_buffer, ", ");

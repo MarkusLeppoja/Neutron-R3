@@ -17,7 +17,7 @@ Alerts alerts_sensors("State Estimation");
 Profiler profiler_imu;
 Profiler profiler_baro;
 Profiler profiler_gnss;         // @todo create
-Profiler profiler_mag;          // @todo create
+Profiler profiler_mag;          // @todo create / remove
 Profiler profiler_v_divider;
 
 // Local variables
@@ -34,7 +34,7 @@ kalman kalman_x_accel, kalman_y_accel, kalman_z_accel;
 
 // Orientation
 Orientation quat, quat_world_accel, new_quat;
-EulerAngles euler_ori;
+EulerAngles euler_ori;//TODO: Remove?
 
 
 

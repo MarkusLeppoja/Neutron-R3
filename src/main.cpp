@@ -83,6 +83,7 @@ void loop()
     imu_enable_calibration();
     cast_all_notifications_to_serial();
     sds = 100;
+    active_mission_state = e_mission_state::navigation_startup;
   }
 }
 

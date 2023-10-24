@@ -138,13 +138,13 @@ typedef struct {
     .enable_mag = false,                                                          \
     .enable_gnss_debug = false,                                                   \
     .enable_fds_servo = true,                                                     \
-    .fds_servo_release_angle = 140,                                               \
-    .fds_servo_lock_angle = 176,                                                  \
+    .fds_servo_release_angle = 50,                                               \
+    .fds_servo_lock_angle = 125,                                                  \
     .enable_pyrotechnics = false,                                                 \
     .pyro_1_fire_duration = 1000000,                                              \
     .pyro_2_fire_duration = 1000000,                                              \
     .pyro_voltage_divider_ratio = 0.00806,                                        \
-    .enable_flash_log = false,                                                    \
+    .enable_flash_log = true,                                                    \
     .enable_serial_stream = true,                                                 \
     .enable_flash_telemetry_log = true,                                           \
     .enable_flash_notification_log = true,                                        \

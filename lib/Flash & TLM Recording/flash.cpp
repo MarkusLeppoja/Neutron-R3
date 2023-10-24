@@ -66,7 +66,7 @@ int flash_device::create_file(String file_name, String file_format)
         }
 
         // Add an underscore to the file name to differentiate it
-        file_name += "_";
+        file_name += "_";//TODO: Better system, also show all files made
 
         // Integrate exit counter value
         exit_counter++;
@@ -124,15 +124,17 @@ int flash_device::read_and_display_all_content(String file_path)
     if (!get_flash_chip_usability_status()) return 0;
     if (!data_file.isOpen()) open_file(file_path, FILE_READ);
 
-    // Display's all available content to Serial(1) 
+    // Display's all available content to Serial
     while (data_file.available())
     {
         char c = data_file.read();
         Serial.print(c);
 
         // Compensate for serial slowness
-        delayMicroseconds(50);
+        delayMicroseconds(150);
     }
+
+    close_file();
     return 1;
 }
 
