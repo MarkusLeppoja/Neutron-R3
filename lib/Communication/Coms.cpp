@@ -39,7 +39,6 @@ void update_communication()
       Serial.println(_received_command);
     }
   break;
-
   default:
     // Receive and add inc char to buffer
     if (!is_receiving_in_process) return;
@@ -57,7 +56,6 @@ void update_communication()
   }
 }
 //TODO: JSON Format active_vehicle_config all toggelable statuses
-//TODO: ENSURE all the commands are lined up with the document
 void _execute_command_from_list(int command)
 {
   String temp_string;
@@ -65,7 +63,6 @@ void _execute_command_from_list(int command)
   coms_alerts.create_alert(e_alert_type::alert, "Valid command received. Executing command: " + String(command));
   add_special_indicator_to_queue(e_event_options::event_command_received);
   
-
   switch (command)
   {
   case 0:
@@ -295,7 +292,7 @@ void _execute_command_from_list(int command)
   break;
   case 61:
     coms_alerts.create_alert(e_alert_type::alert, "Opening file using AVC data. File is in READ ONLY mode");
-    recorder_open_file(active_vehicle_config.flash_data_file_name + active_vehicle_config.flash_data_file_format, EXFAT_READ_ONLY);
+    recorder_open_file(active_vehicle_config.flash_data_file_name + active_vehicle_config.flash_data_file_format, 0);
   break;
   case 62:
     coms_alerts.create_alert(e_alert_type::alert, "Deleting file with AVC data");

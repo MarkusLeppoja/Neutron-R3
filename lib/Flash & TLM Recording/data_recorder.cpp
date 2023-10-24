@@ -6,6 +6,7 @@ flash_device recorder_flash_instance;
 uint64_t _recorder_serial_prev, _recorder_flash_prev;
 uint64_t _recorder_flash_update_interval = 1000000, _recorder_serial_update_interval = 1000000;
 char _recorder_char_buffer[10], _recorder_string_buffer[512];
+String _recorder_serial_prev_notification;
 
 
 
@@ -84,27 +85,37 @@ void _flash_update()
 void cast_all_notifications_to_serial()
 {
     // Check if alert buffer contains an alert and if flash notification logging is toggled
-    if (active_vehicle_config.enable_serial_notification_stream && active_vehicle_config.enable_serial_stream)
-    {
-        // Cast the notification string
-        Serial.println(get_all_alerts());
-    }
+    if (active_vehicle_config.enable_serial_notification_stream || active_vehicle_config.enable_serial_stream) return;
+
+    // Cast the notification string
+    Serial.println(get_all_alerts());
 }
 
 void _serial_update()
 {
     // Check if serial telemetry stream functionality is enabled. 
-    if (!active_vehicle_config.enable_serial_telemetry_stream) return;
-    
-    // Temp string instance
-    String _serial_log_string;
+    if (active_vehicle_config.enable_serial_telemetry_stream)
+    {
+        // Temp string instance
+        String _serial_log_string;
 
-    // Convert all data to a string
-    _recorder_convert_data_to_string(_serial_log_string);
+        // Convert all data to a string
+        _recorder_convert_data_to_string(_serial_log_string);
 
-    // Cast string over serial
-    Serial.println(_serial_log_string);
-    
+        // Cast string over serial
+        Serial.println(_serial_log_string);
+    }
+
+    if (active_vehicle_config.enable_serial_notification_stream)
+    {
+        String temp_serial_string = get_most_recent_alert();
+
+        if (temp_serial_string == _recorder_serial_prev_notification) return;
+        _recorder_serial_prev_notification = temp_serial_string;
+
+        // Cast new notification to serial
+        Serial.println(_recorder_serial_prev_notification);
+    }
 }
 
 

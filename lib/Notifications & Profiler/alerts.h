@@ -16,6 +16,9 @@ extern uint8_t _alert_buffer_size;
 // @brief Will contain all alerts from the start to end
 extern String _alert_string;
 
+// @brief Used to store the recent alert.
+extern String current_alert_instance;
+
 enum e_alert_type 
 {
     none = 0,
@@ -24,7 +27,6 @@ enum e_alert_type
     warning = 3,
     error = 4
 };
-
 
 
 // @brief Empty's alert buffer and its index
@@ -36,6 +38,9 @@ void save_alert_to_buffer(String alert);
 
 // @brief Returns the alert string containing all alerts
 String get_all_alerts();
+
+// @brief Returns the most recent alert
+String get_most_recent_alert();
 
 class Alerts {
 private:
@@ -54,8 +59,6 @@ private:
     // @brief Used to store info about the orgin of an event.
     String alert_orgin_class;
 
-    // @brief Used to store the recent alert.
-    String current_alert_instance;
 
     // @brief Divides MCU on time into this format [hours/minutes/seconds/milliseconds] 
     void calculate_mcu_on_time();
@@ -66,6 +69,7 @@ private:
     // @param alert_orgin Where is the alert originated
     void create_full_alert_text(e_alert_type alert_type, String message, String alert_orgin, String& alert_instance);
 public:
+
     // @brief Create instance of alerts class. Define what file the alert is coming from
     Alerts(String alert_orgin = "UNKNOWN");
     

@@ -1,9 +1,10 @@
 #include "alerts.h"
 
+
 String _alert_buffer[50];
 uint8_t _alert_buffer_size;
 String _alert_string;
-
+String current_alert_instance;
 
 
 void save_alert_to_buffer(String alert)
@@ -28,6 +29,11 @@ void clear_alert_buffer()
 String get_all_alerts()
 {
     return _alert_string;
+}
+
+String get_most_recent_alert()
+{
+    return current_alert_instance;
 }
 
 Alerts::Alerts(String alert_orgin)

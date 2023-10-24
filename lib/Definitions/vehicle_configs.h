@@ -4,7 +4,6 @@
 /* Vehicle config struct */
 typedef struct {
     /* General */
-    const String vehicle_name;
     const float voltage_divider_ratio;
 
     /* Sensors */
@@ -105,30 +104,10 @@ typedef struct {
     bool enable_coms_message_echo;
 
 
-} Neutron_Vehicle_Config_t;
+} Neutron_Vehicle_Config_t;                                       
 
-
-#define Electron_Flight_Config                      \
-  {                                               \
-    .vehicle_name = "Electron",                   \
-    .enable_flash_log = true,                    \
-    .enable_serial_stream = true,                 \
-    .enable_flash_telemetry_log = true,           \
-    .enable_flash_notification_log = true,        \
-    .enable_serial_telemetry_stream = true,       \
-    .enable_serial_notification_stream = true,    \
-    .serial_stream_interval_mode_0 = 1000000,     \
-    .serial_stream_interval_mode_1 = 2000000,     \
-    .serial_stream_interval_mode_2 = 250000,      \
-    .flash_log_interval_mode_0 = 1000000,            \
-    .flash_log_interval_mode_1 = 2000000,        \
-    .flash_log_interval_mode_2 = 3000000,               \
-  }                                               
-
-
-#define Electron_Test_Config                                                      \
+#define Electron_Flight_Config                                                    \
   {                                                                               \
-    .vehicle_name = "Electron",                                                   \
     .voltage_divider_ratio = 0.00806,                                             \
     .enable_sensors = true,                                                       \
     .enable_imu = true,                                                           \
@@ -137,14 +116,70 @@ typedef struct {
     .enable_voltage_divider = true,                                               \
     .enable_mag = false,                                                          \
     .enable_gnss_debug = false,                                                   \
+    /* Fairing Deployment System */                                               \
     .enable_fds_servo = true,                                                     \
-    .fds_servo_release_angle = 50,                                               \
+    .fds_servo_release_angle = 50,                                                \
     .fds_servo_lock_angle = 125,                                                  \
+    /* Pyrotechnics */                                                            \
     .enable_pyrotechnics = false,                                                 \
     .pyro_1_fire_duration = 1000000,                                              \
     .pyro_2_fire_duration = 1000000,                                              \
     .pyro_voltage_divider_ratio = 0.00806,                                        \
-    .enable_flash_log = true,                                                    \
+    /* Flash & Serial Logging */                                                  \
+    .enable_flash_log = true,                                                     \
+    .enable_serial_stream = true,                                                 \
+    .enable_flash_telemetry_log = true,                                           \
+    .enable_flash_notification_log = true,                                        \
+    .enable_serial_telemetry_stream = true,                                       \
+    .enable_serial_notification_stream = true,                                    \
+    .serial_stream_interval_mode_0 = 1000000,                                     \
+    .serial_stream_interval_mode_1 = 100000,                                      \
+    .serial_stream_interval_mode_2 = 50000,                                       \
+    .flash_log_interval_mode_0 = 1000000,                                         \
+    .flash_log_interval_mode_1 = 50000,                                           \
+    .flash_log_interval_mode_2 = 22000,                                           \
+    .flash_data_file_name = "Electron Flight 5",                                  \
+    .flash_data_file_format = ".csv",                                             \
+    /* Select what data gets logged */                                            \
+    .enable_datasave_general = true,                                              \
+    .enable_datasave_pyro = false,                                                \
+    .enable_datasave_imu_data = true,                                             \
+    .enable_datasave_baro_data = true,                                            \
+    .enable_datasave_gnss_data = false,                                           \
+    .enable_datasave_v_divider_data = true,                                       \
+    .enable_datasave_mag_data = false,                                            \
+    .enable_datasave_profiler_sensors_loop = true,                                \
+    .enable_datasave_profiler_sensors_duration = true,                            \
+    /* Indicators */                                                              \
+    .enable_led = true,                                                           \
+    .enable_buzzer = true,                                                        \
+    .enable_indicator = true,                                                     \
+    /* Communications */                                                          \
+    .enable_coms = true,                                                          \
+    .enable_coms_message_echo = true,                                             \
+  }
+
+#define Electron_Test_Config                                                      \
+  {                                                                               \
+    .voltage_divider_ratio = 0.00806,                                             \
+    .enable_sensors = true,                                                       \
+    .enable_imu = true,                                                           \
+    .enable_baro = true,                                                          \
+    .enable_gnss = false,                                                         \
+    .enable_voltage_divider = true,                                               \
+    .enable_mag = false,                                                          \
+    .enable_gnss_debug = false,                                                   \
+    /* Fairing Deployment System */                                               \
+    .enable_fds_servo = true,                                                     \
+    .fds_servo_release_angle = 50,                                                \
+    .fds_servo_lock_angle = 125,                                                  \
+    /* Pyrotechnics */                                                            \
+    .enable_pyrotechnics = false,                                                 \
+    .pyro_1_fire_duration = 1000000,                                              \
+    .pyro_2_fire_duration = 1000000,                                              \
+    .pyro_voltage_divider_ratio = 0.00806,                                        \
+    /* Flash & Serial Logging */                                                  \
+    .enable_flash_log = true,                                                     \
     .enable_serial_stream = true,                                                 \
     .enable_flash_telemetry_log = true,                                           \
     .enable_flash_notification_log = true,                                        \
@@ -158,6 +193,7 @@ typedef struct {
     .flash_log_interval_mode_2 = 50000,                                           \
     .flash_data_file_name = "Neutron Dev Lift",                                   \
     .flash_data_file_format = ".csv",                                             \
+    /* Select what data gets logged */                                            \
     .enable_datasave_general = true,                                              \
     .enable_datasave_pyro = false,                                                \
     .enable_datasave_imu_data = true,                                             \
@@ -167,9 +203,11 @@ typedef struct {
     .enable_datasave_mag_data = false,                                            \
     .enable_datasave_profiler_sensors_loop = true,                                \
     .enable_datasave_profiler_sensors_duration = true,                            \
-    .enable_led = false,                                                          \
+    /* Indicators */                                                              \
+    .enable_led = true,                                                           \
     .enable_buzzer = false,                                                       \
-    .enable_indicator = false,                                                    \
+    .enable_indicator = true,                                                     \
+    /* Communications */                                                          \
     .enable_coms = true,                                                          \
     .enable_coms_message_echo = true,                                             \
   }

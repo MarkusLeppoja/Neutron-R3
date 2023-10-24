@@ -30,6 +30,10 @@ extern uint64_t _recorder_flash_update_interval, _recorder_serial_update_interva
 // @brief For _convert_var_to_string, they hold data temporarely
 extern char _recorder_char_buffer[], _recorder_string_buffer[];
 
+// @brief Used for sending new notifications to serial
+extern String _recorder_serial_prev_notification;
+
+
 // @brief Erase the entire chip TODO: add confirmation
 void recorder_earase_flash_chip();
 

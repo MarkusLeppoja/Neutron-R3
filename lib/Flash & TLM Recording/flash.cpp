@@ -34,7 +34,7 @@ int flash_device::init(boolean enable)
     // Check if a filesystem is present
     if (!fatfs.begin(&flash))
     {
-        flash_alerts.create_alert(e_alert_type::error, "Failed to mount newly formatted filesystem!");
+        flash_alerts.create_alert(e_alert_type::error, "Failed to mount newly formatted filesystem!"); //TODO: Maybe let it format it automatically or add an option to format it
         Booleans.sw_flash_chip_usability = 0;
         return 0;
     }
@@ -59,9 +59,9 @@ int flash_device::create_file(String file_name, String file_format)
     while (fatfs.exists(file_name + file_format))
     {
         // Exit statement
-        if (exit_counter > 5)
+        if (exit_counter >= 7)
         {
-            flash_alerts.create_alert(e_alert_type::error, "Couldn't find a suitable name after 5 tries. File name: " + file_name + file_format);
+            flash_alerts.create_alert(e_alert_type::error, "Couldn't find a suitable name after 7 tries. File name: " + file_name + file_format);
             return 0;
         }
 
@@ -107,7 +107,7 @@ int flash_device::open_file(String file_path, oflag_t file_oFlag)
 
 int flash_device::close_file()
 {
-    if (!data_file.isOpen()) return 0;
+    if (!data_file.isOpen()) return 1;
     uint8_t file_close_status = data_file.close();
     flash_alerts.create_alert(e_alert_type::alert, "Closing file. File close status: " + String(file_close_status));
     return file_close_status;
@@ -122,6 +122,8 @@ void flash_device::write_file_line(String write_data)
 int flash_device::read_and_display_all_content(String file_path)
 {
     if (!get_flash_chip_usability_status()) return 0;
+
+    // Open file if it wasn't open
     if (!data_file.isOpen()) open_file(file_path, FILE_READ);
 
     // Display's all available content to Serial
@@ -155,7 +157,7 @@ int flash_device::erase_chip()
     }
 
     flash.waitUntilReady();
-    flash_alerts.create_alert(e_alert_type::success, "Erased the entire flash chip");
+    flash_alerts.create_alert(e_alert_type::success, "Erased the entire flash chip. Note! This removed the current filesystem");
     return 1;
 }
 
