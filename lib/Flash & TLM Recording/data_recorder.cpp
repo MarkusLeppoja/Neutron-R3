@@ -216,11 +216,11 @@ void _recorder_create_csv_layout(String &layout_inst)
     /* General */
     if (active_vehicle_config.enable_datasave_general)
     {
-        _convert_var_to_string_wo_coma("VOT (Sec) ");
-        _convert_var_to_string_wo_coma("MT (Sec) ");
-        _convert_var_to_string_wo_coma("State ");
-        //_convert_var_to_string_wo_coma();
-        //_convert_var_to_string_wo_coma();
+        _convert_var_to_string("VOT (Sec) ");
+        _convert_var_to_string("MT (Sec) ");
+        _convert_var_to_string("State ");
+        //_convert_var_to_string();
+        //_convert_var_to_string();
 
         // @todo mission state, mass (calulate mass based on acceleratinon), thrust
     }
@@ -228,22 +228,22 @@ void _recorder_create_csv_layout(String &layout_inst)
     /* Pyro */
     if (active_vehicle_config.enable_datasave_pyro)
     {
-        _convert_var_to_string_wo_coma("Pyro 1 Fire ");
-        _convert_var_to_string_wo_coma("Pyro 1 Voltage ");
-        _convert_var_to_string_wo_coma("Pyro 2 Fire ");
-        _convert_var_to_string_wo_coma("Pyro 2 Voltage ");
+        _convert_var_to_string("Pyro 1 Fire ");
+        _convert_var_to_string("Pyro 1 Voltage ");
+        _convert_var_to_string("Pyro 2 Fire ");
+        _convert_var_to_string("Pyro 2 Voltage ");
     }
 
     /* Sensors */
     if (active_vehicle_config.enable_datasave_imu_data)
     {
-        _convert_var_to_string_wo_coma("Accel X ");
-        _convert_var_to_string_wo_coma("Accel Y ");
-        _convert_var_to_string_wo_coma("Accel Z ");
-        _convert_var_to_string_wo_coma("Gyro Vel X ");
-        _convert_var_to_string_wo_coma("Gyro Vel Y ");
-        _convert_var_to_string_wo_coma("Gyro Vel Z ");
-        _convert_var_to_string_wo_coma("IMU Temp ");
+        _convert_var_to_string("Accel X ");
+        _convert_var_to_string("Accel Y ");
+        _convert_var_to_string("Accel Z ");
+        _convert_var_to_string("Gyro Vel X ");
+        _convert_var_to_string("Gyro Vel Y ");
+        _convert_var_to_string("Gyro Vel Z ");
+        _convert_var_to_string("IMU Temp ");
 
 
         // @todo filtered accel, gyro ang vel and ori, total velocity.
@@ -252,12 +252,12 @@ void _recorder_create_csv_layout(String &layout_inst)
     // Baro
     if (active_vehicle_config.enable_datasave_baro_data)
     {
-        _convert_var_to_string_wo_coma("Baro Alt (RAW) ");
-        _convert_var_to_string_wo_coma("Baro Alt (RAW & W.O Bias) ");
-        _convert_var_to_string_wo_coma("Air Pressure ");
-        _convert_var_to_string_wo_coma("Baro Temp ");
-        _convert_var_to_string_wo_coma("Altitude ");
-        _convert_var_to_string_wo_coma("Velocity ");
+        _convert_var_to_string("Baro Alt (RAW) ");
+        _convert_var_to_string("Baro Alt (RAW & W.O Bias) ");
+        _convert_var_to_string("Air Pressure ");
+        _convert_var_to_string("Baro Temp ");
+        _convert_var_to_string("Altitude ");
+        _convert_var_to_string("Velocity ");
 
         // @todo filtered altitude
     }
@@ -268,7 +268,7 @@ void _recorder_create_csv_layout(String &layout_inst)
     // Voltage divider
     if (active_vehicle_config.enable_datasave_v_divider_data)
     {
-        _convert_var_to_string_wo_coma("Voltage (V) ");
+        _convert_var_to_string("Voltage (V) ");
     }
 
     // Mag @todo Future stuff
@@ -278,19 +278,19 @@ void _recorder_create_csv_layout(String &layout_inst)
     /* Profiler */
     if (active_vehicle_config.enable_datasave_profiler_sensors_loop)
     {
-        _convert_var_to_string_wo_coma("PF IMU Loop ");
-        _convert_var_to_string_wo_coma("PF Baro Loop ");
-        _convert_var_to_string_wo_coma("PF Voltage Divider Loop ");
-        _convert_var_to_string_wo_coma("PF Pyro Loop ");
+        _convert_var_to_string("PF IMU Loop ");
+        _convert_var_to_string("PF Baro Loop ");
+        _convert_var_to_string("PF Voltage Divider Loop ");
+        _convert_var_to_string("PF Pyro Loop ");
 
         // @todo gnss, mag
     } 
     
     if (active_vehicle_config.enable_datasave_profiler_sensors_duration)
     {
-        _convert_var_to_string_wo_coma("PF IMU Func Dur ");
-        _convert_var_to_string_wo_coma("PF Baro Func Dur ");
-        _convert_var_to_string_wo_coma("PF Voltage Divider Func Dur ");
+        _convert_var_to_string("PF IMU Func Dur ");
+        _convert_var_to_string("PF Baro Func Dur ");
+        _convert_var_to_string("PF Voltage Divider Func Dur ");
         // @todo gnss, mag
     }
 

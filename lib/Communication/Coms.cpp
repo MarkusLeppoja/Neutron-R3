@@ -1,6 +1,6 @@
 #include "coms.h"
 
-const char start_indicator = '<', end_indicator = '>', empty_char = ' ';
+const char start_indicator = '<', end_indicator = '>';
 boolean is_receiving_in_process;
 char _serial_char_buffer[128];
 int _serial_buffer_index;
@@ -15,15 +15,10 @@ void update_communication()
 
   if (Serial.available() < 0) return;
 
-
-  char rec_char = Serial.read();//TODO: Test incomplete message bug
+  char rec_char = Serial.read();
 
   switch (rec_char)
   {
-  case empty_char:
-    is_receiving_in_process = true;
-    _serial_char_buffer[0] = 0;
-  break;
   case start_indicator:
     is_receiving_in_process = true;
     _serial_char_buffer[0] = 0;
@@ -48,6 +43,14 @@ void update_communication()
   default:
     // Receive and add inc char to buffer
     if (!is_receiving_in_process) return;
+
+    // Prevent overflow
+    if (_serial_buffer_index > 127){
+      is_receiving_in_process = true;
+      _serial_char_buffer[0] = 0;
+      _serial_buffer_index = 0;
+    }
+
     _serial_char_buffer[_serial_buffer_index] = rec_char;
     _serial_buffer_index++;
   break;
