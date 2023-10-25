@@ -23,6 +23,7 @@ void update_pyro()
     if (Clock.microseconds - pyro_prev < 50000) return;
     pyro_prev = Clock.microseconds;
     profiler_pyro.end_loop(Sensors.profiler_pyro_loop);
+    profiler_pyro.begin_function();
 
     // Disable pyro if it was previously enabled and it's fire duration exceeded the allowed time.
     if (Clock.microseconds - pyro_fire_start_time[0] >= active_vehicle_config.pyro_1_fire_duration && Sensors.pyro_1_fire_status) _pyro_1_deactivate();
@@ -31,6 +32,8 @@ void update_pyro()
     // Reads all incoming voltage of pyro channels 
     Sensors.pyro_1_voltage = (float) analogRead(e_pins::pin_pyro_1_voltage) * active_vehicle_config.pyro_voltage_divider_ratio;
     Sensors.pyro_2_voltage = (float) analogRead(e_pins::pin_pyro_2_voltage) * active_vehicle_config.pyro_voltage_divider_ratio;
+
+    profiler_pyro.end_function(Sensors.profiler_pyro_function_duration);
 }
 
 void pyro_1_fire()

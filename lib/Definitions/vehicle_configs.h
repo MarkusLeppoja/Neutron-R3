@@ -127,11 +127,11 @@ typedef struct {
     .pyro_voltage_divider_ratio = 0.00806,                                        \
     /* Flash & Serial Logging */                                                  \
     .enable_flash_log = true,                                                     \
-    .enable_serial_stream = true,                                                 \
+    .enable_serial_stream = false,                                                \
     .enable_flash_telemetry_log = true,                                           \
     .enable_flash_notification_log = true,                                        \
-    .enable_serial_telemetry_stream = true,                                       \
-    .enable_serial_notification_stream = true,                                    \
+    .enable_serial_telemetry_stream = false,                                      \
+    .enable_serial_notification_stream = false,                                   \
     .serial_stream_interval_mode_0 = 1000000,                                     \
     .serial_stream_interval_mode_1 = 100000,                                      \
     .serial_stream_interval_mode_2 = 50000,                                       \
@@ -191,7 +191,7 @@ typedef struct {
     .flash_log_interval_mode_0 = 1000000,                                         \
     .flash_log_interval_mode_1 = 22000,                                           \
     .flash_log_interval_mode_2 = 50000,                                           \
-    .flash_data_file_name = "Neutron Dev Lift",                                   \
+    .flash_data_file_name = "Neutron Dev",                                        \
     .flash_data_file_format = ".csv",                                             \
     /* Select what data gets logged */                                            \
     .enable_datasave_general = true,                                              \
@@ -210,7 +210,7 @@ typedef struct {
     /* Communications */                                                          \
     .enable_coms = true,                                                          \
     .enable_coms_message_echo = true,                                             \
-  }
+  }                                                                               \
 
 extern Neutron_Vehicle_Config_t active_vehicle_config;
 #endif

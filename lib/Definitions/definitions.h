@@ -84,13 +84,14 @@ struct vector_2d {
 
 struct s_sensors
 {
-    const float gravity = -9.817823;
+    const float gravity = 9.817823;
 
     /* IMU (BMI088) */
     // Raw readings
     vector_3d raw_gyro_velocity;
     vector_3d raw_accel, world_accel;
     float raw_accel_temp;
+    vector_3d orientation;
 
     /* Baro (BMP388) */
     float raw_baro_pressure;
@@ -100,7 +101,7 @@ struct s_sensors
 
     /* Kalman filter */
     float altitude, velocity;
-    vector_3d gyro_velocity, accel;
+    vector_3d gyro_velocity, gyro_velocity_rps, accel;
 
 
     /* Pyro */
@@ -133,6 +134,7 @@ struct s_sensors
     float profiler_voltage_divider_loop;
 
     // Pyro
+    float profiler_pyro_function_duration;
     float profiler_pyro_loop;
 
     //TODO: FLASH, DATARECORDER, PYRO, STATE INDICATION, MAIN LOOP,

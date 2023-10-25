@@ -86,14 +86,6 @@ void update_indicator()
     is_event_queue_empty() ? _indicate_mission_state() : _indicate_special_events();
 }
 
-
-
-
-
-
-
-
-
 void _indicate_special_events()
 {
     switch (get_event_queue()[0])

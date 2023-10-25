@@ -12,9 +12,10 @@
 #include <BasicLinearAlgebra.h>
 #include <Orientation.h> //TODO: Remove maybe
 
+#define RADS_TO_DEG 57.29578
 
 using namespace BLA;
-extern uint64_t _imu_update_prev, _baro_update_prev, _gnss_update_prev, _v_divider_update_prev, _mag_update_prev, _accel_prev; 
+extern uint64_t _imu_update_prev, _baro_update_prev, _gnss_update_prev, _v_divider_update_prev, _mag_update_prev, _accel_prev, _gyro_prev; 
 extern float _sensors_imu_accel_cal_x[], _sensors_imu_accel_cal_y[], _sensors_imu_accel_cal_z[];
 extern float _sensors_imu_gyro_cal_x[], _sensors_imu_gyro_cal_y[], _sensors_imu_gyro_cal_z[];
 extern float _sensors_baro_altitude_cal[];

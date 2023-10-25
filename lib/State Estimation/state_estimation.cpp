@@ -21,7 +21,7 @@ Profiler profiler_mag;          // @todo create / remove
 Profiler profiler_v_divider;
 
 // Local variables
-uint64_t _imu_update_prev, _baro_update_prev, _gnss_update_prev, _v_divider_update_prev, _mag_update_prev, _accel_prev;
+uint64_t _imu_update_prev, _baro_update_prev, _gnss_update_prev, _v_divider_update_prev, _mag_update_prev, _accel_prev, _gyro_prev;
 float _sensors_imu_accel_cal_x[400], _sensors_imu_accel_cal_y[400], _sensors_imu_accel_cal_z[400];
 float _sensors_imu_gyro_cal_x[400], _sensors_imu_gyro_cal_y[400], _sensors_imu_gyro_cal_z[400];
 float _sensors_baro_altitude_cal[100];
@@ -33,8 +33,8 @@ kalman kalman_x_dps, kalman_y_dps, kalman_z_dps;
 kalman kalman_x_accel, kalman_y_accel, kalman_z_accel;
 
 // Orientation
-Orientation quat, quat_world_accel, new_quat;
-EulerAngles euler_ori;//TODO: Remove?
+Orientation ori_quat; //quat, quat_world_accel, new_quat;
+EulerAngles ori_euler;//TODO: Remove?
 
 
 
@@ -256,7 +256,7 @@ void _imu_update()
    update_mcu_clock();
    profiler_imu.begin_loop();
 
-   if (Clock.microseconds - _imu_update_prev < 2500 || !active_vehicle_config.enable_imu || !Booleans.sw_sensors_imu_usability) return;
+   if (Clock.microseconds - _imu_update_prev <= 2500 || !active_vehicle_config.enable_imu || !Booleans.sw_sensors_imu_usability) return;
     _imu_update_prev = Clock.microseconds;
 
     // Profiler
@@ -281,12 +281,13 @@ void _accel_update()
 {
     accel_instance.readSensor();
 
-    float dt = (micros() - _accel_prev) / 1000000.f;
+    // Calculate dt
+    float accel_dt = (micros() - _accel_prev) / 1000000.f;
     _accel_prev = micros();
 
     Sensors.raw_accel.x = accel_instance.getAccelY_mss();
     Sensors.raw_accel.y = -accel_instance.getAccelX_mss();
-    Sensors.raw_accel.z = accel_instance.getAccelZ_mss();
+    Sensors.raw_accel.z = -accel_instance.getAccelZ_mss();
 
     Sensors.raw_accel_temp = accel_instance.getTemperature_C();
     
@@ -320,15 +321,30 @@ void _gyro_update()
 {
     gyro_instance.readSensor();
 
+    // Calculate dt
+    float gyro_dt = (micros() - _gyro_prev) / 1000000.f;
+    _gyro_prev = micros();
+
     Sensors.raw_gyro_velocity.x = -gyro_instance.getGyroX_rads();
     Sensors.raw_gyro_velocity.y = -gyro_instance.getGyroY_rads();
-    Sensors.raw_gyro_velocity.z = gyro_instance.getGyroZ_rads();
+    Sensors.raw_gyro_velocity.z = -gyro_instance.getGyroZ_rads();
 
-    Sensors.gyro_velocity.x = kalman_x_dps.update_estimate(Sensors.raw_gyro_velocity.x - active_vehicle_config._gyro_offset_x);
-    Sensors.gyro_velocity.y = kalman_y_dps.update_estimate(Sensors.raw_gyro_velocity.y - active_vehicle_config._gyro_offset_y);
-    Sensors.gyro_velocity.z = kalman_z_dps.update_estimate(Sensors.raw_gyro_velocity.z - active_vehicle_config._gyro_offset_z);
+    Sensors.gyro_velocity_rps.x = kalman_x_dps.update_estimate(Sensors.raw_gyro_velocity.x - active_vehicle_config._gyro_offset_x);
+    Sensors.gyro_velocity_rps.y = kalman_y_dps.update_estimate(Sensors.raw_gyro_velocity.y - active_vehicle_config._gyro_offset_y);
+    Sensors.gyro_velocity_rps.z = kalman_z_dps.update_estimate(Sensors.raw_gyro_velocity.z - active_vehicle_config._gyro_offset_z);
 
-    //TODO: orientation
+    Sensors.gyro_velocity.x = Sensors.gyro_velocity_rps.x * RAD_TO_DEG;
+    Sensors.gyro_velocity.y = Sensors.gyro_velocity_rps.y * RAD_TO_DEG;
+    Sensors.gyro_velocity.z = Sensors.gyro_velocity_rps.z * RAD_TO_DEG;
+
+    ori_quat.update(Sensors.gyro_velocity.z, Sensors.gyro_velocity.y, Sensors.gyro_velocity.x, gyro_dt);
+    
+    // Convert quaternion to euler angle
+    ori_euler = ori_quat.toEuler();
+
+    Sensors.orientation.x = ori_euler.yaw * RAD_TO_DEG;
+    Sensors.orientation.y = ori_euler.pitch * RAD_TO_DEG;
+    Sensors.orientation.z = ori_euler.roll * RAD_TO_DEG;
 }
 
 void _baro_update()
@@ -337,7 +353,7 @@ void _baro_update()
     profiler_baro.begin_loop();
 
 
-    if (Clock.microseconds - _baro_update_prev < 20000 || !active_vehicle_config.enable_baro || !Booleans.sw_sensors_baro_usability) return;
+    if (Clock.microseconds - _baro_update_prev <= 20000 || !active_vehicle_config.enable_baro || !Booleans.sw_sensors_baro_usability) return;
     _baro_update_prev = Clock.microseconds;
 
     // Profiler

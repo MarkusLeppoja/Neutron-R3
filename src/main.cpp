@@ -14,11 +14,8 @@
 
 //Neutron checklist: @YTFurys Ensure debug modes (@YTFurys What are debug modes?)
 // TODO:
-// Kalman filter for orientation
-// Kalman filter for position
 // Communication file (include state transition in there)
 // State transition
-// State indication (Import and rework legacy code)
 
 //TODO: lAUNCH CHECKILIST: Ensure datalogging is happening (Get it to print the status of the file, if its open)
 
@@ -31,11 +28,11 @@ void begin()
 
   uint8_t startup_status;
   // Startup
-  pyro_begin();
-  recovery_begin();
-  indicator_begin();
-  startup_status += recorder_begin();
   startup_status += sensors_begin();
+  startup_status += recorder_begin();
+  pyro_begin();
+  indicator_begin();
+  recovery_begin();
 
   if (startup_status != 2)
   {
@@ -70,12 +67,12 @@ void setup()
 uint64_t sds, dsd;  // @todo remove
 void loop() 
 {
-  update_pyro();
   update_sensors();
-  update_recorder();
+  update_pyro();
   update_indicator();
-
   update_communication();
+  update_recorder();
+
 
   if (micros() - dsd >= 10000000 && sds != 100)
   {

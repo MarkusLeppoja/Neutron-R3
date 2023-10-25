@@ -114,7 +114,7 @@ void _serial_update()
         _recorder_serial_prev_notification = temp_serial_string;
 
         // Cast new notification to serial
-        Serial.println(_recorder_serial_prev_notification);
+        Serial.print(_recorder_serial_prev_notification);
     }
 }
 
@@ -140,7 +140,7 @@ void _recorder_convert_data_to_string(String &end_result_inst)
         //_convert_var_to_string();
         //_convert_var_to_string();
 
-        // @todo mission state, mass (calulate mass based on acceleratinon), thrust
+        // @todo  mass (calulate mass based on acceleratinon), thrust
     }
 
     /* Pyro */
@@ -150,6 +150,8 @@ void _recorder_convert_data_to_string(String &end_result_inst)
         _convert_var_to_string(Sensors.pyro_1_voltage, 4, 2);
         _convert_var_to_string(Sensors.pyro_2_fire_status);
         _convert_var_to_string(Sensors.pyro_2_voltage, 4, 2);
+        _convert_var_to_string(Sensors.profiler_pyro_loop, 6, 2);
+        _convert_var_to_string(Sensors.profiler_pyro_function_duration, 6, 2);
     }
 
     /* Sensors */
@@ -198,7 +200,6 @@ void _recorder_convert_data_to_string(String &end_result_inst)
         _convert_var_to_string(Sensors.profiler_imu_loop, 6, 2);
         _convert_var_to_string(Sensors.profiler_baro_loop, 6, 2);
         _convert_var_to_string(Sensors.profiler_voltage_divider_loop, 6, 2);
-        _convert_var_to_string(Sensors.profiler_pyro_loop, 6, 2);
 
         // @todo gnss, mag
     } 
@@ -208,6 +209,7 @@ void _recorder_convert_data_to_string(String &end_result_inst)
         _convert_var_to_string(Sensors.profiler_imu_function_duration, 6, 2);
         _convert_var_to_string(Sensors.profiler_baro_function_duration, 6, 2);
         _convert_var_to_string(Sensors.profiler_voltage_divider_function_duration, 6, 2);
+
         // @todo gnss, mag
     }
 
@@ -227,8 +229,8 @@ void _recorder_create_csv_layout(String &layout_inst)
     /* General */
     if (active_vehicle_config.enable_datasave_general)
     {
-        _convert_var_to_string("VOT (Sec) ");
-        _convert_var_to_string("MT (Sec) ");
+        _convert_var_to_string("VOT (s) ");
+        _convert_var_to_string("MT (s) ");
         _convert_var_to_string("State ");
         //_convert_var_to_string();
         //_convert_var_to_string();
@@ -240,21 +242,23 @@ void _recorder_create_csv_layout(String &layout_inst)
     if (active_vehicle_config.enable_datasave_pyro)
     {
         _convert_var_to_string("Pyro 1 Fire ");
-        _convert_var_to_string("Pyro 1 Voltage ");
+        _convert_var_to_string("Pyro 1 Voltage (V) ");
         _convert_var_to_string("Pyro 2 Fire ");
-        _convert_var_to_string("Pyro 2 Voltage ");
+        _convert_var_to_string("Pyro 2 Voltage (V) ");
+        _convert_var_to_string("PF Pyro Loop (ms) ");
+        _convert_var_to_string("PF Pyro Func Dur (ms) ");
     }
 
     /* Sensors */
     if (active_vehicle_config.enable_datasave_imu_data)
     {
-        _convert_var_to_string("Accel X ");
-        _convert_var_to_string("Accel Y ");
-        _convert_var_to_string("Accel Z ");
-        _convert_var_to_string("Gyro Vel X ");
-        _convert_var_to_string("Gyro Vel Y ");
-        _convert_var_to_string("Gyro Vel Z ");
-        _convert_var_to_string("IMU Temp ");
+        _convert_var_to_string("Accel X (m/s^2) ");
+        _convert_var_to_string("Accel Y (m/s^2) ");
+        _convert_var_to_string("Accel Z (m/s^2) ");
+        _convert_var_to_string("Gyro Vel X (dps) ");
+        _convert_var_to_string("Gyro Vel Y (dps) ");
+        _convert_var_to_string("Gyro Vel Z (dps) ");
+        _convert_var_to_string("IMU Temp (*C) ");
 
 
         // @todo filtered accel, gyro ang vel and ori, total velocity.
@@ -263,12 +267,12 @@ void _recorder_create_csv_layout(String &layout_inst)
     // Baro
     if (active_vehicle_config.enable_datasave_baro_data)
     {
-        _convert_var_to_string("Baro Alt (RAW) ");
-        _convert_var_to_string("Baro Alt (RAW & W.O Bias) ");
-        _convert_var_to_string("Air Pressure ");
-        _convert_var_to_string("Baro Temp ");
-        _convert_var_to_string("Altitude ");
-        _convert_var_to_string("Velocity ");
+        _convert_var_to_string("Baro Alt Raw (m) ");
+        _convert_var_to_string("Baro Alt Raw & WO Bias (m) ");
+        _convert_var_to_string("Air Pressure (hPa) ");
+        _convert_var_to_string("Baro Temp (*C) ");
+        _convert_var_to_string("Altitude (m) ");
+        _convert_var_to_string("Velocity (m/s) ");
 
         // @todo filtered altitude
     }
@@ -289,19 +293,18 @@ void _recorder_create_csv_layout(String &layout_inst)
     /* Profiler */
     if (active_vehicle_config.enable_datasave_profiler_sensors_loop)
     {
-        _convert_var_to_string("PF IMU Loop ");
-        _convert_var_to_string("PF Baro Loop ");
-        _convert_var_to_string("PF Voltage Divider Loop ");
-        _convert_var_to_string("PF Pyro Loop ");
+        _convert_var_to_string("PF IMU Loop (ms) ");
+        _convert_var_to_string("PF Baro Loop (ms) ");
+        _convert_var_to_string("PF Voltage Divider Loop (ms) ");
 
         // @todo gnss, mag
     } 
     
     if (active_vehicle_config.enable_datasave_profiler_sensors_duration)
     {
-        _convert_var_to_string("PF IMU Func Dur ");
-        _convert_var_to_string("PF Baro Func Dur ");
-        _convert_var_to_string("PF Voltage Divider Func Dur ");
+        _convert_var_to_string("PF IMU Func Dur (ms) ");
+        _convert_var_to_string("PF Baro Func Dur (ms) ");
+        _convert_var_to_string("PF Voltage Divider Func Dur (ms) ");
         // @todo gnss, mag
     }
 
