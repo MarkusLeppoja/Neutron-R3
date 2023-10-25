@@ -85,7 +85,7 @@ void _flash_update()
 void cast_all_notifications_to_serial()
 {
     // Check if alert buffer contains an alert and if flash notification logging is toggled
-    if (active_vehicle_config.enable_serial_notification_stream || active_vehicle_config.enable_serial_stream) return;
+    if (!active_vehicle_config.enable_serial_notification_stream || !active_vehicle_config.enable_serial_stream) return;
 
     // Cast the notification string
     Serial.println(get_all_alerts());
@@ -114,7 +114,7 @@ void _serial_update()
         _recorder_serial_prev_notification = temp_serial_string;
 
         // Cast new notification to serial
-        Serial.print(_recorder_serial_prev_notification);
+        Serial.println(_recorder_serial_prev_notification);
     }
 }
 
@@ -164,6 +164,9 @@ void _recorder_convert_data_to_string(String &end_result_inst)
         _convert_var_to_string(Sensors.gyro_velocity.y, 6, 2);
         _convert_var_to_string(Sensors.gyro_velocity.z, 6, 2);
         _convert_var_to_string(Sensors.raw_accel_temp, 5, 2);
+        _convert_var_to_string(Sensors.orientation.x, 5, 2);
+        _convert_var_to_string(Sensors.orientation.y, 5, 2);
+        _convert_var_to_string(Sensors.orientation.z, 5, 2);
 
 
         // @todo filtered accel, gyro ang vel and ori, total velocity.
@@ -259,6 +262,9 @@ void _recorder_create_csv_layout(String &layout_inst)
         _convert_var_to_string("Gyro Vel Y (dps) ");
         _convert_var_to_string("Gyro Vel Z (dps) ");
         _convert_var_to_string("IMU Temp (*C) ");
+        _convert_var_to_string("Ori X ");
+        _convert_var_to_string("Ori Y ");
+        _convert_var_to_string("Ori Z ");
 
 
         // @todo filtered accel, gyro ang vel and ori, total velocity.
@@ -304,7 +310,7 @@ void _recorder_create_csv_layout(String &layout_inst)
     {
         _convert_var_to_string("PF IMU Func Dur (ms) ");
         _convert_var_to_string("PF Baro Func Dur (ms) ");
-        _convert_var_to_string("PF Voltage Divider Func Dur (ms) ");
+        _convert_var_to_string_wo_coma("PF Voltage Divider Func Dur (ms)");
         // @todo gnss, mag
     }
 
@@ -359,6 +365,11 @@ int recorder_open_file(String path, oflag_t oFlag)
 int recorder_delete_file(String path)
 {
     return recorder_flash_instance.remove_file(path);
+}
+
+int recorder_check_if_file_exists(String path)
+{
+    return recorder_flash_instance.does_file_exist(path);
 }
 
 void recorder_print_file_content(String path)

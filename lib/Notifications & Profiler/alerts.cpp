@@ -9,7 +9,8 @@ String current_alert_instance;
 
 void save_alert_to_buffer(String alert)
 {
-    _alert_string += alert;
+    _alert_string.concat(alert);
+    //_alert_string += alert;
 
     // @note If flash functionality isn't enabled or buffer is full then don't log to buffer anymore
     if (_alert_buffer_size >= 49 || !Booleans.sw_flash_chip_usability) return;

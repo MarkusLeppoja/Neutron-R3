@@ -53,6 +53,9 @@ public:
     // @brief If flash_init was successful, then removes the file on given path
     int remove_file(String file_path);
 
+    // @brief Returns true if a file on given path exists
+    int does_file_exist(String path);
+
     // @brief Erases the entire flash chip.
     // @note This action is UNDOABLE
     int erase_chip();

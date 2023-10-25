@@ -104,6 +104,12 @@ typedef struct {
     bool enable_coms_message_echo;
 
 
+    /* State Transition */
+    const float detect_launch_accel_threshold;
+    const float detect_landing_touchdown_altitude_threshold;
+    const float max_ascent_time;
+    const float max_mission_duration;
+
 } Neutron_Vehicle_Config_t;                                       
 
 #define Electron_Flight_Config                                                    \
@@ -127,11 +133,11 @@ typedef struct {
     .pyro_voltage_divider_ratio = 0.00806,                                        \
     /* Flash & Serial Logging */                                                  \
     .enable_flash_log = true,                                                     \
-    .enable_serial_stream = false,                                                \
+    .enable_serial_stream = true,                                                 \
     .enable_flash_telemetry_log = true,                                           \
     .enable_flash_notification_log = true,                                        \
     .enable_serial_telemetry_stream = false,                                      \
-    .enable_serial_notification_stream = false,                                   \
+    .enable_serial_notification_stream = true,                                    \
     .serial_stream_interval_mode_0 = 1000000,                                     \
     .serial_stream_interval_mode_1 = 100000,                                      \
     .serial_stream_interval_mode_2 = 50000,                                       \
@@ -157,6 +163,11 @@ typedef struct {
     /* Communications */                                                          \
     .enable_coms = true,                                                          \
     .enable_coms_message_echo = true,                                             \
+    /* State Transition */                                                        \
+    .detect_launch_accel_threshold = 11.2,                                        \
+    .detect_landing_touchdown_altitude_threshold = 5,                             \ 
+    .max_ascent_time = 3,                                                         \
+    .max_mission_duration = 30,                                                   \
   }
 
 #define Electron_Test_Config                                                      \

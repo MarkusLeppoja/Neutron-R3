@@ -10,7 +10,11 @@
 #include <BMI088.h>
 #include <BMP388_DEV.h>
 #include <BasicLinearAlgebra.h>
-#include <Orientation.h> //TODO: Remove maybe
+#include <Orientation.h>
+
+
+// @todo Log calibration values to flash
+
 
 #define RADS_TO_DEG 57.29578
 
@@ -103,28 +107,47 @@ public:
 };
 
 
-
-
-// TODO: Function descriptions
-//TODO: Kalman filter. 3D position one, for accel divider offsets
+// @brief Begins and configures Baro sensor
 int _baro_begin();
+// @brief Begins and configures IMU sensor
 int _imu_begin();
+// @brief Begins and configures Voltage Divider sensor
 void _v_divider_begin();
+// @brief Calls for IMU data and processes it
 void _imu_update();
+// @brief Calls for acceleration data and processes it
 void _accel_update();
+// @brief Calls for gyroscope data and processes it
 void _gyro_update();
+// @brief Calls for barometric data and processes it
 void _baro_update();
+// @brief Calls for voltage divider data and processes it
 void _v_divider_update();
+// @brief Overall function for beginning and configuring the sensors
 int sensors_begin();
+// @brief Overall function for updating the sensors
 void update_sensors();
 
-// @todo maybe log these values into flash
+// @brief Zeroes out orientation
+void reset_ori();
+// @brief Resests kalman filter altitude and trust
+void reset_altitude_kalman();
+
+// @brief Enables Baro calibration
 void baro_enable_calibration();
+// @brief Enables IMU calibration
 void imu_enable_calibration(); 
+
+// @brief IMU calibration function
 void _imu_calibrate();
+// @brief IMU calibration info gathering function
 void _imu_calibrate_update();
+// @brief IMU calibration data results calculating function
 void _imu_calibrate_calculate_deviation();
+// @brief Baro calibration function
 void _baro_calibrate();
+// @brief Baro calibration info gathering function
 void _baro_calibrate_update();
+// @brief Baro calibration data results calculating function
 void _baro_calibrate_calculate_deviation();
 #endif  

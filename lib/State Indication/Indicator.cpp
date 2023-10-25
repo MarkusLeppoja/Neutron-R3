@@ -259,7 +259,7 @@ void _indicator_pad_idle()
 {
     if (_indicator_is_value_between(_indicator_counter,9,16))
     {
-        set_buzzer_tone(1800, true);
+        set_buzzer_tone(2800, true);
         set_rgb_led_color(1, 0, 0);
     }
     else if (_indicator_is_value_between(_indicator_counter,16,100))

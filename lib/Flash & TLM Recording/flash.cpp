@@ -39,6 +39,11 @@ int flash_device::init(boolean enable)
         return 0;
     }
 
+    if (does_file_exist(active_vehicle_config.flash_data_file_name + active_vehicle_config.flash_data_file_format))
+    {
+        flash_alerts.create_alert(e_alert_type::warning, "Warning! A file already exists on AVC data path!");
+    }
+
     // Indicate flash startup success and enable flash usability in software
     flash_alerts.create_alert(e_alert_type::success, "Flash startup complete");
     Booleans.sw_flash_chip_usability = 1;
@@ -50,26 +55,15 @@ int flash_device::create_file(String file_name, String file_format)
 {
     if (!get_flash_chip_usability_status()) 
     {
-        flash_alerts.create_alert(e_alert_type::warning, "Failed to create a new file because flash isn't usable");
+        flash_alerts.create_alert(e_alert_type::error, "Failed to create a new file because flash isn't usable");
         return 0;
     }
     
     //Check if file exists
-    uint8_t exit_counter;
-    while (fatfs.exists(file_name + file_format))
+    if (fatfs.exists(file_name + file_format))
     {
-        // Exit statement
-        if (exit_counter >= 7)
-        {
-            flash_alerts.create_alert(e_alert_type::error, "Couldn't find a suitable name after 7 tries. File name: " + file_name + file_format);
-            return 0;
-        }
-
-        // Add an underscore to the file name to differentiate it
-        file_name += "_";//TODO: Better system, also show all files made
-
-        // Integrate exit counter value
-        exit_counter++;
+        flash_alerts.create_alert(e_alert_type::error, "File already exists. Please remove the existing file to create a new file. File name: " + file_name + file_format);
+        return 0;
     }
 
     // Create a file
@@ -147,6 +141,12 @@ int flash_device::remove_file(String file_path)
     flash_alerts.create_alert(e_alert_type::alert, "Removing file named: " + file_path + ". Remove status: " + String(remove_status));
     return remove_status;
 }
+
+int flash_device::does_file_exist(String path)
+{
+    return fatfs.exists(path);
+}
+
 
 int flash_device::erase_chip()
 {

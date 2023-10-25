@@ -155,7 +155,7 @@ int _baro_begin()
 {
     if (!active_vehicle_config.enable_baro)
     {
-        alerts_sensors.create_alert(e_alert_type::warning, "Baro disabled");
+        alerts_sensors.create_alert(e_alert_type::warning, "Baro is disabled");
         Booleans.sw_sensors_baro_usability = false;
         return 0;
     }
@@ -180,7 +180,7 @@ int _baro_begin()
 
     // Enable baro functionality and create alert
     Booleans.sw_sensors_baro_usability = 1;
-    alerts_sensors.create_alert(e_alert_type::success, "Baro startup successful");
+    alerts_sensors.create_alert(e_alert_type::success, "Baro startup was successful");
 
     // Update prev to current time
     _baro_update_prev = micros();
@@ -193,7 +193,7 @@ int _imu_begin()
     // Disable functionality if enable_imu is false
     if (!active_vehicle_config.enable_imu)
     {
-        alerts_sensors.create_alert(e_alert_type::warning, "IMU disabled");
+        alerts_sensors.create_alert(e_alert_type::warning, "IMU is disabled");
         Booleans.sw_sensors_imu_usability = false;
         return 0;
     }
@@ -226,7 +226,7 @@ int _imu_begin()
 
     // Enable imu functionality and create alert
     Booleans.sw_sensors_imu_usability = 1;
-    alerts_sensors.create_alert(e_alert_type::success, "IMU startup successful");
+    alerts_sensors.create_alert(e_alert_type::success, "IMU startup was successful");
 
     // Update prev to current time
     _imu_update_prev = micros();
@@ -337,11 +337,11 @@ void _gyro_update()
     Sensors.gyro_velocity.y = Sensors.gyro_velocity_rps.y * RAD_TO_DEG;
     Sensors.gyro_velocity.z = Sensors.gyro_velocity_rps.z * RAD_TO_DEG;
 
-    ori_quat.update(Sensors.gyro_velocity.z, Sensors.gyro_velocity.y, Sensors.gyro_velocity.x, gyro_dt);
+    ori_quat.update(Sensors.gyro_velocity_rps.x, Sensors.gyro_velocity_rps.y, Sensors.gyro_velocity_rps.z, gyro_dt);
     
     // Convert quaternion to euler angle
     ori_euler = ori_quat.toEuler();
-
+    
     Sensors.orientation.x = ori_euler.yaw * RAD_TO_DEG;
     Sensors.orientation.y = ori_euler.pitch * RAD_TO_DEG;
     Sensors.orientation.z = ori_euler.roll * RAD_TO_DEG;
@@ -360,10 +360,16 @@ void _baro_update()
     profiler_baro.end_loop(Sensors.profiler_baro_loop);
     profiler_baro.begin_function();
 
-
+    // Request baro data
     baro_instance.getMeasurements(Sensors.raw_baro_temperature, Sensors.raw_baro_pressure, Sensors.raw_baro_altitude);
     
+    // Create a variable which has the altitude without sensor bias
     Sensors.raw_baro_altitude_wo_bias = Sensors.raw_baro_altitude - active_vehicle_config._baro_offset_altitude;
+
+    // Update apogee altitude only during mission
+    if (is_mission_active() && Sensors.altitude - Sensors.apogee_altitude >= 0.20){
+        Sensors.apogee_altitude = Sensors.altitude;
+    }
 
     // Update kalman filter
     position_kalman.update_baro(Sensors.raw_baro_altitude_wo_bias);
@@ -399,7 +405,7 @@ int sensors_begin()
 {
     if (!active_vehicle_config.enable_sensors)
     {
-        alerts_sensors.create_alert(e_alert_type::warning, "Sensors disabled");
+        alerts_sensors.create_alert(e_alert_type::warning, "Sensors are disabled");
         Booleans.sw_sensors_usability = false;
         return 0;
     }
@@ -414,13 +420,13 @@ int sensors_begin()
     // If all sensors didn't initialize correctly create alert and disable sensors functionality
     if ((baro_status + imu_status) != 2) // @todo if using gnss add gnss_status and change this to 3 
     {
-        alerts_sensors.create_alert(e_alert_type::error, "Sensors startup unsuccessful");
+        alerts_sensors.create_alert(e_alert_type::error, "Sensors startup was unsuccessful");
         Booleans.sw_sensors_usability = false;
         return 0; 
     }
 
     // Indicate successful startup and enable sensors usability
-    alerts_sensors.create_alert(e_alert_type::success, "Sensors startup successful");
+    alerts_sensors.create_alert(e_alert_type::success, "Sensors startup was successful");
     Booleans.sw_sensors_usability = true;
 
     return 1;
@@ -436,6 +442,19 @@ void update_sensors()
     //_mag_update();
     _v_divider_update();
 } //dav, ma lahen ja loodin nüüd oma põrandat edasi.
+
+void reset_ori()
+{
+    ori_quat.reset();
+    alerts_sensors.create_alert(e_alert_type::alert, "Orientation was reset");
+}
+
+
+void reset_altitude_kalman()
+{
+    position_kalman.reset();
+    alerts_sensors.create_alert(e_alert_type::alert, "Altitude kalman filter was reset");
+}
 
 
 
@@ -530,6 +549,8 @@ void _imu_calibrate_calculate_deviation()
     active_vehicle_config._accel_standard_deviation_x = sqrtf(accel_sum.x / 399.f);
     active_vehicle_config._accel_standard_deviation_y = sqrtf(accel_sum.y / 399.f);
     active_vehicle_config._accel_standard_deviation_z = sqrtf(accel_sum.z / 399.f);
+
+    reset_ori();
 }
 
 void _imu_calibrate_update()
@@ -603,5 +624,5 @@ void _baro_calibrate_calculate_deviation()
         active_vehicle_config._baro_standard_deviation_altitude
     };
 
-    position_kalman.reset();
+    reset_altitude_kalman();
 }

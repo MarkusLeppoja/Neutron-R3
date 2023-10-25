@@ -1,11 +1,5 @@
 #include <Arduino.h>
-#include <data_recorder.h>
-#include <state_estimation.h>
-#include <recovery.h>
-#include <pyro.h>
-#include <profiler.h>
-#include <Indicator.h>
-#include <Coms.h>
+#include <state_logic.h>
 
 // Create a debug_mode  boolean that if enabled
 
@@ -18,70 +12,16 @@
 // State transition
 
 //TODO: lAUNCH CHECKILIST: Ensure datalogging is happening (Get it to print the status of the file, if its open)
-
-
-void begin()
-{
-  Serial.begin(115200);
-  Serial.setTimeout(0);
-
-
-  uint8_t startup_status;
-  // Startup
-  startup_status += sensors_begin();
-  startup_status += recorder_begin();
-  pyro_begin();
-  indicator_begin();
-  recovery_begin();
-
-  if (startup_status != 2)
-  {
-    //alert
-    //set_mission_state startup_failed
-    return;
-  }
-
-  // Configure
-  set_recorder_flash_update_interval(active_vehicle_config.flash_log_interval_mode_1);
-  set_recorder_serial_update_interval(active_vehicle_config.serial_stream_interval_mode_0);
-
-  //alert startup compleate, moving to {next_state}
-}
-
-void prepare_for_logging()
-{
-  recorder_create_file(active_vehicle_config.flash_data_file_name, active_vehicle_config.flash_data_file_format);
-  
-  String csv_layout;  // Temp instance
-  _recorder_create_csv_layout(csv_layout);
-  _recorder_log_to_flash(csv_layout);
-}
+// TODO: Add option to format the entire device. ensure that formating closes all files and disables logging for a minute and restores it to default state after.
 
 void setup() 
 {
-  begin();
-
-
+  set_mission_state(e_mission_state::startup);
 }
 
-uint64_t sds, dsd;  // @todo remove
 void loop() 
 {
-  update_sensors();
-  update_pyro();
-  update_indicator();
-  update_communication();
-  update_recorder();
-
-
-  if (micros() - dsd >= 10000000 && sds != 100)
-  {
-    baro_enable_calibration();
-    imu_enable_calibration();
-    cast_all_notifications_to_serial();
-    sds = 100;
-    active_mission_state = e_mission_state::navigation_startup;
-  }
+  update_state_machine();
 }
 
 

@@ -60,7 +60,7 @@ void _execute_command_from_list(int command)
 {
   String temp_string;
 
-  coms_alerts.create_alert(e_alert_type::alert, "Valid command received. Executing command: " + String(command));
+  coms_alerts.create_alert(e_alert_type::alert, "Executing command: " + String(command));
   add_special_indicator_to_queue(e_event_options::event_command_received);
   
   switch (command)
@@ -153,10 +153,12 @@ void _execute_command_from_list(int command)
     active_vehicle_config.enable_datasave_mag_data = !active_vehicle_config.enable_datasave_mag_data;
   break;
   case 22:
-
+    coms_alerts.create_alert(e_alert_type::alert, "Beginning GROUND LOCK - PAD IDLE countdown");
+    Booleans.sw_begin_pad_idle_ground_lock_exit_countdown = true;
   break;
   case 23:
-
+    coms_alerts.create_alert(e_alert_type::alert, "Stopping GROUND LOCK - PAD IDLE countdown");
+    Booleans.sw_begin_pad_idle_ground_lock_exit_countdown = false;
   break;
   case 24:
     coms_alerts.create_alert(e_alert_type::alert, "Set enable_datasave_profiler_sensors_loop status to " + String(!active_vehicle_config.enable_datasave_profiler_sensors_loop));
@@ -367,12 +369,12 @@ void _execute_command_from_list(int command)
     imu_enable_calibration();
   break;
   case 80:
-    coms_alerts.create_alert(e_alert_type::alert, "");
-    //reset orientation
+    coms_alerts.create_alert(e_alert_type::alert, "Resetting orientation");
+    reset_ori();
   break;
   case 81:
-    coms_alerts.create_alert(e_alert_type::alert, "");
-    //reset_alman
+    coms_alerts.create_alert(e_alert_type::alert, "Resetting altitude kalman filter");
+    reset_altitude_kalman();
   break;
   case 82:
     coms_alerts.create_alert(e_alert_type::alert, "Erasing all of the flash chip. NOTE! This removes the filesystem. Meaning you have to reformat to create files");

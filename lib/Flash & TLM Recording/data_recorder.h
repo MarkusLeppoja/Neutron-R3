@@ -5,20 +5,6 @@
 #include <definitions.h>
 #include <flash.h>
 
-/*
-    Init flash and open a file during startup. Only write notification data to it until (boolean) enable_flight_telemetry_recording is true.
-
-    user controlled:
-    enable_flash_chip - This controls if datalogging happens or not.
-    enable_flight_telemetry_recording - For recording flight data to flash chip. Toggeled on after GROUND LOCK state ends and disabled during LANDED / ERROR state
-    enable_system_notification_recording - For recording event data to flash chip. 
-
-    software controlled:
-    sw_flash_chip_usage - If true then flash chip can be used.
-
-    TODO:
-    // Profiler
-*/
 
 // @brief Ensures that contents inside recorder_update run at correct frequency
 extern uint64_t _recorder_serial_prev, _recorder_flash_prev;
@@ -34,7 +20,7 @@ extern char _recorder_char_buffer[], _recorder_string_buffer[];
 extern String _recorder_serial_prev_notification;
 
 
-// @brief Erase the entire chip TODO: add confirmation
+// @brief Erase the entire chip TODO: add confirmation or option to format
 void recorder_earase_flash_chip();
 
 // @brief Set the flash chip log rate. Interval must be in microseconds (1s = 1,000,000 ms)
@@ -91,6 +77,9 @@ int recorder_open_file(String path, oflag_t oFlag);
 
 // @brief Removes the file on given path
 int recorder_delete_file(String path);
+
+// @brief Returns true if a file on given path exists
+int recorder_check_if_file_exists(String path);
 
 // @brief Casts all content of a file to serial
 // @note This doesn't delete the file, only reads it

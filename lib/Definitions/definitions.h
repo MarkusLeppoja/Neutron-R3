@@ -46,6 +46,7 @@ enum e_pins : const uint8_t {
 };
 
 void update_mcu_clock();
+boolean is_mission_active();
 
 struct s_clock
 {
@@ -70,6 +71,10 @@ struct s_booleans
     boolean sw_sensors_mag_usability;
     boolean sw_sensors_imu_enable_calibration;
     boolean sw_sensors_baro_enable_calibration;
+
+    // Manually set in coms to begin 
+    boolean sw_begin_pad_idle_ground_lock_exit_countdown;
+    boolean sw_begin_pad_idle_ground_lock_exit_countdown_prev;
 
 };
 extern s_booleans Booleans;
@@ -98,6 +103,7 @@ struct s_sensors
     float raw_baro_altitude;
     float raw_baro_altitude_wo_bias;
     float raw_baro_temperature;
+    float apogee_altitude;
 
     /* Kalman filter */
     float altitude, velocity;
@@ -137,7 +143,7 @@ struct s_sensors
     float profiler_pyro_function_duration;
     float profiler_pyro_loop;
 
-    //TODO: FLASH, DATARECORDER, PYRO, STATE INDICATION, MAIN LOOP,
+    //TODO: FLASH, DATARECORDER, STATE INDICATION, MAIN LOOP,
 
 };
 extern s_sensors Sensors;
