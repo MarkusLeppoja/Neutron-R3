@@ -128,8 +128,8 @@ typedef struct {
     .fds_servo_lock_angle = 125,                                                  \
     /* Pyrotechnics */                                                            \
     .enable_pyrotechnics = false,                                                 \
-    .pyro_1_fire_duration = 1000000,                                              \
-    .pyro_2_fire_duration = 1000000,                                              \
+    .pyro_1_fire_duration = 250000,                                              \
+    .pyro_2_fire_duration = 250000,                                              \
     .pyro_voltage_divider_ratio = 0.00806,                                        \
     /* Flash & Serial Logging */                                                  \
     .enable_flash_log = true,                                                     \
@@ -164,10 +164,10 @@ typedef struct {
     .enable_coms = true,                                                          \
     .enable_coms_message_echo = true,                                             \
     /* State Transition */                                                        \
-    .detect_launch_accel_threshold = 11.2,                                        \
-    .detect_landing_touchdown_altitude_threshold = 5,                             \ 
-    .max_ascent_time = 3,                                                         \
-    .max_mission_duration = 30,                                                   \
+    .detect_launch_accel_threshold = 11.2f,                                       \
+    .detect_landing_touchdown_altitude_threshold = 5,                             \
+    .max_ascent_time = 4,                                                         \
+    .max_mission_duration = 20,                                                   \
   }
 
 #define Electron_Test_Config                                                      \

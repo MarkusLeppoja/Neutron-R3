@@ -55,12 +55,12 @@ void update_communication()
   break;
   }
 }
+
 //TODO: JSON Format active_vehicle_config all toggelable statuses
 void _execute_command_from_list(int command)
 {
   String temp_string;
 
-  coms_alerts.create_alert(e_alert_type::alert, "Executing command: " + String(command));
   add_special_indicator_to_queue(e_event_options::event_command_received);
   
   switch (command)

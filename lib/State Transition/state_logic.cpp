@@ -83,14 +83,15 @@ void _on_mission_state_change(e_mission_state new_state)
         active_vehicle_config.enable_serial_stream = false;
         active_vehicle_config.enable_flash_log = true;
         active_vehicle_config.enable_flash_telemetry_log = true;
-        active_vehicle_config.enable_flash_notification_log = true;
-
-
-        
+        active_vehicle_config.enable_flash_notification_log = true;        
     break;
     case e_mission_state::ascent:
         // Begin faster logging
         set_recorder_flash_update_interval(active_vehicle_config.flash_log_interval_mode_2);
+
+        // Disable LED & buzzer to save power
+        active_vehicle_config.enable_led = false;
+        active_vehicle_config.enable_buzzer = false;
 
         // Reset mission duration time
         Clock.mission_duration = 0;
@@ -110,6 +111,10 @@ void _on_mission_state_change(e_mission_state new_state)
     case e_mission_state::landed:
         alerts_state_logic.create_alert(e_alert_type::alert, "Vehicle apogee was " + String(Sensors.apogee_altitude) + " meters");
         recorder_close_file();
+
+        // Re-Enable lED & buzzer
+        active_vehicle_config.enable_led = true;
+        active_vehicle_config.enable_buzzer = true;
     break;
     case e_mission_state::startup_failed:
         Clock.mission_duration = 0;
@@ -135,16 +140,16 @@ void update_state_machine()
     update_indicator();
     update_communication();
 
+    update_mcu_clock();
     // Calculate state duration
-    _state_duration = (micros() - _state_begin_time) / 1000000.f;
-
+    _state_duration = (Clock.microseconds - _state_begin_time) / 1000000.f;
 
     // update only after 10 milliseconds
+    if (Clock.microseconds - _state_machine_prev <= 10000) return;
+    _state_machine_prev = Clock.microseconds;
+
     switch (get_mission_state())
     {
-    case e_mission_state::startup:
-        
-    break;
     case e_mission_state::navigation_startup:
         // Only run this part once
         if (_state_duration >= 20 && !_has_calibration_started)
@@ -173,13 +178,13 @@ void update_state_machine()
             Booleans.sw_begin_pad_idle_ground_lock_exit_countdown_prev = false;
         }
 
-        if (Booleans.sw_begin_pad_idle_ground_lock_exit_countdown && Booleans.sw_begin_pad_idle_ground_lock_exit_countdown_prev && _state_duration >= 90)
+        if (Booleans.sw_begin_pad_idle_ground_lock_exit_countdown && Booleans.sw_begin_pad_idle_ground_lock_exit_countdown_prev && _state_duration >= 120)
         {
             set_mission_state(e_mission_state::pad_idle);
         }
     break;
     case e_mission_state::pad_idle:
-        detect_landed();
+        detect_launch();
     break;
     case e_mission_state::ascent:
         detect_apogee();
