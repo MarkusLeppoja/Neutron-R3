@@ -193,7 +193,18 @@ void _execute_command_from_list(int command)
     active_vehicle_config.enable_pyrotechnics = !active_vehicle_config.enable_pyrotechnics;
   break;
   case 32:
+    coms_alerts.create_alert(e_alert_type::alert, "Set mission_state equal to ascent");
+    active_mission_state = e_mission_state::ascent;
 
+    // Begin faster logging
+    set_recorder_flash_update_interval(active_vehicle_config.flash_log_interval_mode_2);
+
+    // Reset mission duration time
+    Clock.mission_duration = 0;
+    Clock.mission_begin_time = Clock.seconds;
+
+    // Reset orientation
+    reset_ori();
   break;
   case 33:
         
