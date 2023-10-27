@@ -6,6 +6,9 @@
 #include <flash.h>
 
 
+// @todo Add option to confim erasin the entire flash chip
+
+
 // @brief Ensures that contents inside recorder_update run at correct frequency
 extern uint64_t _recorder_serial_prev, _recorder_flash_prev;
 
@@ -20,7 +23,7 @@ extern char _recorder_char_buffer[], _recorder_string_buffer[];
 extern String _recorder_serial_prev_notification;
 
 
-// @brief Erase the entire chip TODO: add confirmation or option to format
+// @brief Erase the entire chip 
 void recorder_earase_flash_chip();
 
 // @brief Set the flash chip log rate. Interval must be in microseconds (1s = 1,000,000 ms)

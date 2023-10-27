@@ -56,7 +56,6 @@ void update_communication()
   }
 }
 
-//TODO: JSON Format active_vehicle_config all toggelable statuses
 void _execute_command_from_list(int command)
 {
   String temp_string;
@@ -392,29 +391,8 @@ void _execute_command_from_list(int command)
     recorder_earase_flash_chip();
   break;
   case 83:
-    coms_alerts.create_alert(e_alert_type::alert, "");
+    //coms_alerts.create_alert(e_alert_type::alert, "");
 
-  break;
-  case 84:
-    coms_alerts.create_alert(e_alert_type::alert, "");
-
-  break;
-  case 85:
-    coms_alerts.create_alert(e_alert_type::alert, "");
-
-  break;
-  case 86:
-    coms_alerts.create_alert(e_alert_type::alert, "");
-
-  break;
-  case 87:
-        
-  break;
-  case 88:
-        
-  break;
-  case 89:
-        
   break;
     
   default:

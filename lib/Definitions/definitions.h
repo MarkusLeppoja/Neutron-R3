@@ -71,6 +71,8 @@ struct s_booleans
     boolean sw_sensors_mag_usability;
     boolean sw_sensors_imu_enable_calibration;
     boolean sw_sensors_baro_enable_calibration;
+    boolean sw_sensors_baro_enable_offset_calibration;
+    boolean sw_sensors_baro_enable_deviation_calibration;
 
     // Manually set in coms to begin 
     boolean sw_begin_pad_idle_ground_lock_exit_countdown;

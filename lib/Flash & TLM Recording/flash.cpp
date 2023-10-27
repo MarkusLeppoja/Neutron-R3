@@ -34,7 +34,7 @@ int flash_device::init(boolean enable)
     // Check if a filesystem is present
     if (!fatfs.begin(&flash))
     {
-        flash_alerts.create_alert(e_alert_type::error, "Failed to mount newly formatted filesystem!"); //TODO: Maybe let it format it automatically or add an option to format it
+        flash_alerts.create_alert(e_alert_type::error, "Failed to mount newly formatted filesystem!");
         Booleans.sw_flash_chip_usability = 0;
         return 0;
     }
@@ -119,6 +119,9 @@ int flash_device::read_and_display_all_content(String file_path)
 
     // Open file if it wasn't open
     if (!data_file.isOpen()) open_file(file_path, FILE_READ);
+
+    // Wait a bit for user to change serial monitors
+    delay(5000);
 
     // Display's all available content to Serial
     while (data_file.available())

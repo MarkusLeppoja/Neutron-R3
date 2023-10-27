@@ -9,7 +9,6 @@ char _recorder_char_buffer[10], _recorder_string_buffer[512];
 String _recorder_serial_prev_notification;
 
 
-
 void recorder_earase_flash_chip()
 {
     recorder_flash_instance.erase_chip();
@@ -167,9 +166,6 @@ void _recorder_convert_data_to_string(String &end_result_inst)
         _convert_var_to_string(Sensors.orientation.x, 5, 2);
         _convert_var_to_string(Sensors.orientation.y, 5, 2);
         _convert_var_to_string(Sensors.orientation.z, 5, 2);
-
-
-        // @todo filtered accel, gyro ang vel and ori, total velocity.
     }
 
     // Baro
@@ -181,8 +177,6 @@ void _recorder_convert_data_to_string(String &end_result_inst)
         _convert_var_to_string(Sensors.raw_baro_temperature, 5, 2);
         _convert_var_to_string(Sensors.altitude, 8, 2);
         _convert_var_to_string(Sensors.velocity, 6, 2);
-
-        // @todo filtered altitude
     }
 
     // GNSS @todo Future stuff

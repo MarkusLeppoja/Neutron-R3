@@ -10,6 +10,8 @@
 #include <alerts.h>
 
 
+// @todo Add option to format the flash filesystem. Also make it available in commands
+
 /* @brief Flash File
  * What does it do - Enables writing / reading data to flash device.
  * All functions - init, create_file, open_file, close_file, write_file_line, read_and_display_all_content, remove_file
@@ -18,7 +20,6 @@
  * Flash chip uses alerts functionality to communicate it's state. Ensure that flash chip file isn't included in alert's file to avoid errors.
  * Whether flash chip is usable or not is determined by the sw_flash_chip_usability (boolean), which gets its state in init function. Otherwise the flash will be disabled.
 */
-
 
 
 class flash_device

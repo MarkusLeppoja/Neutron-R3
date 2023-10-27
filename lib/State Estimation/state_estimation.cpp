@@ -25,7 +25,7 @@ uint64_t _imu_update_prev, _baro_update_prev, _gnss_update_prev, _v_divider_upda
 float _sensors_imu_accel_cal_x[400], _sensors_imu_accel_cal_y[400], _sensors_imu_accel_cal_z[400];
 float _sensors_imu_gyro_cal_x[400], _sensors_imu_gyro_cal_y[400], _sensors_imu_gyro_cal_z[400];
 float _sensors_baro_altitude_cal[100];
-uint16_t _sensors_imu_calibration_list_index, _sensors_baro_calibration_list_index;
+int _sensors_imu_calibration_list_index, _sensors_baro_calibration_list_index;
 
 // Kalman filter
 position_kalman_filter position_kalman;
@@ -33,8 +33,8 @@ kalman kalman_x_dps, kalman_y_dps, kalman_z_dps;
 kalman kalman_x_accel, kalman_y_accel, kalman_z_accel;
 
 // Orientation
-Orientation ori_quat; //quat, quat_world_accel, new_quat;
-EulerAngles ori_euler;//TODO: Remove?
+Orientation ori_quat;
+EulerAngles ori_euler;
 
 
 
@@ -472,6 +472,7 @@ void imu_enable_calibration()
 void baro_enable_calibration()
 {
     Booleans.sw_sensors_baro_enable_calibration = true;
+    Booleans.sw_sensors_baro_enable_offset_calibration = true;
 }
 
 void _imu_calibrate()
@@ -487,7 +488,7 @@ void _imu_calibrate_calculate_deviation()
 
     vector_3d accel_sum, gyro_sum;
 
-    for (uint16_t i = 0; i < 400; i++)
+    for (int i = 0; i < 400; i++)
     {
         // Accel
         accel_sum.x += _sensors_imu_accel_cal_x[i];
@@ -529,7 +530,7 @@ void _imu_calibrate_calculate_deviation()
     gyro_sum.z = 0;
 
     // Calculate deviation
-    for (uint16_t i = 0; i < 400; i++)
+    for (int i = 0; i < 400; i++)
     {
         // Accel
         accel_sum.x += sq(_sensors_imu_accel_cal_x[i] - active_vehicle_config._accel_offset_x);
@@ -581,26 +582,31 @@ void _baro_calibrate()
 {
     if (!Booleans.sw_sensors_baro_enable_calibration) return;
 
-    _sensors_baro_calibration_list_index >= 99 ? _baro_calibrate_calculate_deviation() : _baro_calibrate_update();
+    if (Booleans.sw_sensors_baro_enable_offset_calibration)
+    {
+        _sensors_baro_calibration_list_index >= 99 ? _baro_calibrate_calculate_offset() : _baro_calibrate_update(); //ensure to disable this when it has ended
+    }
+
+    if (Booleans.sw_sensors_baro_enable_deviation_calibration)
+    {
+        _sensors_baro_calibration_list_index >= 99 ? _baro_calibrate_calculate_deviation() : _baro_calibrate_update();
+    }
 }
 
 void _baro_calibrate_update()
 {
     // Update the calibration list
-    _sensors_baro_altitude_cal[_sensors_baro_calibration_list_index] = Sensors.raw_baro_altitude;
+    _sensors_baro_altitude_cal[_sensors_baro_calibration_list_index] = Sensors.raw_baro_altitude_wo_bias;
 
     // Integrate the calibration index
     _sensors_baro_calibration_list_index++;
 }
 
-void _baro_calibrate_calculate_deviation()
+void _baro_calibrate_calculate_offset()
 {
-    // Disable calibration function endicating the end of the  
-    Booleans.sw_sensors_baro_enable_calibration = false;
-
+    // Add all measurements together
     float baro_sum;
-
-    for (uint16_t i = 0; i < 100; i++)
+    for (int i = 0; i < 100; i++)
     {
         baro_sum += _sensors_baro_altitude_cal[i];
     }
@@ -608,21 +614,44 @@ void _baro_calibrate_calculate_deviation()
     // Calculate average deviation
     active_vehicle_config._baro_offset_altitude = baro_sum / 100.f;
 
-    baro_sum = 0;
-    // Calculate deviation
-    for (uint16_t i = 0; i < 100; i++)
+    // Reset calibration list index for step 2 of calibration where we calculate standard deviation
+    _sensors_baro_calibration_list_index = 0;
+
+    // Disable step 1 off calibration and enable step 2
+    Booleans.sw_sensors_baro_enable_offset_calibration = false;
+    Booleans.sw_sensors_baro_enable_deviation_calibration = true;
+}
+
+void _baro_calibrate_calculate_deviation()
+{
+
+    float new_baro_average, baro_sum;
+    for (int i = 0; i < 100; i++)
     {
-        baro_sum += sq(_sensors_baro_altitude_cal[i] - active_vehicle_config._baro_offset_altitude);
+        new_baro_average += _sensors_baro_altitude_cal[i];
+    }
+    
+    new_baro_average = new_baro_average / 100.f;
+
+    // Calculate deviation
+    for (int i = 0; i < 100; i++)
+    {
+        baro_sum += sq(_sensors_baro_altitude_cal[i] - new_baro_average);
     }
 
     active_vehicle_config._baro_standard_deviation_altitude = sqrtf(baro_sum / 99.f);
 
     // Create alert
-    alerts_sensors.create_alert(e_alert_type::alert, "Calibration complete. Offsets altitude: " + String(active_vehicle_config._baro_offset_altitude) + " Standard deviation: " + String(active_vehicle_config._baro_standard_deviation_altitude));
+    alerts_sensors.create_alert(e_alert_type::alert, "Calibration complete. Offsets altitude: " + String(new_baro_average) + " Standard deviation: " + String(active_vehicle_config._baro_standard_deviation_altitude));
 
+    // Set standard deviation in kalman filter
     position_kalman.R = {
         active_vehicle_config._baro_standard_deviation_altitude
     };
 
     reset_altitude_kalman();
+
+    // Disable calibration & step 2 of it 
+    Booleans.sw_sensors_baro_enable_calibration = false;
+    Booleans.sw_sensors_baro_enable_deviation_calibration = false;
 }

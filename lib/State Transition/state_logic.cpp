@@ -188,6 +188,12 @@ void update_state_machine()
     break;
     case e_mission_state::ascent:
         detect_apogee();
+        if (abs(Sensors.orientation.x) > 50 || abs(Sensors.orientation.y) > 50) 
+        {
+            recovery_deploy_parachute();
+            add_special_indicator_to_queue(e_event_options::event_mission_abort);
+            set_mission_state(e_mission_state::chute_decent);
+        }
     break;
     case e_mission_state::ballistic_decent:
         detect_landed();

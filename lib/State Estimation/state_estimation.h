@@ -23,7 +23,7 @@ extern uint64_t _imu_update_prev, _baro_update_prev, _gnss_update_prev, _v_divid
 extern float _sensors_imu_accel_cal_x[], _sensors_imu_accel_cal_y[], _sensors_imu_accel_cal_z[];
 extern float _sensors_imu_gyro_cal_x[], _sensors_imu_gyro_cal_y[], _sensors_imu_gyro_cal_z[];
 extern float _sensors_baro_altitude_cal[];
-extern uint16_t _sensors_imu_calibration_list_index, _sensors_baro_calibration_list_index;
+extern int _sensors_imu_calibration_list_index, _sensors_baro_calibration_list_index;
 
 /* Filters */
 class band_pass
@@ -87,7 +87,6 @@ private:
     Matrix<1, 1> accel_measurement;
     Matrix<1, 1> baro_measurement;
 
-    //TODO: Sync with calibration
     uint64_t kf_prev;
     float dt;
     boolean is_first_step = true;
@@ -150,4 +149,6 @@ void _baro_calibrate();
 void _baro_calibrate_update();
 // @brief Baro calibration data results calculating function
 void _baro_calibrate_calculate_deviation();
+// @brief For finding the true offset of baro
+void _baro_calibrate_calculate_offset();
 #endif  

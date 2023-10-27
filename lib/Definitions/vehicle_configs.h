@@ -128,8 +128,8 @@ typedef struct {
     .fds_servo_lock_angle = 125,                                                  \
     /* Pyrotechnics */                                                            \
     .enable_pyrotechnics = false,                                                 \
-    .pyro_1_fire_duration = 250000,                                              \
-    .pyro_2_fire_duration = 250000,                                              \
+    .pyro_1_fire_duration = 250000,                                               \
+    .pyro_2_fire_duration = 250000,                                               \
     .pyro_voltage_divider_ratio = 0.00806,                                        \
     /* Flash & Serial Logging */                                                  \
     .enable_flash_log = true,                                                     \
