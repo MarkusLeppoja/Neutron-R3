@@ -231,7 +231,7 @@ void detect_apogee()
 {
     Sensors.altitude < Sensors.apogee_altitude ? _detect_state_counter_1++ : _detect_state_counter_1 = 0;
 
-    if (_detect_state_counter_1 >= 30 || has_time_elipsed(active_vehicle_config.max_ascent_time))
+    if (_detect_state_counter_1 >= 50 || has_time_elipsed(active_vehicle_config.max_ascent_time))
     {
         _detect_state_counter_1 = 0;
 

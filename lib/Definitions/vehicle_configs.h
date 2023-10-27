@@ -167,7 +167,7 @@ typedef struct {
     .detect_launch_accel_threshold = 11.2f,                                       \
     .detect_landing_touchdown_altitude_threshold = 5,                             \
     .max_ascent_time = 4,                                                         \
-    .max_mission_duration = 20,                                                   \
+    .max_mission_duration = 30,                                                   \
   }
 
 #define Electron_Test_Config                                                      \
