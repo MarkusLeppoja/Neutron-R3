@@ -144,7 +144,7 @@ typedef struct {
     .flash_log_interval_mode_0 = 1000000,                                         \
     .flash_log_interval_mode_1 = 50000,                                           \
     .flash_log_interval_mode_2 = 22000,                                           \
-    .flash_data_file_name = "Electron Flight 5",                                  \
+    .flash_data_file_name = "Electron Flight 6",                                  \
     .flash_data_file_format = ".csv",                                             \
     /* Select what data gets logged */                                            \
     .enable_datasave_general = true,                                              \

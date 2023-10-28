@@ -33,7 +33,7 @@ kalman kalman_x_dps, kalman_y_dps, kalman_z_dps;
 kalman kalman_x_accel, kalman_y_accel, kalman_z_accel;
 
 // Orientation
-Orientation ori_quat;
+Orientation ori_quat, new_quat, quat_world_accel;
 EulerAngles ori_euler;
 
 
@@ -268,7 +268,7 @@ void _imu_update()
     _gyro_update();
 
     // Update kalman filter
-    position_kalman.predict_accel(-(Sensors.accel.z - Sensors.gravity));
+    position_kalman.predict_accel(Sensors.accel.z - Sensors.gravity);
 
     // Finds offset and standard deviation if enabled
     _imu_calibrate();
@@ -294,28 +294,28 @@ void _accel_update()
     Sensors.accel.x = kalman_x_accel.update_estimate(Sensors.raw_accel.x - active_vehicle_config._accel_offset_x);
     Sensors.accel.y = kalman_y_accel.update_estimate(Sensors.raw_accel.y - active_vehicle_config._accel_offset_y);
     Sensors.accel.z = kalman_z_accel.update_estimate(Sensors.raw_accel.z - active_vehicle_config._accel_offset_z);
-}
 
-    /* This portion of code is taken from AdamMarciniak Cygnus-X1-Software github repository 
-     https://github.com/AdamMarciniak/Cygnus-X1-Software/blob/master/src/Nav.cpp TODO:
+
+    //This portion of code is taken from AdamMarciniak Cygnus-X1-Software github repository 
+    //https://github.com/AdamMarciniak/Cygnus-X1-Software/blob/master/src/Nav.cpp 
 
     // Calculates the world acceleration
     //quat_world_accel.orientation = quat.orientation.rotate(Quaternion(0, Sensors.localAccel.z, Sensors.localAccel.y, Sensors.localAccel.x));
     //quat_world_accel.orientation = Quaternion(0, Sensors.localAccel.z, Sensors.localAccel.x, -Sensors.localAccel.y).operator*=(quat.orientation);
 
-    double norm = sqrt(sq(Sensors.gyro_velocity.x) + sq(Sensors.gyro_velocity.y) + sq(Sensors.gyro_velocity.z));
+    /*double norm = sqrt(sq(Sensors.gyro_velocity.x) + sq(Sensors.gyro_velocity.y) + sq(Sensors.gyro_velocity.z));
     norm = copysign(max(abs(norm), 1e-9), norm); 
 
     // De-biasing
     //new_quat.orientation.rotate(Quaternion(0.0,0, Sensors.accelOri.y, Sensors.accelOri.x));
 
-    new_quat.orientation *= new_quat.orientation.from_axis_angle(dt * norm, Sensors.gyro_velocity.x / norm, Sensors.gyro_velocity.y / norm, Sensors.gyro_velocity.z / norm);
+    new_quat.orientation *= new_quat.orientation.from_axis_angle(accel_dt * norm, Sensors.gyro_velocity.x / norm, Sensors.gyro_velocity.y / norm, Sensors.gyro_velocity.z / norm);
     quat_world_accel.orientation = new_quat.orientation.rotate(Quaternion(0.0, -Sensors.raw_accel.y, Sensors.raw_accel.x, Sensors.raw_accel.z));
-
 
     Sensors.world_accel.x = quat_world_accel.orientation.c;
     Sensors.world_accel.y = quat_world_accel.orientation.b;
     Sensors.world_accel.z = quat_world_accel.orientation.d;*/
+}
 
 void _gyro_update()
 {
@@ -645,9 +645,9 @@ void _baro_calibrate_calculate_deviation()
     alerts_sensors.create_alert(e_alert_type::alert, "Calibration complete. Offsets altitude: " + String(new_baro_average) + " Standard deviation: " + String(active_vehicle_config._baro_standard_deviation_altitude));
 
     // Set standard deviation in kalman filter
-    position_kalman.R = {
+    /*position_kalman.R = {
         active_vehicle_config._baro_standard_deviation_altitude
-    };
+    };*/
 
     reset_altitude_kalman();
 

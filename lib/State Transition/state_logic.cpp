@@ -70,11 +70,15 @@ void _on_mission_state_change(e_mission_state new_state)
     break;
     case e_mission_state::ground_locked:
         Clock.mission_duration = 0;
-    
+
+        // Disable flash telemetry log to save some space
+        active_vehicle_config.enable_flash_log = true;
+        active_vehicle_config.enable_flash_telemetry_log = false;
+        active_vehicle_config.enable_flash_notification_log = true;   
     break;
     case e_mission_state::pad_idle:
         // Put the flash update rate to before launch config
-        set_recorder_flash_update_interval(active_vehicle_config.flash_log_interval_mode_2);
+        set_recorder_flash_update_interval(active_vehicle_config.flash_log_interval_mode_1);
 
         // Reset mission duration just in case
         Clock.mission_duration = 0;
@@ -109,7 +113,7 @@ void _on_mission_state_change(e_mission_state new_state)
         
     break;
     case e_mission_state::landed:
-        alerts_state_logic.create_alert(e_alert_type::alert, "Vehicle apogee was " + String(Sensors.apogee_altitude) + " meters");
+        alerts_state_logic.create_alert(e_alert_type::alert, "Vehicle apogee was " + String(Sensors.raw_baro_altitude_wo_bias) + " meters");
         recorder_close_file();
 
         // Re-Enable lED & buzzer

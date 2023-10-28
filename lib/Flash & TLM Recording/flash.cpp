@@ -130,7 +130,7 @@ int flash_device::read_and_display_all_content(String file_path)
         Serial.print(c);
 
         // Compensate for serial slowness
-        delayMicroseconds(150);
+        delayMicroseconds(100);
     }
 
     close_file();

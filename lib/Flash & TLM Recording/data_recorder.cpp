@@ -226,9 +226,9 @@ void _recorder_create_csv_layout(String &layout_inst)
     /* General */
     if (active_vehicle_config.enable_datasave_general)
     {
-        _convert_var_to_string("VOT (s) ");
-        _convert_var_to_string("MT (s) ");
-        _convert_var_to_string("State ");
+        _convert_var_to_string("VOT (s)");
+        _convert_var_to_string("MT (s)");
+        _convert_var_to_string("State");
         //_convert_var_to_string();
         //_convert_var_to_string();
 
@@ -238,27 +238,27 @@ void _recorder_create_csv_layout(String &layout_inst)
     /* Pyro */
     if (active_vehicle_config.enable_datasave_pyro)
     {
-        _convert_var_to_string("Pyro 1 Fire ");
-        _convert_var_to_string("Pyro 1 Voltage (V) ");
-        _convert_var_to_string("Pyro 2 Fire ");
-        _convert_var_to_string("Pyro 2 Voltage (V) ");
-        _convert_var_to_string("PF Pyro Loop (ms) ");
-        _convert_var_to_string("PF Pyro Func Dur (ms) ");
+        _convert_var_to_string("Pyro 1 Fire");
+        _convert_var_to_string("Pyro 1 Voltage (V)");
+        _convert_var_to_string("Pyro 2 Fire");
+        _convert_var_to_string("Pyro 2 Voltage (V)");
+        _convert_var_to_string("PF Pyro Loop (ms)");
+        _convert_var_to_string("PF Pyro Func Dur (ms)");
     }
 
     /* Sensors */
     if (active_vehicle_config.enable_datasave_imu_data)
     {
-        _convert_var_to_string("Accel X (m/s^2) ");
-        _convert_var_to_string("Accel Y (m/s^2) ");
-        _convert_var_to_string("Accel Z (m/s^2) ");
-        _convert_var_to_string("Gyro Vel X (dps) ");
-        _convert_var_to_string("Gyro Vel Y (dps) ");
-        _convert_var_to_string("Gyro Vel Z (dps) ");
-        _convert_var_to_string("IMU Temp (*C) ");
-        _convert_var_to_string("Ori X ");
-        _convert_var_to_string("Ori Y ");
-        _convert_var_to_string("Ori Z ");
+        _convert_var_to_string("Accel X (m/s^2)");
+        _convert_var_to_string("Accel Y (m/s^2)");
+        _convert_var_to_string("Accel Z (m/s^2)");
+        _convert_var_to_string("Gyro Vel X (dps)");
+        _convert_var_to_string("Gyro Vel Y (dps)");
+        _convert_var_to_string("Gyro Vel Z (dps)");
+        _convert_var_to_string("IMU Temp (*C)");
+        _convert_var_to_string("Ori X (deg)");
+        _convert_var_to_string("Ori Y (deg)");
+        _convert_var_to_string("Ori Z (deg)");
 
 
         // @todo filtered accel, gyro ang vel and ori, total velocity.
@@ -267,12 +267,12 @@ void _recorder_create_csv_layout(String &layout_inst)
     // Baro
     if (active_vehicle_config.enable_datasave_baro_data)
     {
-        _convert_var_to_string("Baro Alt Raw (m) ");
-        _convert_var_to_string("Baro Alt Raw & WO Bias (m) ");
-        _convert_var_to_string("Air Pressure (hPa) ");
-        _convert_var_to_string("Baro Temp (*C) ");
-        _convert_var_to_string("Altitude (m) ");
-        _convert_var_to_string("Velocity (m/s) ");
+        _convert_var_to_string("Baro Alt Raw (m)");
+        _convert_var_to_string("Baro Alt Raw & WO Bias (m)");
+        _convert_var_to_string("Air Pressure (hPa)");
+        _convert_var_to_string("Baro Temp (*C)");
+        _convert_var_to_string("Altitude (m)");
+        _convert_var_to_string("Velocity (m/s)");
 
         // @todo filtered altitude
     }
@@ -283,7 +283,7 @@ void _recorder_create_csv_layout(String &layout_inst)
     // Voltage divider
     if (active_vehicle_config.enable_datasave_v_divider_data)
     {
-        _convert_var_to_string("Voltage (V) ");
+        _convert_var_to_string("Voltage");
     }
 
     // Mag @todo Future stuff
@@ -293,17 +293,17 @@ void _recorder_create_csv_layout(String &layout_inst)
     /* Profiler */
     if (active_vehicle_config.enable_datasave_profiler_sensors_loop)
     {
-        _convert_var_to_string("PF IMU Loop (ms) ");
-        _convert_var_to_string("PF Baro Loop (ms) ");
-        _convert_var_to_string("PF Voltage Divider Loop (ms) ");
+        _convert_var_to_string("PF IMU Loop (ms)");
+        _convert_var_to_string("PF Baro Loop (ms)");
+        _convert_var_to_string("PF Voltage Divider Loop (ms)");
 
         // @todo gnss, mag
     } 
     
     if (active_vehicle_config.enable_datasave_profiler_sensors_duration)
     {
-        _convert_var_to_string("PF IMU Func Dur (ms) ");
-        _convert_var_to_string("PF Baro Func Dur (ms) ");
+        _convert_var_to_string("PF IMU Func Dur (ms)");
+        _convert_var_to_string("PF Baro Func Dur (ms)");
         _convert_var_to_string_wo_coma("PF Voltage Divider Func Dur (ms)");
         // @todo gnss, mag
     }
