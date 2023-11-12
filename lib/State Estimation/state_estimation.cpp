@@ -1,6 +1,6 @@
 #include "state_estimation.h"
 
-// Instances
+
 // Communication protocol custom instance
 SPIClassRP2040 spi_sensors_instance(spi0, e_pins::pin_spi_miso, e_pins::pin_cs_flash, e_pins::pin_spi_sck, e_pins::pin_spi_mosi);
 TwoWire i2c_sensors_instance(&i2c1_inst, e_pins::pin_i2c_sda, e_pins::pin_i2c_scl);
@@ -16,153 +16,35 @@ Alerts alerts_sensors("State Estimation");
 // Performance profilers instances
 Profiler profiler_imu;
 Profiler profiler_baro;
-Profiler profiler_gnss;         // @todo create
-Profiler profiler_mag;          // @todo create / remove
 Profiler profiler_v_divider;
 
 // Local variables
-uint64_t _imu_update_prev, _baro_update_prev, _gnss_update_prev, _v_divider_update_prev, _mag_update_prev, _accel_prev, _gyro_prev;
+uint64_t _imu_update_prev, _baro_update_prev, _v_divider_update_prev, _accel_prev, _gyro_prev;
 float _sensors_imu_accel_cal_x[400], _sensors_imu_accel_cal_y[400], _sensors_imu_accel_cal_z[400];
 float _sensors_imu_gyro_cal_x[400], _sensors_imu_gyro_cal_y[400], _sensors_imu_gyro_cal_z[400];
 float _sensors_baro_altitude_cal[100];
 int _sensors_imu_calibration_list_index, _sensors_baro_calibration_list_index;
 
-// Kalman filter
-position_kalman_filter position_kalman;
-kalman kalman_x_dps, kalman_y_dps, kalman_z_dps;
-kalman kalman_x_accel, kalman_y_accel, kalman_z_accel;
+// Kalman filter TODO: better names
+position_kalman_filter kf_position;
+kalman kf_x_gyro_vel, kf_y_gyro_vel, kf_z_gyro_vel;
+kalman kf_x_accel, kf_y_accel, kf_z_accel;
 
 // Orientation
 Orientation ori_quat, new_quat, quat_world_accel;
 EulerAngles ori_euler;
 
 
-
-
-
-
-
-/* Filters */
-void kalman::init(float i_E_MEA, float EST)
-{
-    err_mea = err_est = i_E_MEA;
-    est = EST;
-}
-
-void kalman::reset()
-{
-    err_est = err_mea;
-    est = kg = 1.f;
-}
-
-float kalman::update_estimate(float value)
-{
-    kg = err_est / (err_est + err_mea);
-
-    est = est + kg * (value - est);
-    err_est = (1 - kg) * err_est + fabsf((old_est - est) * err_mea);
-
-    old_est = est;
-
-    return est;
-}
-
-band_pass::band_pass(float t_gain)
-{
-    gain = t_gain;
-    old_value = 0;
-}
-
-float band_pass::update_estimate(float value)
-{
-    return old_value * gain + value * (1 - gain);
-}
-
-void position_kalman_filter::predict_accel(float accel_data)
-{
-    dt = (micros() - kf_prev) / 1000000.f;
-    kf_prev = micros();
-
-    if (!is_first_step)
-    { 
-        F = {
-            1, dt,
-            0, 1
-        };
-
-        B = {
-            (dt * dt) / 2.f,
-            dt
-        };
-
-        accel_measurement = {accel_data};
-        state_vector = F * state_vector + B * accel_measurement;
-        P = F * P * ~F + Q;
-    }
-    is_first_step = false;
-}
-
-void position_kalman_filter::update_baro(float baro_altitude)
-{
-    // Use baro altitude only at Z axis position
-    baro_measurement = {
-        baro_altitude
-    };
-
-    // Calculate new kalman gain
-    K = P * ~H_baro * Inverse(H_baro * P * ~H_baro + R);
-
-    // Update state
-    state_vector = state_vector + K * (baro_measurement - H_baro * state_vector);
-
-    // Update estimate uncertanty
-    P = (I - K * H_baro) * P * (~(I - K * H_baro)) + K * R * ~K;
-}
-
-float position_kalman_filter::get_position()
-{
-    return state_vector(0);
-}
-
-float position_kalman_filter::get_velocity()
-{
-    return state_vector(1);
-}
-
-Matrix<2, 1> position_kalman_filter::get_kalman_gain()
-{
-    return K;
-}
-
-void position_kalman_filter::reset()
-{
-    // Resets the estimation to 0
-    state_vector = {
-        0,
-        0
-    };
-
-    // Sets the uncertanty really high
-    P = {
-        0.01, 0,
-        0, 0.01
-    };
-}
-
-
-
 int _baro_begin()
 {
-    if (!active_vehicle_config.enable_baro)
+    if (!get_active_config().enable_baro)
     {
         alerts_sensors.create_alert(e_alert_type::warning, "Baro is disabled");
-        Booleans.sw_sensors_baro_usability = false;
-        return 0;
+        Booleans.sw_sensors_baro_usability = 0;
+        return 1;
     }
 
-    uint8_t baro_init_status;
-    baro_init_status = baro_instance.begin(0x76);
-
+    uint8_t baro_init_status = baro_instance.begin(0x76);
     if (!baro_init_status)
     {
         alerts_sensors.create_alert(e_alert_type::error, "Failed to connect with baro. Disabling baro functionality");
@@ -175,7 +57,6 @@ int _baro_begin()
     baro_instance.setPresOversampling(OVERSAMPLING_X4);
     baro_instance.setTempOversampling(OVERSAMPLING_X4);
     baro_instance.setIIRFilter(IIR_FILTER_OFF);
-
     baro_instance.startNormalConversion();
 
     // Enable baro functionality and create alert
@@ -191,38 +72,37 @@ int _baro_begin()
 int _imu_begin()
 {
     // Disable functionality if enable_imu is false
-    if (!active_vehicle_config.enable_imu)
+    if (!get_active_config().enable_imu)
     {
         alerts_sensors.create_alert(e_alert_type::warning, "IMU is disabled");
-        Booleans.sw_sensors_imu_usability = false;
+        Booleans.sw_sensors_imu_usability = 0;
         return 0;
     }
 
-    // Begin imu and capture its status
-    int imu_gyro_init_status, imu_accel_init_status;
-    imu_accel_init_status = accel_instance.begin();
-    imu_gyro_init_status = gyro_instance.begin();
+    // Begin imu and save its status
+    int imu_accel_init_status = accel_instance.begin();
+    int imu_gyro_init_status = gyro_instance.begin();
 
     // If startup failed return, create alert and disable usability
     if (imu_accel_init_status + imu_gyro_init_status != 2)
     {
-        alerts_sensors.create_alert(e_alert_type::error, "Failed to connect with BMI088. Accel status: " + String(imu_accel_init_status) + " Gyro status:" + String(imu_gyro_init_status));
+        alerts_sensors.create_alert(e_alert_type::error, "Failed to connect with BMI088. Accel status: " + String(imu_accel_init_status) + " Gyro status:" + String(imu_gyro_init_status) + ". Disabling IMU functionality");
         Booleans.sw_sensors_imu_usability = 0;
         return 0;
     }
 
     // Configure
     accel_instance.setRange(Bmi088Accel::RANGE_24G);
-    accel_instance.setOdr(Bmi088Accel::ODR_400HZ_BW_145HZ);
+    accel_instance.setOdr(Bmi088Accel::ODR_200HZ_BW_80HZ);
     gyro_instance.setRange(Bmi088Gyro::RANGE_2000DPS);
-    gyro_instance.setOdr(Bmi088Gyro::ODR_400HZ_BW_47HZ);
+    gyro_instance.setOdr(Bmi088Gyro::ODR_200HZ_BW_64HZ);
 
-    kalman_x_dps.init(0.1f, 0.1f);
-    kalman_y_dps.init(0.1f, 0.1f);
-    kalman_z_dps.init(0.1f, 0.1f);
-    kalman_x_accel.init(0.1f, 0.01f);
-    kalman_y_accel.init(0.1f, 0.01f);
-    kalman_z_accel.init(0.1f, -9.81f);
+    kf_x_gyro_vel.init(0.1f, 0.1f);
+    kf_y_gyro_vel.init(0.1f, 0.1f);
+    kf_z_gyro_vel.init(0.1f, 0.1f);
+    kf_x_accel.init(0.1f, 0.01f);
+    kf_y_accel.init(0.1f, 0.01f);
+    kf_z_accel.init(0.1f, 0.01f);
 
     // Enable imu functionality and create alert
     Booleans.sw_sensors_imu_usability = 1;
@@ -239,15 +119,11 @@ void _v_divider_begin()
     // Set the correct pinmode
     pinMode(e_pins::pin_voltage_divider, INPUT);
 
+    alerts_sensors.create_alert(e_alert_type::success, "V-Divider startup was successful");
+
     // Update prev to current time
     _v_divider_update_prev = micros();
 }
-
-
-
-
-
-
 
 
 
@@ -256,11 +132,11 @@ void _imu_update()
    update_mcu_clock();
    profiler_imu.begin_loop();
 
-   if (Clock.microseconds - _imu_update_prev <= 2500 || !active_vehicle_config.enable_imu || !Booleans.sw_sensors_imu_usability) return;
+   if (Clock.microseconds - _imu_update_prev < 5000.f || !get_active_config().enable_imu || !Booleans.sw_sensors_imu_usability) return;
     _imu_update_prev = Clock.microseconds;
 
     // Profiler
-    profiler_imu.end_loop(Sensors.profiler_imu_loop);
+    profiler_imu.end_loop(Code_performance.imu_loop);
     profiler_imu.begin_function();
 
     // Update sensors seperately
@@ -268,13 +144,13 @@ void _imu_update()
     _gyro_update();
 
     // Update kalman filter
-    position_kalman.predict_accel(Sensors.accel.z - Sensors.gravity);
+    kf_position.predict_accel(Sensors.acceleration.z - get_active_config().gravity);
 
     // Finds offset and standard deviation if enabled
     _imu_calibrate();
 
     // Profiler
-    profiler_imu.end_function(Sensors.profiler_imu_function_duration);
+    profiler_imu.end_function(Code_performance.imu_function_duration);
 }
 
 void _accel_update()
@@ -285,15 +161,15 @@ void _accel_update()
     float accel_dt = (micros() - _accel_prev) / 1000000.f;
     _accel_prev = micros();
 
-    Sensors.raw_accel.x = accel_instance.getAccelY_mss();
-    Sensors.raw_accel.y = -accel_instance.getAccelX_mss();
-    Sensors.raw_accel.z = -accel_instance.getAccelZ_mss();
+    Sensors.raw_acceleration.x = accel_instance.getAccelY_mss();
+    Sensors.raw_acceleration.y = -accel_instance.getAccelX_mss();
+    Sensors.raw_acceleration.z = -accel_instance.getAccelZ_mss();
 
-    Sensors.raw_accel_temp = accel_instance.getTemperature_C();
+    Sensors.raw_acceleometer_temperature = accel_instance.getTemperature_C();
     
-    Sensors.accel.x = kalman_x_accel.update_estimate(Sensors.raw_accel.x - active_vehicle_config._accel_offset_x);
-    Sensors.accel.y = kalman_y_accel.update_estimate(Sensors.raw_accel.y - active_vehicle_config._accel_offset_y);
-    Sensors.accel.z = kalman_z_accel.update_estimate(Sensors.raw_accel.z - active_vehicle_config._accel_offset_z);
+    Sensors.acceleration.x = kf_x_accel.update_estimate(Sensors.raw_acceleration.x - Sensors._accel_offset_x);
+    Sensors.acceleration.y = kf_y_accel.update_estimate(Sensors.raw_acceleration.y - Sensors._accel_offset_y);
+    Sensors.acceleration.z = kf_z_accel.update_estimate(Sensors.raw_acceleration.z - Sensors._accel_offset_z);
 
 
     //This portion of code is taken from AdamMarciniak Cygnus-X1-Software github repository 
@@ -325,23 +201,22 @@ void _gyro_update()
     float gyro_dt = (micros() - _gyro_prev) / 1000000.f;
     _gyro_prev = micros();
 
-    Sensors.raw_gyro_velocity.x = -gyro_instance.getGyroX_rads();
-    Sensors.raw_gyro_velocity.y = -gyro_instance.getGyroY_rads();
-    Sensors.raw_gyro_velocity.z = -gyro_instance.getGyroZ_rads();
+    Sensors.raw_gyro_velocity_rps.x = -gyro_instance.getGyroX_rads();
+    Sensors.raw_gyro_velocity_rps.y = -gyro_instance.getGyroY_rads();
+    Sensors.raw_gyro_velocity_rps.z = -gyro_instance.getGyroZ_rads();
 
-    Sensors.gyro_velocity_rps.x = kalman_x_dps.update_estimate(Sensors.raw_gyro_velocity.x - active_vehicle_config._gyro_offset_x);
-    Sensors.gyro_velocity_rps.y = kalman_y_dps.update_estimate(Sensors.raw_gyro_velocity.y - active_vehicle_config._gyro_offset_y);
-    Sensors.gyro_velocity_rps.z = kalman_z_dps.update_estimate(Sensors.raw_gyro_velocity.z - active_vehicle_config._gyro_offset_z);
+    Sensors.gyro_velocity_rps.x = kf_x_gyro_vel.update_estimate(Sensors.raw_gyro_velocity_rps.x - Sensors._gyro_offset_x);
+    Sensors.gyro_velocity_rps.y = kf_y_gyro_vel.update_estimate(Sensors.raw_gyro_velocity_rps.y - Sensors._gyro_offset_y);
+    Sensors.gyro_velocity_rps.z = kf_z_gyro_vel.update_estimate(Sensors.raw_gyro_velocity_rps.z - Sensors._gyro_offset_z);
 
-    Sensors.gyro_velocity.x = Sensors.gyro_velocity_rps.x * RAD_TO_DEG;
-    Sensors.gyro_velocity.y = Sensors.gyro_velocity_rps.y * RAD_TO_DEG;
-    Sensors.gyro_velocity.z = Sensors.gyro_velocity_rps.z * RAD_TO_DEG;
+    Sensors.gyro_velocity_dps.x = Sensors.gyro_velocity_rps.x * RAD_TO_DEG;
+    Sensors.gyro_velocity_dps.y = Sensors.gyro_velocity_rps.y * RAD_TO_DEG;
+    Sensors.gyro_velocity_dps.z = Sensors.gyro_velocity_rps.z * RAD_TO_DEG;
 
     ori_quat.update(Sensors.gyro_velocity_rps.x, Sensors.gyro_velocity_rps.y, Sensors.gyro_velocity_rps.z, gyro_dt);
     
     // Convert quaternion to euler angle
     ori_euler = ori_quat.toEuler();
-    
     Sensors.orientation.x = ori_euler.yaw * RAD_TO_DEG;
     Sensors.orientation.y = ori_euler.pitch * RAD_TO_DEG;
     Sensors.orientation.z = ori_euler.roll * RAD_TO_DEG;
@@ -352,35 +227,34 @@ void _baro_update()
     update_mcu_clock();
     profiler_baro.begin_loop();
 
-
-    if (Clock.microseconds - _baro_update_prev <= 20000 || !active_vehicle_config.enable_baro || !Booleans.sw_sensors_baro_usability) return;
+    if (Clock.microseconds - _baro_update_prev < 20000.f || !get_active_config().enable_baro || !Booleans.sw_sensors_baro_usability) return;
     _baro_update_prev = Clock.microseconds;
 
     // Profiler
-    profiler_baro.end_loop(Sensors.profiler_baro_loop);
+    profiler_baro.end_loop(Code_performance.baro_loop);
     profiler_baro.begin_function();
 
-    // Request baro data
+    // Call for new data
     baro_instance.getMeasurements(Sensors.raw_baro_temperature, Sensors.raw_baro_pressure, Sensors.raw_baro_altitude);
     
     // Create a variable which has the altitude without sensor bias
-    Sensors.raw_baro_altitude_wo_bias = Sensors.raw_baro_altitude - active_vehicle_config._baro_offset_altitude;
+    Sensors.raw_baro_altitude_wo_bias = Sensors.raw_baro_altitude - Sensors._baro_offset_altitude;
 
     // Update apogee altitude only during mission
-    if (is_mission_active() && Sensors.altitude - Sensors.apogee_altitude >= 0.20){
-        Sensors.apogee_altitude = Sensors.altitude;
+    if (is_mission_active() && Sensors.position.z - Sensors.apogee_altitude >= 0.20){
+        Sensors.apogee_altitude = Sensors.position.z;
     }
 
     // Update kalman filter
-    position_kalman.update_baro(Sensors.raw_baro_altitude_wo_bias);
-    Sensors.altitude = position_kalman.get_position();
-    Sensors.velocity = position_kalman.get_velocity();
+    kf_position.update_baro(Sensors.raw_baro_altitude_wo_bias);
+    Sensors.position.z = kf_position.get_position();
+    Sensors.velocity.z = kf_position.get_velocity();
 
     // Finds offset and standard deviation if enabled
     _baro_calibrate();
 
     // Profiler
-    profiler_baro.end_function(Sensors.profiler_baro_function_duration);
+    profiler_baro.end_function(Code_performance.baro_function_duration);
 }
 
 void _v_divider_update()
@@ -388,91 +262,82 @@ void _v_divider_update()
     update_mcu_clock();
     profiler_v_divider.begin_loop();
 
-    if (Clock.microseconds - _v_divider_update_prev < 50000 || !active_vehicle_config.enable_voltage_divider) return;
+    if (Clock.microseconds - _v_divider_update_prev < 50000.f || !get_active_config().enable_voltage_divider) return;
     _v_divider_update_prev = Clock.microseconds;
 
     // Profiler
-    profiler_v_divider.end_loop(Sensors.profiler_voltage_divider_loop);
+    profiler_v_divider.end_loop(Code_performance.voltage_divider_loop);
     profiler_v_divider.begin_function();
 
-    Sensors.system_voltage = analogRead(e_pins::pin_voltage_divider) * active_vehicle_config.voltage_divider_ratio;
+    Sensors.internal_voltage = analogRead(e_pins::pin_voltage_divider) * get_active_config().voltage_divider_ratio;
 
     // Profiler
-    profiler_v_divider.end_function(Sensors.profiler_voltage_divider_function_duration);
+    profiler_v_divider.end_function(Code_performance.voltage_divider_function_duration);
 }
 
 int sensors_begin()
 {
-    if (!active_vehicle_config.enable_sensors)
+    if (!get_active_config().enable_sensors)
     {
         alerts_sensors.create_alert(e_alert_type::warning, "Sensors are disabled");
-        Booleans.sw_sensors_usability = false;
+        Booleans.sw_sensors_usability = 0;
         return 0;
     }
+    
+    i2c_sensors_instance.setClock(1000000);
 
     // Begin sensors and save their status
     uint8_t baro_status = _baro_begin();
     uint8_t imu_status = _imu_begin();
-    //uint8_t gnss_status;// = _gnss_begin(active_vehicle_config.enable_gnss_debug);
-    //uint8_t mag_status
     _v_divider_begin();
 
     // If all sensors didn't initialize correctly create alert and disable sensors functionality
-    if ((baro_status + imu_status) != 2) // @todo if using gnss add gnss_status and change this to 3 
+    if ((baro_status + imu_status) != 2)
     {
         alerts_sensors.create_alert(e_alert_type::error, "Sensors startup was unsuccessful");
-        Booleans.sw_sensors_usability = false;
+        Booleans.sw_sensors_usability = 0;
         return 0; 
     }
 
     // Indicate successful startup and enable sensors usability
     alerts_sensors.create_alert(e_alert_type::success, "Sensors startup was successful");
-    Booleans.sw_sensors_usability = true;
+    Booleans.sw_sensors_usability = 1;
 
     return 1;
 }
 
 void update_sensors()
 {
-    if (!active_vehicle_config.enable_sensors || !Booleans.sw_sensors_usability) return;
+    if (!get_active_config().enable_sensors || !Booleans.sw_sensors_usability) return;
     
     _imu_update();
     _baro_update();
-    //_gnss_update();
-    //_mag_update();
     _v_divider_update();
 } //dav, ma lahen ja loodin nüüd oma põrandat edasi.
 
 void reset_ori()
 {
     ori_quat.reset();
-    alerts_sensors.create_alert(e_alert_type::alert, "Orientation was reset");
+    alerts_sensors.create_alert(e_alert_type::alert, "Orientation quaternion was reset");
 }
 
 
-void reset_altitude_kalman()
+void reset_position_kalman()
 {
-    position_kalman.reset();
-    alerts_sensors.create_alert(e_alert_type::alert, "Altitude kalman filter was reset");
+    kf_position.reset();
+    alerts_sensors.create_alert(e_alert_type::alert, "Position Kalman Filter was reset");
 }
-
-
-
-
-
-
 
 
 
 void imu_enable_calibration()
 {
-    Booleans.sw_sensors_imu_enable_calibration = true;
+    Booleans.sw_sensors_imu_enable_calibration = 1;
 }
 
 void baro_enable_calibration()
 {
-    Booleans.sw_sensors_baro_enable_calibration = true;
-    Booleans.sw_sensors_baro_enable_offset_calibration = true;
+    Booleans.sw_sensors_baro_enable_calibration = 1;
 }
 
 void _imu_calibrate()
@@ -484,7 +349,7 @@ void _imu_calibrate()
 void _imu_calibrate_calculate_deviation()
 {
     // Disable calibration function endicating the end of the  
-    Booleans.sw_sensors_imu_enable_calibration = false;
+    Booleans.sw_sensors_imu_enable_calibration = 0;
 
     vector_3d accel_sum, gyro_sum;
 
@@ -501,56 +366,58 @@ void _imu_calibrate_calculate_deviation()
     }
     
     // Calculate average deviation
-    active_vehicle_config._gyro_offset_x = gyro_sum.x / 399.f;
-    active_vehicle_config._gyro_offset_y = gyro_sum.y / 399.f;
-    active_vehicle_config._gyro_offset_z = gyro_sum.z / 399.f;
-    active_vehicle_config._accel_offset_x = accel_sum.x / 399.f;
-    active_vehicle_config._accel_offset_y = accel_sum.y / 399.f;
-    active_vehicle_config._accel_offset_z = accel_sum.z / 399.f;
+    Sensors._gyro_offset_x = gyro_sum.x / 400.f;
+    Sensors._gyro_offset_y = gyro_sum.y / 400.f;
+    Sensors._gyro_offset_z = gyro_sum.z / 400.f;
+    Sensors._accel_offset_x = accel_sum.x / 400.f;
+    Sensors._accel_offset_y = accel_sum.y / 400.f;
+    Sensors._accel_offset_z = accel_sum.z / 400.f;
 
-    // Create alert, logging offsets
-    String offsets_string = 
-    String(active_vehicle_config._gyro_offset_x) + " Y: " +
-    String(active_vehicle_config._gyro_offset_y) + " Z: " +
-    String(active_vehicle_config._gyro_offset_z) + " Accel X: " + 
-    String(active_vehicle_config._accel_offset_x) + " Y: " +
-    String(active_vehicle_config._accel_offset_y) + " Z: " +
-    String(active_vehicle_config._accel_offset_x);
-
-    // Create alert
-    alerts_sensors.create_alert(e_alert_type::alert, "Calibration complete. Offsets Gyro X: " + offsets_string);
-
-
-    accel_sum.x = 0;
-    accel_sum.y = 0;
-    accel_sum.z = 0;
-
-    gyro_sum.x = 0;
-    gyro_sum.y = 0;
-    gyro_sum.z = 0;
+    // Reset variables
+    accel_sum.x = accel_sum.y = accel_sum.z = 0;
+    gyro_sum.x = gyro_sum.y = gyro_sum.z = 0;
 
     // Calculate deviation
     for (int i = 0; i < 400; i++)
     {
         // Accel
-        accel_sum.x += sq(_sensors_imu_accel_cal_x[i] - active_vehicle_config._accel_offset_x);
-        accel_sum.y += sq(_sensors_imu_accel_cal_y[i] - active_vehicle_config._accel_offset_y);
-        accel_sum.z += sq(_sensors_imu_accel_cal_z[i] - active_vehicle_config._accel_offset_z);
-
+        accel_sum.x += sq(_sensors_imu_accel_cal_x[i] - Sensors._accel_offset_x);
+        accel_sum.y += sq(_sensors_imu_accel_cal_y[i] - Sensors._accel_offset_y);
+        accel_sum.z += sq(_sensors_imu_accel_cal_z[i] - Sensors._accel_offset_z);
         // Gyro
-        gyro_sum.x += sq(_sensors_imu_gyro_cal_x[i] - active_vehicle_config._gyro_offset_x);
-        gyro_sum.y += sq(_sensors_imu_gyro_cal_y[i] - active_vehicle_config._gyro_offset_y);
-        gyro_sum.z += sq(_sensors_imu_gyro_cal_z[i] - active_vehicle_config._gyro_offset_z);
+        gyro_sum.x += sq(_sensors_imu_gyro_cal_x[i] - Sensors._gyro_offset_x);
+        gyro_sum.y += sq(_sensors_imu_gyro_cal_y[i] - Sensors._gyro_offset_y);
+        gyro_sum.z += sq(_sensors_imu_gyro_cal_z[i] - Sensors._gyro_offset_z);
     }
 
-    active_vehicle_config._gyro_standard_deviation_x = sqrtf(gyro_sum.x / 399.f);
-    active_vehicle_config._gyro_standard_deviation_y = sqrtf(gyro_sum.y / 399.f);
-    active_vehicle_config._gyro_standard_deviation_z = sqrtf(gyro_sum.z / 399.f);
+    Sensors._gyro_standard_deviation_x = sqrtf(gyro_sum.x / 400.f);
+    Sensors._gyro_standard_deviation_y = sqrtf(gyro_sum.y / 400.f);
+    Sensors._gyro_standard_deviation_z = sqrtf(gyro_sum.z / 400.f);
 
-    active_vehicle_config._accel_standard_deviation_x = sqrtf(accel_sum.x / 399.f);
-    active_vehicle_config._accel_standard_deviation_y = sqrtf(accel_sum.y / 399.f);
-    active_vehicle_config._accel_standard_deviation_z = sqrtf(accel_sum.z / 399.f);
+    Sensors._accel_standard_deviation_x = sqrtf(accel_sum.x / 400.f);
+    Sensors._accel_standard_deviation_y = sqrtf(accel_sum.y / 400.f);
+    Sensors._accel_standard_deviation_z = sqrtf(accel_sum.z / 400.f);
 
+    // Create notification
+    String offsets_string = 
+    String(Sensors._gyro_offset_x) + " Y: " +
+    String(Sensors._gyro_offset_y) + " Z: " +
+    String(Sensors._gyro_offset_z) + " Accel X: " + 
+    String(Sensors._accel_offset_x) + " Y: " +
+    String(Sensors._accel_offset_y) + " Z: " +
+    String(Sensors._accel_offset_x);
+
+    String deviations_string = 
+    String(Sensors._gyro_standard_deviation_x) + " Y: " +
+    String(Sensors._gyro_standard_deviation_y) + " Z: " +
+    String(Sensors._gyro_standard_deviation_z) + " Accel X: " + 
+    String(Sensors._accel_standard_deviation_x) + " Y: " +
+    String(Sensors._accel_standard_deviation_y) + " Z: " +
+    String(Sensors._accel_standard_deviation_z);
+
+    alerts_sensors.create_alert(e_alert_type::alert, "Calibration complete. Offsets Gyro X: " + offsets_string + " Standard Deviation Gyro X: " + deviations_string);
+
+    // Reset orientation after calibrating
     reset_ori();
 }
 
@@ -558,13 +425,13 @@ void _imu_calibrate_update()
 {
     // Update the calibration list
     // Accel
-    _sensors_imu_accel_cal_x[_sensors_imu_calibration_list_index] = Sensors.raw_accel.x;
-    _sensors_imu_accel_cal_y[_sensors_imu_calibration_list_index] = Sensors.raw_accel.y;
-    _sensors_imu_accel_cal_z[_sensors_imu_calibration_list_index] = Sensors.raw_accel.z - Sensors.gravity;
+    _sensors_imu_accel_cal_x[_sensors_imu_calibration_list_index] = Sensors.raw_acceleration.x;
+    _sensors_imu_accel_cal_y[_sensors_imu_calibration_list_index] = Sensors.raw_acceleration.y;
+    _sensors_imu_accel_cal_z[_sensors_imu_calibration_list_index] = Sensors.raw_acceleration.z - get_active_config().gravity;
     // Gyro
-    _sensors_imu_gyro_cal_x[_sensors_imu_calibration_list_index] = Sensors.raw_gyro_velocity.x;
-    _sensors_imu_gyro_cal_y[_sensors_imu_calibration_list_index] = Sensors.raw_gyro_velocity.y;
-    _sensors_imu_gyro_cal_z[_sensors_imu_calibration_list_index] = Sensors.raw_gyro_velocity.z;
+    _sensors_imu_gyro_cal_x[_sensors_imu_calibration_list_index] = Sensors.raw_gyro_velocity_rps.x;
+    _sensors_imu_gyro_cal_y[_sensors_imu_calibration_list_index] = Sensors.raw_gyro_velocity_rps.y;
+    _sensors_imu_gyro_cal_z[_sensors_imu_calibration_list_index] = Sensors.raw_gyro_velocity_rps.z;
 
     // Integrate the calibration index
     _sensors_imu_calibration_list_index++;
@@ -572,25 +439,11 @@ void _imu_calibrate_update()
 
 
 
-
-
-
-
-
-
 void _baro_calibrate()
 {
     if (!Booleans.sw_sensors_baro_enable_calibration) return;
 
-    if (Booleans.sw_sensors_baro_enable_offset_calibration)
-    {
-        _sensors_baro_calibration_list_index >= 99 ? _baro_calibrate_calculate_offset() : _baro_calibrate_update(); //ensure to disable this when it has ended
-    }
-
-    if (Booleans.sw_sensors_baro_enable_deviation_calibration)
-    {
-        _sensors_baro_calibration_list_index >= 99 ? _baro_calibrate_calculate_deviation() : _baro_calibrate_update();
-    }
+    _sensors_baro_calibration_list_index >= 99 ? _baro_calibrate_calculate_offset() : _baro_calibrate_update();
 }
 
 void _baro_calibrate_update()
@@ -604,54 +457,34 @@ void _baro_calibrate_update()
 
 void _baro_calibrate_calculate_offset()
 {
-    // Add all measurements together
     float baro_sum;
     for (int i = 0; i < 100; i++)
     {
         baro_sum += _sensors_baro_altitude_cal[i];
     }
     
-    // Calculate average deviation
-    active_vehicle_config._baro_offset_altitude = baro_sum / 100.f;
-
-    // Reset calibration list index for step 2 of calibration where we calculate standard deviation
-    _sensors_baro_calibration_list_index = 0;
-
-    // Disable step 1 off calibration and enable step 2
-    Booleans.sw_sensors_baro_enable_offset_calibration = false;
-    Booleans.sw_sensors_baro_enable_deviation_calibration = true;
-}
-
-void _baro_calibrate_calculate_deviation()
-{
-
-    float new_baro_average, baro_sum;
-    for (int i = 0; i < 100; i++)
-    {
-        new_baro_average += _sensors_baro_altitude_cal[i];
-    }
+    Sensors._baro_offset_altitude = baro_sum / 100.f; 
     
-    new_baro_average = new_baro_average / 100.f;
-
     // Calculate deviation
+    baro_sum = 0;
     for (int i = 0; i < 100; i++)
     {
-        baro_sum += sq(_sensors_baro_altitude_cal[i] - new_baro_average);
+        baro_sum += sq(_sensors_baro_altitude_cal[i] - Sensors._baro_offset_altitude);
     }
 
-    active_vehicle_config._baro_standard_deviation_altitude = sqrtf(baro_sum / 99.f);
+    Sensors._baro_standard_deviation_altitude = sqrtf(baro_sum / 100.f);
 
     // Create alert
-    alerts_sensors.create_alert(e_alert_type::alert, "Calibration complete. Offsets altitude: " + String(new_baro_average) + " Standard deviation: " + String(active_vehicle_config._baro_standard_deviation_altitude));
+    alerts_sensors.create_alert(e_alert_type::alert, "Calibration complete. Offsets altitude: " + String(Sensors._baro_offset_altitude) + " Standard deviation: " + String(Sensors._baro_standard_deviation_altitude));
 
     // Set standard deviation in kalman filter
-    /*position_kalman.R = {
+    /*position_kalman.R = { TODO:
         active_vehicle_config._baro_standard_deviation_altitude
     };*/
 
-    reset_altitude_kalman();
+    // Disable calibration
+    Booleans.sw_sensors_baro_enable_calibration = 0;
 
-    // Disable calibration & step 2 of it 
-    Booleans.sw_sensors_baro_enable_calibration = false;
-    Booleans.sw_sensors_baro_enable_deviation_calibration = false;
+    // After calibrating reset position kalman filter
+    reset_position_kalman();
 }

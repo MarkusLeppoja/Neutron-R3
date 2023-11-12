@@ -1,5 +1,10 @@
 #include "flash.h"
 
+//TODO:
+// Use printf, instead of regular print and put println after that
+// Add support for multiple file logging, create enum based file logging selection
+
+
 // Instances
 SPIClassRP2040 spi_flash_instance(spi0, e_pins::pin_spi_miso, e_pins::pin_cs_flash, e_pins::pin_spi_sck, e_pins::pin_spi_mosi);
 Adafruit_FlashTransport_SPI flashTransport(e_pins::pin_cs_flash, &spi_flash_instance);
@@ -7,7 +12,6 @@ Adafruit_SPIFlash flash(&flashTransport);
 Alerts flash_alerts("Flash");
 FatVolume fatfs;
 File32 data_file; 
-
 
 
 int flash_device::init(boolean enable)
@@ -39,10 +43,10 @@ int flash_device::init(boolean enable)
         return 0;
     }
 
-    if (does_file_exist(active_vehicle_config.flash_data_file_name + active_vehicle_config.flash_data_file_format))
+    /*if (does_file_exist(get_active_config().flash_data_file_name + get_active_config().flash_data_file_format)) TODO:
     {
         flash_alerts.create_alert(e_alert_type::warning, "Warning! A file already exists on AVC data path!");
-    }
+    }*/
 
     // Indicate flash startup success and enable flash usability in software
     flash_alerts.create_alert(e_alert_type::success, "Flash startup complete");
@@ -127,10 +131,10 @@ int flash_device::read_and_display_all_content(String file_path)
     while (data_file.available())
     {
         char c = data_file.read();
-        Serial.print(c);
+        Serial.printf(&c);
 
         // Compensate for serial slowness
-        delayMicroseconds(100);
+        delayMicroseconds(50);
     }
 
     close_file();

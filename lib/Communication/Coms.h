@@ -8,9 +8,9 @@
 #include <recovery.h>
 #include <data_recorder.h>
 #include <pyro.h>
-#include <indicator.h>
+//#include <indicator.h>
 
-
+//TODO: better naming
 extern const char start_indicator, end_indicator;
 extern boolean is_receiving_in_process;
 extern char _serial_char_buffer[];

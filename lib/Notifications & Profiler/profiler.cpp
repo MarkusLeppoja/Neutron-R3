@@ -9,17 +9,17 @@ void Profiler::begin_loop()
 {
     if (!enable_loop_measure)
     {
-        enable_loop_measure = true;
+        enable_loop_measure = 1;
         loop_start_time = micros();
     }
 }
 
 void Profiler::end_loop(float &t_loop_dt)
 {
-    enable_loop_measure = false;
+    enable_loop_measure = 0;
 
     end_loop_time = micros();
-    if (loop_start_time != 0)
+    if (loop_start_time != 0) 
     {
         t_loop_dt = (end_loop_time - loop_start_time) / 1000.f;
         loop_start_time = 0;

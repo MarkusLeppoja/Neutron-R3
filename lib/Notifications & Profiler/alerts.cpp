@@ -10,7 +10,6 @@ String current_alert_instance;
 void save_alert_to_buffer(String alert)
 {
     _alert_string.concat(alert);
-    //_alert_string += alert;
 
     // @note If flash functionality isn't enabled or buffer is full then don't log to buffer anymore
     if (_alert_buffer_size >= 49 || !Booleans.sw_flash_chip_usability) return;
@@ -20,11 +19,16 @@ void save_alert_to_buffer(String alert)
 
 void clear_alert_buffer()
 {
-    for (uint8_t i = 0; i < _alert_buffer_size; i++)
+    for (_alert_buffer_size; _alert_buffer_size > -1; _alert_buffer_size--)
     {
-        _alert_buffer[i] = "";
+        _alert_buffer[_alert_buffer_size] = "";
     }
     _alert_buffer_size = 0;
+}
+
+uint8_t get_alert_buffer_size()
+{
+    return _alert_buffer_size;
 }
 
 String get_all_alerts()
@@ -46,7 +50,7 @@ void Alerts::create_alert(e_alert_type alert_type, String message)
 {
     calculate_mcu_on_time();
     create_full_alert_text(alert_type, message, alert_orgin_class, current_alert_instance);
-    save_alert_to_buffer(current_alert_instance);
+    save_alert_to_buffer(get_most_recent_alert());
 }
 
 void Alerts::calculate_mcu_on_time()

@@ -7,104 +7,24 @@
 #include <definitions.h>
 #include <profiler.h>
 #include <alerts.h>
+#include <filters.h>
 #include <BMI088.h>
 #include <BMP388_DEV.h>
-#include <BasicLinearAlgebra.h>
 #include <Orientation.h>
 
 
 // @todo Log calibration values to flash
+// @todo Define beginning values for kalman filters
+// @todo remove useless function descriptions
 
 
 #define RADS_TO_DEG 57.29578
 
-using namespace BLA;
 extern uint64_t _imu_update_prev, _baro_update_prev, _gnss_update_prev, _v_divider_update_prev, _mag_update_prev, _accel_prev, _gyro_prev; 
 extern float _sensors_imu_accel_cal_x[], _sensors_imu_accel_cal_y[], _sensors_imu_accel_cal_z[];
 extern float _sensors_imu_gyro_cal_x[], _sensors_imu_gyro_cal_y[], _sensors_imu_gyro_cal_z[];
 extern float _sensors_baro_altitude_cal[];
 extern int _sensors_imu_calibration_list_index, _sensors_baro_calibration_list_index;
-
-/* Filters */
-class band_pass
-{
-private:
-    float old_value, gain;
-public:
-    band_pass(float t_gain);
-    float update_estimate(float value);
-};
-
-class kalman
-{
-private:
-    float kg, err_mea, err_est, est, old_est;
-public:
-    void init(float i_E_MEA, float EST);
-    float update_estimate(float value);
-    void reset();
-};
-
-class position_kalman_filter
-{
-private:
-    Matrix<2, 1> state_vector =
-    {
-        0,
-        0
-    };
-
-    Matrix<2, 2> P = {
-        1, 0,
-        0, 1,
-    };
-    
-    Matrix<2, 2> F;
-    Matrix<2, 1> B;
-
-    // Kalman gain
-    Matrix<2, 1> K = {
-        0.1,
-        0.1
-    };
-
-    // Process Noise Covariance Matrix (Prediction noise)
-    Matrix<2, 2> Q = {
-        0.00000003125, 0,
-        0, 0.000125,
-    };
-    
-    // Observation matrix
-    Matrix<1, 2> H_baro = {
-        1, 0
-    };
-
-    Matrix<2, 2> I = {
-        1, 0,
-        0, 1,
-    };
-
-    Matrix<1, 1> accel_measurement;
-    Matrix<1, 1> baro_measurement;
-
-    uint64_t kf_prev;
-    float dt;
-    boolean is_first_step = true;
-public:
-    void predict_accel(float accel_data);
-    void update_baro(float baro_altitude);
-
-    float get_position();
-    float get_velocity();
-    Matrix<2, 1> get_kalman_gain();
-    void reset();
-
-    // Measurement Covariance (Baro error)
-    Matrix<1, 1> R = {
-        0.092
-    };
-};
-
 
 // @brief Begins and configures Baro sensor
 int _baro_begin();
@@ -130,7 +50,7 @@ void update_sensors();
 // @brief Zeroes out orientation
 void reset_ori();
 // @brief Resests kalman filter altitude and trust
-void reset_altitude_kalman();
+void reset_position_kalman();
 
 // @brief Enables Baro calibration
 void baro_enable_calibration();
@@ -147,8 +67,6 @@ void _imu_calibrate_calculate_deviation();
 void _baro_calibrate();
 // @brief Baro calibration info gathering function
 void _baro_calibrate_update();
-// @brief Baro calibration data results calculating function
-void _baro_calibrate_calculate_deviation();
 // @brief For finding the true offset of baro
 void _baro_calibrate_calculate_offset();
 #endif  

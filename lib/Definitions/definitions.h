@@ -4,8 +4,6 @@
 #include <Arduino.h>
 #include "vehicle_configs.h"
 
-
-
 enum e_mission_state : const uint8_t {
     startup = 0,
     navigation_startup = 1,
@@ -18,8 +16,6 @@ enum e_mission_state : const uint8_t {
     startup_failed = 8
 };
 extern e_mission_state active_mission_state;
-
-e_mission_state get_mission_state();
 
 enum e_pins : const uint8_t {
     pin_uart_tx = 0,
@@ -45,9 +41,6 @@ enum e_pins : const uint8_t {
     pin_pyro_1_voltage = 28
 };
 
-void update_mcu_clock();
-boolean is_mission_active();
-
 struct s_clock
 {
     uint64_t microseconds, milliseconds;
@@ -58,97 +51,104 @@ struct s_clock
 };
 extern s_clock Clock;
 
+struct s_code_performance
+{
+    /* CPU */
+    int cpu_clock_frequency;
+    int cpu_free_heap, cpu_used_heap;
+
+    /* Sensors */
+    float imu_loop, imu_function_duration;
+    float baro_loop, baro_function_duration;
+    float voltage_divider_loop, voltage_divider_function_duration;
+
+    /* Data Recorder */ 
+    float data_recorder_flash_loop, data_recorder_flash_function_duration;
+    float data_recorder_serial_loop, data_recorder_serial_function_duration;
+
+    /* Other */
+    float main_loop_loop, main_loop_function_duration;
+    float pyro_loop, pyro_function_duration;
+    float state_indicator_loop, state_indicator_function_duration;
+};
+extern s_code_performance Code_performance;
+
 struct s_booleans 
 {
     // Automatically updated variable that determines if flash is working correctly to be used
-    boolean sw_flash_chip_usability;
+    uint8_t sw_flash_chip_usability : 1;
 
     // Automatically updated variable that determines if sensors can be used or not
-    boolean sw_sensors_usability;
-    boolean sw_sensors_imu_usability;
-    boolean sw_sensors_baro_usability;
-    boolean sw_sensors_gnss_usability;
-    boolean sw_sensors_mag_usability;
-    boolean sw_sensors_imu_enable_calibration;
-    boolean sw_sensors_baro_enable_calibration;
-    boolean sw_sensors_baro_enable_offset_calibration;
-    boolean sw_sensors_baro_enable_deviation_calibration;
+    uint8_t sw_sensors_usability : 1;
+    uint8_t sw_sensors_imu_usability : 1;
+    uint8_t sw_sensors_baro_usability : 1;
+    uint8_t sw_sensors_imu_enable_calibration : 1;
+    uint8_t sw_sensors_baro_enable_calibration : 1;
 
     // Manually set in coms to begin 
-    boolean sw_begin_pad_idle_ground_lock_exit_countdown;
-    boolean sw_begin_pad_idle_ground_lock_exit_countdown_prev;
+    uint8_t sw_begin_pad_idle_ground_lock_exit_countdown : 1;
+    uint8_t sw_begin_pad_idle_ground_lock_exit_countdown_prev : 1;
 
 };
 extern s_booleans Booleans;
 
+// @brief 3-Dimentional Vector
 struct vector_3d {
     float x,y,z;
 };
 
+// @brief 2-Dimentional Vector
 struct vector_2d {
     float x,y;
 };
 
 struct s_sensors
 {
-    const float gravity = 9.817823;
-
+    float apogee_altitude;
     /* IMU (BMI088) */
-    // Raw readings
-    vector_3d raw_gyro_velocity;
-    vector_3d raw_accel, world_accel;
-    float raw_accel_temp;
-    vector_3d orientation;
+    vector_3d raw_gyro_velocity_rps, raw_gyro_velocity_dps, raw_acceleration;
+    float raw_acceleometer_temperature;
+    vector_3d orientation, gyro_velocity_dps, gyro_velocity_rps, acceleration;
 
     /* Baro (BMP388) */
-    float raw_baro_pressure;
-    float raw_baro_altitude;
+    float raw_baro_pressure, raw_baro_altitude, raw_baro_temperature;
     float raw_baro_altitude_wo_bias;
-    float raw_baro_temperature;
-    float apogee_altitude;
 
     /* Kalman filter */
-    float altitude, velocity;
-    vector_3d gyro_velocity, gyro_velocity_rps, accel;
-
+    vector_3d position, velocity;
 
     /* Pyro */
-    boolean pyro_1_fire_status, pyro_2_fire_status;
+    uint8_t pyro_1_fire_status : 1;
+    uint8_t pyro_2_fire_status : 1;
     float pyro_1_voltage, pyro_2_voltage;
 
     /* Voltage divider */
-    float system_voltage;
+    float internal_voltage;
 
-
-    /* Profiler */
-    // IMU
-    float profiler_imu_function_duration;
-    float profiler_imu_loop;
-
-    // Baro
-    float profiler_baro_function_duration;
-    float profiler_baro_loop;
-
-    // GNSS
-    float profiler_gnss_function_duration;
-    float profiler_gnss_loop;
-
-    // Mag
-    float profiler_mag_function_duration;
-    float profiler_mag_loop;
-
-    // Voltage Divider
-    float profiler_voltage_divider_function_duration;
-    float profiler_voltage_divider_loop;
-
-    // Pyro
-    float profiler_pyro_function_duration;
-    float profiler_pyro_loop;
-
-    //TODO: FLASH, DATARECORDER, STATE INDICATION, MAIN LOOP,
-
+    // Calibration (private variables)
+    float _gyro_offset_x;
+    float _gyro_offset_y;
+    float _gyro_offset_z;
+    float _accel_offset_x;
+    float _accel_offset_y;
+    float _accel_offset_z;
+    float _baro_offset_altitude;
+    float _gyro_standard_deviation_x;
+    float _gyro_standard_deviation_y;
+    float _gyro_standard_deviation_z;
+    float _accel_standard_deviation_x;
+    float _accel_standard_deviation_y;
+    float _accel_standard_deviation_z;
+    float _baro_standard_deviation_altitude;
 };
 extern s_sensors Sensors;
 
-
-#endif  
+// @brief Updates multiple types of clocks
+void update_mcu_clock();
+// @brief Requests basic performance data from RP2040
+void update_cpu_profiler();
+// @brief Returns if mission is active
+uint8_t is_mission_active();
+// @brief Returns mission state
+e_mission_state get_mission_state();
+#endif

@@ -17,14 +17,13 @@ extern uint64_t _recorder_serial_prev, _recorder_flash_prev;
 extern uint64_t _recorder_flash_update_interval, _recorder_serial_update_interval;
 
 // @brief For _convert_var_to_string, they hold data temporarely
-extern char _recorder_char_buffer[], _recorder_string_buffer[];
+extern String _recorder_file_0_log_string, _recorder_file_1_log_string;
 
 // @brief Used for sending new notifications to serial
 extern String _recorder_serial_prev_notification;
 
+extern String _flash_temp_log_string, _serial_temp_log_string;
 
-// @brief Erase the entire chip 
-void recorder_earase_flash_chip();
 
 // @brief Set the flash chip log rate. Interval must be in microseconds (1s = 1,000,000 ms)
 void set_recorder_flash_update_interval(uint64_t interval = 10^6);
@@ -94,5 +93,6 @@ void _recorder_log_to_flash(String end_result_inst);
 // @brief Closes the currently open file
 void recorder_close_file();
 
-
+// @brief Erase the entire chip 
+void recorder_earase_flash_chip();
 #endif

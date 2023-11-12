@@ -27,18 +27,15 @@ enum e_alert_type
     error = 4
 };
 
-
-// @brief Empty's alert buffer and its index
 void clear_alert_buffer();
+uint8_t get_alert_buffer_size();
 
 // @brief Stores alert onto general alert string and into a temp buffer for data logging 
 // @note Contains overflow protection for temp buffer. Alert string is always updated
 void save_alert_to_buffer(String alert);
 
-// @brief Returns the alert string containing all alerts
+// @brief Returns a string containing all alerts from vehicle power on
 String get_all_alerts();
-
-// @brief Returns the most recent alert
 String get_most_recent_alert();
 
 class Alerts {
@@ -58,7 +55,6 @@ private:
     // @brief Used to store info about the orgin of an event.
     String alert_orgin_class;
 
-
     // @brief Divides MCU on time into this format [hours/minutes/seconds/milliseconds] 
     void calculate_mcu_on_time();
 
@@ -70,11 +66,11 @@ private:
 public:
 
     // @brief Create instance of alerts class. Define what file the alert is coming from
-    Alerts(String alert_orgin = "UNKNOWN");
+    Alerts(String alert_orgin);
     
     // @brief Save an event to the RP2040 onboard flash
     // @param type Type of an alert
     // @param message Description of the alert
-    void create_alert(e_alert_type alert_type = e_alert_type::alert, String message = "Example Message");
+    void create_alert(e_alert_type alert_type, String message);
 };
 #endif
