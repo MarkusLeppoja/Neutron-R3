@@ -368,4 +368,5 @@ void recorder_close_file()
 void recorder_earase_flash_chip()
 {
     recorder_flash_instance.erase_chip();
+
 }
