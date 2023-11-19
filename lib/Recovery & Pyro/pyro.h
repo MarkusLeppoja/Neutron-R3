@@ -5,11 +5,6 @@
 #include <definitions.h>
 #include <alerts.h>
 #include <profiler.h>
-    
-
-extern uint64_t pyro_fire_start_time[];
-extern uint64_t pyro_prev;
-
 
 // @brief Initializes pyro channel pins
 void pyro_begin();

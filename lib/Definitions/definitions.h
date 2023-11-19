@@ -44,40 +44,33 @@ enum e_pins : const uint8_t {
 struct s_clock
 {
     uint64_t microseconds, milliseconds;
-    float seconds;
+    double seconds;
 
-    // In seconds
-    float mission_duration, mission_begin_time;
+    double mission_duration, mission_begin_time;    // In seconds
 };
 extern s_clock Clock;
 
 struct s_code_performance
 {
-    /* CPU */
-    int cpu_clock_frequency;
-    int cpu_free_heap, cpu_used_heap;
-
     /* Sensors */
-    float imu_loop, imu_function_duration;
-    float baro_loop, baro_function_duration;
-    float voltage_divider_loop, voltage_divider_function_duration;
+    double imu_loop, imu_function_duration;
+    double baro_loop, baro_function_duration;
+    double voltage_divider_loop, voltage_divider_function_duration;
 
     /* Data Recorder */ 
-    float data_recorder_flash_loop, data_recorder_flash_function_duration;
-    float data_recorder_serial_loop, data_recorder_serial_function_duration;
+    double data_recorder_flash_loop, data_recorder_flash_function_duration;
+    double data_recorder_serial_loop, data_recorder_serial_function_duration;
+    double data_recorder_file_0_func_duration, data_recorder_file_1_func_duration;
 
     /* Other */
-    float main_loop_loop, main_loop_function_duration;
-    float pyro_loop, pyro_function_duration;
-    float state_indicator_loop, state_indicator_function_duration;
+    double main_loop_loop, main_loop_function_duration;
+    double pyro_loop, pyro_function_duration;
+    double state_indicator_loop, state_indicator_function_duration;
 };
 extern s_code_performance Code_performance;
 
 struct s_booleans 
 {
-    // Automatically updated variable that determines if flash is working correctly to be used
-    uint8_t sw_flash_chip_usability : 1;
-
     // Automatically updated variable that determines if sensors can be used or not
     uint8_t sw_sensors_usability : 1;
     uint8_t sw_sensors_imu_usability : 1;
@@ -94,25 +87,26 @@ extern s_booleans Booleans;
 
 // @brief 3-Dimentional Vector
 struct vector_3d {
-    float x,y,z;
+    double x,y,z;
 };
 
 // @brief 2-Dimentional Vector
 struct vector_2d {
-    float x,y;
+    double x,y;
 };
 
 struct s_sensors
 {
-    float apogee_altitude;
+    double apogee_altitude;
     /* IMU (BMI088) */
     vector_3d raw_gyro_velocity_rps, raw_gyro_velocity_dps, raw_acceleration;
-    float raw_acceleometer_temperature;
+    double raw_acceleometer_temperature;
     vector_3d orientation, gyro_velocity_dps, gyro_velocity_rps, acceleration;
 
     /* Baro (BMP388) */
-    float raw_baro_pressure, raw_baro_altitude, raw_baro_temperature;
-    float raw_baro_altitude_wo_bias;
+    float _f_raw_baro_pressure, _f_raw_baro_altitude, _f_raw_baro_temperature;
+    double raw_baro_pressure, raw_baro_altitude, raw_baro_temperature;
+    double raw_baro_altitude_wo_bias;
 
     /* Kalman filter */
     vector_3d position, velocity;
@@ -120,10 +114,10 @@ struct s_sensors
     /* Pyro */
     uint8_t pyro_1_fire_status : 1;
     uint8_t pyro_2_fire_status : 1;
-    float pyro_1_voltage, pyro_2_voltage;
+    double pyro_1_voltage, pyro_2_voltage;
 
     /* Voltage divider */
-    float internal_voltage;
+    double internal_voltage;
 
     // Calibration (private variables)
     float _gyro_offset_x;
@@ -145,10 +139,8 @@ extern s_sensors Sensors;
 
 // @brief Updates multiple types of clocks
 void update_mcu_clock();
-// @brief Requests basic performance data from RP2040
-void update_cpu_profiler();
 // @brief Returns if mission is active
-uint8_t is_mission_active();
-// @brief Returns mission state
-e_mission_state get_mission_state();
+boolean is_mission_active();
+
+int get_mission_state();
 #endif

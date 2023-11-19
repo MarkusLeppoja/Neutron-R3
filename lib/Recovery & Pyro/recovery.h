@@ -5,7 +5,6 @@
 #include <definitions.h>
 #include <Servo.h>
 #include <alerts.h>
-    
 
 // @brief Attaches servo / begins pyro
 void recovery_begin();

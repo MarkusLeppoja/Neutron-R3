@@ -4,11 +4,6 @@
 #include <Arduino.h>
 #include <BasicLinearAlgebra.h>
 
-// @todo Rename things to correct format
-// @todo use get functions 
-
-using namespace BLA;
-
 // Low- / Highpass filter
 class band_pass
 {
@@ -31,6 +26,7 @@ public:
 };
 
 // 2 Step advanced kalman filter
+using namespace BLA;
 class position_kalman_filter
 {
 private:

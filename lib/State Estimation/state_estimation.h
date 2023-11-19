@@ -12,19 +12,11 @@
 #include <BMP388_DEV.h>
 #include <Orientation.h>
 
+#define RADS_TO_DEG 57.29578
 
 // @todo Log calibration values to flash
 // @todo Define beginning values for kalman filters
 // @todo remove useless function descriptions
-
-
-#define RADS_TO_DEG 57.29578
-
-extern uint64_t _imu_update_prev, _baro_update_prev, _gnss_update_prev, _v_divider_update_prev, _mag_update_prev, _accel_prev, _gyro_prev; 
-extern float _sensors_imu_accel_cal_x[], _sensors_imu_accel_cal_y[], _sensors_imu_accel_cal_z[];
-extern float _sensors_imu_gyro_cal_x[], _sensors_imu_gyro_cal_y[], _sensors_imu_gyro_cal_z[];
-extern float _sensors_baro_altitude_cal[];
-extern int _sensors_imu_calibration_list_index, _sensors_baro_calibration_list_index;
 
 // @brief Begins and configures Baro sensor
 int _baro_begin();

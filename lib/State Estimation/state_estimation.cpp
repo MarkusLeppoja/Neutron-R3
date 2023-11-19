@@ -25,7 +25,6 @@ float _sensors_imu_gyro_cal_x[400], _sensors_imu_gyro_cal_y[400], _sensors_imu_g
 float _sensors_baro_altitude_cal[100];
 int _sensors_imu_calibration_list_index, _sensors_baro_calibration_list_index;
 
-// Kalman filter TODO: better names
 position_kalman_filter kf_position;
 kalman kf_x_gyro_vel, kf_y_gyro_vel, kf_z_gyro_vel;
 kalman kf_x_accel, kf_y_accel, kf_z_accel;
@@ -37,7 +36,7 @@ EulerAngles ori_euler;
 
 int _baro_begin()
 {
-    if (!get_active_config().enable_baro)
+    if (!active_vehicle_config.enable_baro)
     {
         alerts_sensors.create_alert(e_alert_type::warning, "Baro is disabled");
         Booleans.sw_sensors_baro_usability = 0;
@@ -72,7 +71,7 @@ int _baro_begin()
 int _imu_begin()
 {
     // Disable functionality if enable_imu is false
-    if (!get_active_config().enable_imu)
+    if (!active_vehicle_config.enable_imu)
     {
         alerts_sensors.create_alert(e_alert_type::warning, "IMU is disabled");
         Booleans.sw_sensors_imu_usability = 0;
@@ -132,11 +131,11 @@ void _imu_update()
    update_mcu_clock();
    profiler_imu.begin_loop();
 
-   if (Clock.microseconds - _imu_update_prev < 5000.f || !get_active_config().enable_imu || !Booleans.sw_sensors_imu_usability) return;
+   if (Clock.microseconds - _imu_update_prev < 5000.f || !active_vehicle_config.enable_imu || !Booleans.sw_sensors_imu_usability) return;
     _imu_update_prev = Clock.microseconds;
 
     // Profiler
-    profiler_imu.end_loop(Code_performance.imu_loop);
+    Code_performance.imu_loop = profiler_imu.end_loop();
     profiler_imu.begin_function();
 
     // Update sensors seperately
@@ -144,13 +143,13 @@ void _imu_update()
     _gyro_update();
 
     // Update kalman filter
-    kf_position.predict_accel(Sensors.acceleration.z - get_active_config().gravity);
+    kf_position.predict_accel(Sensors.acceleration.z);
 
     // Finds offset and standard deviation if enabled
     _imu_calibrate();
 
     // Profiler
-    profiler_imu.end_function(Code_performance.imu_function_duration);
+    Code_performance.imu_function_duration = profiler_imu.end_function();
 }
 
 void _accel_update()
@@ -169,10 +168,10 @@ void _accel_update()
     
     Sensors.acceleration.x = kf_x_accel.update_estimate(Sensors.raw_acceleration.x - Sensors._accel_offset_x);
     Sensors.acceleration.y = kf_y_accel.update_estimate(Sensors.raw_acceleration.y - Sensors._accel_offset_y);
-    Sensors.acceleration.z = kf_z_accel.update_estimate(Sensors.raw_acceleration.z - Sensors._accel_offset_z);
+    Sensors.acceleration.z = kf_z_accel.update_estimate(Sensors.raw_acceleration.z - Sensors._accel_offset_z - active_vehicle_config.gravity);
 
 
-    //This portion of code is taken from AdamMarciniak Cygnus-X1-Software github repository 
+    //This portion of code is taken from AdamMarciniak Cygnus-X1-Software github repository (NOT USING THIS DUE TO LACK OF UNDERSTANDING HOW WORLD ACCELERATION CALCULATIONS EXACTLY WORKS)
     //https://github.com/AdamMarciniak/Cygnus-X1-Software/blob/master/src/Nav.cpp 
 
     // Calculates the world acceleration
@@ -227,16 +226,19 @@ void _baro_update()
     update_mcu_clock();
     profiler_baro.begin_loop();
 
-    if (Clock.microseconds - _baro_update_prev < 20000.f || !get_active_config().enable_baro || !Booleans.sw_sensors_baro_usability) return;
+    if (Clock.microseconds - _baro_update_prev < 20000.f || !active_vehicle_config.enable_baro || !Booleans.sw_sensors_baro_usability) return;
     _baro_update_prev = Clock.microseconds;
 
     // Profiler
-    profiler_baro.end_loop(Code_performance.baro_loop);
+    Code_performance.baro_loop = profiler_baro.end_loop();
     profiler_baro.begin_function();
 
     // Call for new data
-    baro_instance.getMeasurements(Sensors.raw_baro_temperature, Sensors.raw_baro_pressure, Sensors.raw_baro_altitude);
-    
+    baro_instance.getMeasurements(Sensors._f_raw_baro_temperature, Sensors._f_raw_baro_pressure, Sensors._f_raw_baro_altitude);
+    Sensors.raw_baro_temperature = Sensors._f_raw_baro_temperature;
+    Sensors.raw_baro_altitude = Sensors._f_raw_baro_altitude;
+    Sensors.raw_baro_pressure = Sensors._f_raw_baro_pressure;
+
     // Create a variable which has the altitude without sensor bias
     Sensors.raw_baro_altitude_wo_bias = Sensors.raw_baro_altitude - Sensors._baro_offset_altitude;
 
@@ -254,7 +256,7 @@ void _baro_update()
     _baro_calibrate();
 
     // Profiler
-    profiler_baro.end_function(Code_performance.baro_function_duration);
+    Code_performance.baro_function_duration = profiler_baro.end_function();
 }
 
 void _v_divider_update()
@@ -262,33 +264,34 @@ void _v_divider_update()
     update_mcu_clock();
     profiler_v_divider.begin_loop();
 
-    if (Clock.microseconds - _v_divider_update_prev < 50000.f || !get_active_config().enable_voltage_divider) return;
+    if (Clock.microseconds - _v_divider_update_prev < 50000.f || !active_vehicle_config.enable_voltage_divider) return;
     _v_divider_update_prev = Clock.microseconds;
 
     // Profiler
-    profiler_v_divider.end_loop(Code_performance.voltage_divider_loop);
+    Code_performance.voltage_divider_loop = profiler_v_divider.end_loop();
     profiler_v_divider.begin_function();
 
-    Sensors.internal_voltage = analogRead(e_pins::pin_voltage_divider) * get_active_config().voltage_divider_ratio;
+    Sensors.internal_voltage = (double) analogRead(e_pins::pin_voltage_divider) * active_vehicle_config.voltage_divider_ratio;
 
     // Profiler
-    profiler_v_divider.end_function(Code_performance.voltage_divider_function_duration);
+    Code_performance.voltage_divider_function_duration = profiler_v_divider.end_function();
 }
 
 int sensors_begin()
 {
-    if (!get_active_config().enable_sensors)
+    if (!active_vehicle_config.enable_sensors)
     {
         alerts_sensors.create_alert(e_alert_type::warning, "Sensors are disabled");
         Booleans.sw_sensors_usability = 0;
         return 0;
     }
     
+    // Sets the i2c clock rate to around 400 kHz 
     i2c_sensors_instance.setClock(1000000);
 
     // Begin sensors and save their status
-    uint8_t baro_status = _baro_begin();
-    uint8_t imu_status = _imu_begin();
+    boolean baro_status = _baro_begin();
+    boolean imu_status = _imu_begin();
     _v_divider_begin();
 
     // If all sensors didn't initialize correctly create alert and disable sensors functionality
@@ -308,12 +311,13 @@ int sensors_begin()
 
 void update_sensors()
 {
-    if (!get_active_config().enable_sensors || !Booleans.sw_sensors_usability) return;
+    if (!active_vehicle_config.enable_sensors || !Booleans.sw_sensors_usability) return;
     
     _imu_update();
     _baro_update();
     _v_divider_update();
-} //dav, ma lahen ja loodin nüüd oma põrandat edasi.
+    //dav, ma lahen ja loodin nüüd oma põrandat edasi.
+} 
 
 void reset_ori()
 {
@@ -427,7 +431,7 @@ void _imu_calibrate_update()
     // Accel
     _sensors_imu_accel_cal_x[_sensors_imu_calibration_list_index] = Sensors.raw_acceleration.x;
     _sensors_imu_accel_cal_y[_sensors_imu_calibration_list_index] = Sensors.raw_acceleration.y;
-    _sensors_imu_accel_cal_z[_sensors_imu_calibration_list_index] = Sensors.raw_acceleration.z - get_active_config().gravity;
+    _sensors_imu_accel_cal_z[_sensors_imu_calibration_list_index] = Sensors.raw_acceleration.z - active_vehicle_config.gravity;
     // Gyro
     _sensors_imu_gyro_cal_x[_sensors_imu_calibration_list_index] = Sensors.raw_gyro_velocity_rps.x;
     _sensors_imu_gyro_cal_y[_sensors_imu_calibration_list_index] = Sensors.raw_gyro_velocity_rps.y;

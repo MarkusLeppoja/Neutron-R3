@@ -20,28 +20,28 @@ void update_pyro()
     profiler_pyro.begin_loop();
 
     // Only update after 50 milliseconds (50000 microseconds = 50 milliseconds)
-    if (Clock.microseconds - pyro_prev < 50000) return;
+    if (Clock.microseconds - pyro_prev <= 50000.f) return;
     pyro_prev = Clock.microseconds;
     
     // Profiler
-    profiler_pyro.end_loop(Code_performance.pyro_loop);
+    Code_performance.pyro_loop = profiler_pyro.end_loop();
     profiler_pyro.begin_function();
 
     // Disable pyro if it was previously enabled and it's fire duration exceeded the allowed time.
-    if (Clock.microseconds - pyro_fire_start_time[0] >= get_active_config().pyro_1_fire_duration && Sensors.pyro_1_fire_status) _pyro_1_deactivate();
-    if (Clock.microseconds - pyro_fire_start_time[1] >= get_active_config().pyro_2_fire_duration && Sensors.pyro_2_fire_status) _pyro_2_deactivate();
+    if (Clock.microseconds - pyro_fire_start_time[0] >= active_vehicle_config.pyro_1_fire_duration && Sensors.pyro_1_fire_status) _pyro_1_deactivate();
+    if (Clock.microseconds - pyro_fire_start_time[1] >= active_vehicle_config.pyro_2_fire_duration && Sensors.pyro_2_fire_status) _pyro_2_deactivate();
 
     // Reads all incoming voltage of pyro channels 
-    Sensors.pyro_1_voltage = (float) analogRead(e_pins::pin_pyro_1_voltage) * get_active_config().pyro_voltage_divider_ratio;
-    Sensors.pyro_2_voltage = (float) analogRead(e_pins::pin_pyro_2_voltage) * get_active_config().pyro_voltage_divider_ratio;
+    Sensors.pyro_1_voltage = (float) analogRead(e_pins::pin_pyro_1_voltage) * active_vehicle_config.pyro_voltage_divider_ratio;
+    Sensors.pyro_2_voltage = (float) analogRead(e_pins::pin_pyro_2_voltage) * active_vehicle_config.pyro_voltage_divider_ratio;
 
-    profiler_pyro.end_function(Code_performance.pyro_function_duration);
+    Code_performance.pyro_function_duration = profiler_pyro.end_function();
 }
 
 void pyro_1_fire()
 {
     // Check if pyro functionality is enabled 
-    if (!get_active_config().enable_pyro) return;
+    if (!active_vehicle_config.enable_pyro) return;
 
     // Open pyro 1 mosfet 
     digitalWrite(e_pins::pin_pyro_1, HIGH);
@@ -57,7 +57,7 @@ void pyro_1_fire()
 void pyro_2_fire()
 {
     // Check if pyro functionality is enabled 
-    if (!get_active_config().enable_pyro) return;
+    if (!active_vehicle_config.enable_pyro) return;
 
     // Open pyro 2 mosfet 
     digitalWrite(e_pins::pin_pyro_2, HIGH);

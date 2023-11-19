@@ -1,18 +1,16 @@
 #include "alerts.h"
 
-
 String _alert_buffer[50];
 uint8_t _alert_buffer_size;
 String _alert_string;
 String current_alert_instance;
-
 
 void save_alert_to_buffer(String alert)
 {
     _alert_string.concat(alert);
 
     // @note If flash functionality isn't enabled or buffer is full then don't log to buffer anymore
-    if (_alert_buffer_size >= 49 || !Booleans.sw_flash_chip_usability) return;
+    if (_alert_buffer_size >= 49);//TODO: || !Booleans.sw_flash_chip_usability) return;
     _alert_buffer[_alert_buffer_size] = alert;
     _alert_buffer_size++;
 }

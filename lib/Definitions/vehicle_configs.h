@@ -18,15 +18,15 @@ typedef struct {
     uint8_t enable_baro : 1;
     uint8_t enable_voltage_divider : 1;
     // Conversion ratios
-    const float voltage_divider_ratio;
-    const float gravity;
+    const double voltage_divider_ratio;
+    const double gravity;
 
 /* Recovery (Servo & Pyro) */
     // Overall recovery functionality
-    uint8_t enable_recovery : 1; //TODO: Setup a check in recovery for this bool
+    uint8_t enable_recovery : 1;
     // Individual recovery method functionality
-    uint8_t enable_servo : 1; //TODO: Setup a check in pyro for this bool
-    uint8_t enable_pyro : 1; //TODO: Setup a check in recovery for this bool
+    uint8_t enable_servo : 1; 
+    uint8_t enable_pyro : 1;
     // Recovery servo lock & release orientation
     const int fds_servo_release_angle;
     const int fds_servo_lock_angle;
@@ -34,14 +34,15 @@ typedef struct {
     const uint32_t pyro_1_fire_duration;
     const uint32_t pyro_2_fire_duration;
     // Pyro voltage divider ratio
-    const float pyro_voltage_divider_ratio; 
+    const double pyro_voltage_divider_ratio; 
 
 /* Flash Logging & Serial Casting */
     // Overall flash functionality
     uint8_t enable_flash_log : 1;
     // Data that gets logged to flash
-    uint8_t enable_flash_telemetry_log : 1;
     uint8_t enable_flash_notification_log : 1;
+    uint8_t enable_flash_file_0_log : 1;
+    uint8_t enable_flash_file_1_log : 1;
     // Interval in which data gets logged to flash (microseconds)
     const uint32_t flash_log_interval_mode_0;
     const uint32_t flash_log_interval_mode_1;
@@ -61,8 +62,9 @@ typedef struct {
     // Overall serial functionality
     uint8_t enable_serial_stream : 1;
     // Data that gets casted from serial
-    uint8_t enable_serial_telemetry_stream : 1;
     uint8_t enable_serial_notification_stream : 1;
+    uint8_t enable_serial_file_0_stream : 1;
+    uint8_t enable_serial_file_1_stream : 1;
     // Interval in which data gets logged to serial (microseconds)
     const uint32_t serial_stream_interval_mode_0;
     const uint32_t serial_stream_interval_mode_1;
@@ -98,9 +100,9 @@ typedef struct {
 
 
     /* State Transition */
-    const float _st_detect_launch_accel_threshold;
-    const float _st_detect_landing_touchdown_altitude_threshold;
-    const float _st_max_mission_duration;
+    const double _st_detect_launch_accel_threshold;
+    const double _st_detect_landing_touchdown_altitude_threshold;
+    const double _st_max_mission_duration;
 
 } Neutron_Vehicle_Config_t;                                       
 
@@ -108,7 +110,7 @@ typedef struct {
   {                                                                                       \
     /* Software info */                                                                   \
     .software_name = "Neutron R3 Software",                                               \
-    .software_version = "1.1.0",                                                          \
+    .software_version = "1.5.1",                                                          \
     .software_compile_date = __DATE__,  /* Combile time */                                \
     /* Overall sensors functionality */                                                   \
     .enable_sensors = 1,                                                                  \
@@ -117,13 +119,13 @@ typedef struct {
     .enable_baro = 1,                                                                     \
     .enable_voltage_divider = 1,                                                          \
     /* Conversion ratios */                                                               \
-    .voltage_divider_ratio = (3.3 / 4096 * 10), /* RP2040 has 12bit ADCs */               \
+    .voltage_divider_ratio = (3.3 / 4096.0 * 10.0), /* RP2040 has 12bit ADCs */           \
     .gravity = 9.82,                                                                      \
     /* Overall recovery functionality */                                                  \
     .enable_recovery = 1,                                                                 \
     /* Individual recovery method functionality */                                        \
     .enable_servo = 1,                                                                    \
-    .enable_pyro = 1,                                                                     \
+    .enable_pyro = 0,                                                                     \
     /* Recovery servo lock & release orientation */                                       \
     .fds_servo_release_angle = 50,                                                        \
     .fds_servo_lock_angle = 125,                                                          \
@@ -131,12 +133,13 @@ typedef struct {
     .pyro_1_fire_duration = 0,                                                            \
     .pyro_2_fire_duration = 0,                                                            \
     /* Pyro voltage divider ratio */                                                      \
-    .pyro_voltage_divider_ratio = (3.3 / 4096 * 10),  /* RP2040 has 12bit ADC */          \
+    .pyro_voltage_divider_ratio = (3.3 / 4096 * 10.),  /* RP2040 has 12bit ADC */         \
     /* Overall flash functionality */                                                     \
     .enable_flash_log = 0,                                                                \
     /* Data that gets logged to flash */                                                  \
-    .enable_flash_telemetry_log = 1,                                                      \
     .enable_flash_notification_log = 1,                                                   \
+    .enable_flash_file_0_log = 1,                                                         \
+    .enable_flash_file_1_log = 1,                                                         \
     /* Interval in which data gets logged to flash (microseconds) */                      \
     .flash_log_interval_mode_0 = 250000,                                                  \
     .flash_log_interval_mode_1 = 100000,                                                  \
@@ -155,8 +158,9 @@ typedef struct {
     /* Overall serial functionality */                                                    \
     .enable_serial_stream = 1,                                                            \
     /* Data that gets casted from serial */                                               \
-    .enable_serial_telemetry_stream = 1,                                                  \
     .enable_serial_notification_stream = 1,                                               \
+    .enable_serial_file_0_stream = 1,                                                     \
+    .enable_serial_file_1_stream = 0,                                                     \
     /* Interval in which data gets logged to serial (microseconds) */                     \
     .serial_stream_interval_mode_0 = 500000,                                              \
     .serial_stream_interval_mode_1 = 200000,                                              \
@@ -166,7 +170,7 @@ typedef struct {
     /* Where data gets saved (0 - Doesn't get saved, 1 - Main file, 2 - Second file) */   \
     .enable_datasave_basic = 1,                                                           \
     /* Pyro (Pyro fire status, Pyro voltage, pyro loop duration & rate) */                \
-    .enable_datasave_pyro = 0,                                                            \
+    .enable_datasave_pyro = 1,                                                            \
     /* Sensor (IMU, Baro, V-Divider) */                                                   \
     .enable_datasave_imu_data = 1,                                                        \
     .enable_datasave_baro_data = 1,                                                       \

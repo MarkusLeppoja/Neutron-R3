@@ -17,9 +17,9 @@ public:
     void begin_function();
     // @brief Calling this will measure and point the delta time of a function in milliseconds.
     // @note This should be called at the start of a loop
-    void end_loop(float &t_loop_dt);
+    double end_loop();
     // @brief Calling this will measure and point the duration of a function in milliseconds.
     // @note This should be called at the end of a function
-    void end_function(float &t_function_duration);
+    double end_function();
 };
 #endif

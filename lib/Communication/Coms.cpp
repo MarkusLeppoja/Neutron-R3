@@ -9,11 +9,11 @@ int _received_command;
 String _temp_conversion_string;
 Alerts coms_alerts("Communication");
 
-
+//Options to read and display all 4 file data seperately. and the same with deleting.
 void update_communication()
 {
   // Return if coms isn't enabled
-  if (!get_active_config().enable_coms) return;
+  if (!active_vehicle_config.enable_coms) return;
 
   if (Serial.available() < 0) return;
 
@@ -36,7 +36,7 @@ void update_communication()
     _execute_command_from_list(_received_command);
 
     // Echo message if true
-    if (get_active_config().enable_coms_message_echo) 
+    if (active_vehicle_config.enable_coms_message_echo) 
     {
       Serial.println(_received_command);
     }

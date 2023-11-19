@@ -14,24 +14,18 @@ void Profiler::begin_loop()
     }
 }
 
-void Profiler::end_loop(float &t_loop_dt)
+double Profiler::end_loop()
 {
     enable_loop_measure = 0;
 
     end_loop_time = micros();
-    if (loop_start_time != 0) 
-    {
-        t_loop_dt = (end_loop_time - loop_start_time) / 1000.f;
-        loop_start_time = 0;
-    }
+
+    return double((end_loop_time - loop_start_time) / 1000.);
 }
 
-void Profiler::end_function(float &t_function_duration)
+double Profiler::end_function()
 {
     end_function_time = micros();
-    if (function_start_time != 0)
-    {
-        t_function_duration = (end_function_time - function_start_time) / 1000.f;
-        function_start_time = 0;
-    }
+
+    return double((end_function_time - function_start_time) / 1000.);
 }
