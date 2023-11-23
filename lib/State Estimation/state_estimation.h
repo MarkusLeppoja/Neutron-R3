@@ -7,16 +7,12 @@
 #include <definitions.h>
 #include <profiler.h>
 #include <alerts.h>
-#include <filters.h>
 #include <BMI088.h>
 #include <BMP388_DEV.h>
 #include <Orientation.h>
 
-#define RADS_TO_DEG 57.29578
-
-// @todo Log calibration values to flash
-// @todo Define beginning values for kalman filters
-// @todo remove useless function descriptions
+// TODO: Define beginning values for kalman filters
+// TODO: remove useless function descriptions
 
 // @brief Begins and configures Baro sensor
 int _baro_begin();
@@ -38,6 +34,8 @@ void _v_divider_update();
 int sensors_begin();
 // @brief Overall function for updating the sensors
 void update_sensors();
+
+void set_kf_position_R(float value);
 
 // @brief Zeroes out orientation
 void reset_ori();

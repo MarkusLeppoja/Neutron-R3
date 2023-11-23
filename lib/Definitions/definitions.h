@@ -78,7 +78,7 @@ struct s_booleans
     uint8_t sw_sensors_imu_enable_calibration : 1;
     uint8_t sw_sensors_baro_enable_calibration : 1;
 
-    // Manually set in coms to begin 
+    // These get set manually inside coms class  
     uint8_t sw_begin_pad_idle_ground_lock_exit_countdown : 1;
     uint8_t sw_begin_pad_idle_ground_lock_exit_countdown_prev : 1;
 
@@ -137,10 +137,7 @@ struct s_sensors
 };
 extern s_sensors Sensors;
 
-// @brief Updates multiple types of clocks
 void update_mcu_clock();
-// @brief Returns if mission is active
 boolean is_mission_active();
-
 int get_mission_state();
 #endif

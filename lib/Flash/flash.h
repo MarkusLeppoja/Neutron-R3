@@ -8,10 +8,15 @@
 #include <SdFat.h>
 #include <alerts.h>
 
+#define CUSTOM_DIRECTORY "/data/"
+
 SPIClassRP2040 spi_flash_instance(spi0, e_pins::pin_spi_miso, e_pins::pin_cs_flash, e_pins::pin_spi_sck, e_pins::pin_spi_mosi);
 Adafruit_FlashTransport_SPI flashTransport(e_pins::pin_cs_flash, &spi_flash_instance);
 Adafruit_SPIFlash flash(&flashTransport);
 Alerts flash_alerts("Flash");
+FatVolume fatfs;
+File32 data_file_0; 
+File32 data_file_2; 
 
 class FLASH_DEVICE_T;
 extern FLASH_DEVICE_T flash_device;
@@ -26,7 +31,7 @@ public:
         if (!enable)
         {
             is_flash_chip_usable = 0;
-            flash_alerts.create_alert(e_alert_type::warning, "Flash chil is disabled!");
+            flash_alerts.create_alert(e_alert_type::warning, "Flash chip is disabled!");
             return 1;
         }
 
@@ -46,6 +51,8 @@ public:
             flash_alerts.create_alert(e_alert_type::error, "Failed to mount a filesystem!");
             return 0;
         }
+
+        //TODO: DIRECTORY?
 
         is_flash_chip_usable = 1;
         flash_alerts.create_alert(e_alert_type::success, "Flash startup was successful");
@@ -84,21 +91,21 @@ public:
     }
 
     // Casts all content of given file to Serial
-    int print_file_content(String path, File32* file_instance)
+    int print_file_content(String path, File32& file_instance)
     {
         if (!is_flash_chip_usable) return 0;
 
         flash_alerts.create_alert(e_alert_type::alert, "Attempting to print all file content. File path " + String(path));
 
-        if (!file_instance->isOpen()) open_file(path, *file_instance, FILE_READ);
+        if (!file_instance.isOpen()) open_file(path, file_instance, FILE_READ);
 
         delay(5000);
 
         char read_data;
-        while (file_instance->available())
+        while (file_instance.available())
         {
-            read_data = file_instance->read();
-            Serial.printf(&read_data);
+            read_data = file_instance.read();
+            Serial.printf(String(read_data).c_str());
 
             delayMicroseconds(20);
         }
@@ -108,19 +115,19 @@ public:
     }
 
     // Closes given file
-    int close_file(File32* file_instance)
+    int close_file(File32& file_instance)
     {
-        if (!file_instance->isOpen()) return 1;
-        bool close_file_status = file_instance->close();
+        if (!file_instance.isOpen()) return 1;
+        bool close_file_status = file_instance.close();
         flash_alerts.create_alert(e_alert_type::alert, "Closing file. Status " + String(close_file_status));
         return close_file_status;
     }
 
     // Writes given data on given file
-    void write_line(String data, File32* file_instance)
+    void write_line(String data, File32& file_instance)
     {
-        if (!is_flash_chip_usable || !file_instance->isOpen()) return;
-        file_instance->write(data.c_str());
+        if (!is_flash_chip_usable || !file_instance.isOpen()) return;
+        file_instance.printf(data.c_str());
     }
 
     // Opens a file on given path with a given oFlag
@@ -130,7 +137,7 @@ public:
 
         file_instance = fatfs.open(path, oFlag);
 
-        if (!file_instance.isOpen())
+        if (!file_instance)
         {
             flash_alerts.create_alert(e_alert_type::error, "Failed to open file. Path " + String(path) + " oFLag " + String(oFlag));
             return 0;
@@ -150,7 +157,7 @@ public:
         }
 
         //Check if file exists
-        if (fatfs.exists(name + format))
+        if (fatfs.exists((name + format)))
         {
             flash_alerts.create_alert(e_alert_type::error, "File " + name + format + " already exists. Please remove the existing file to create a new file");
             return 0;
@@ -167,39 +174,32 @@ public:
         }
 
         // Indicate successful file creation
-        flash_alerts.create_alert(e_alert_type::success, "Created file " + name + format);
+        flash_alerts.create_alert(e_alert_type::success, "Created file " + String(name + format));
         return 1;
     }
 
-    int is_file_open(File32* file_instance)
+    boolean is_file_open(File32& file_instance)
     {
-        return file_instance->isOpen();
+        return file_instance.isOpen();
     }
 
-    File32* get_file_instance(int file_count)
+    File32& get_file_instance(int file_count)
     {
         switch (file_count)
         {
             case 0:
-                return &data_file_0;
+                return data_file_0;
                 break;
-            case 1:
-                return &data_file_1;
-                break;
-            case 3:
-                return &data_file_2;
+            case 2:
+                return data_file_2;
                 break;
             default: break;
         }
-        return &data_file_0;
+        return data_file_0;
+        
     }
 
 private:
-    FatVolume fatfs;
-    File32 data_file_0; 
-    File32 data_file_1; 
-    File32 data_file_2; 
-
     uint8_t is_flash_chip_usable : 1;
 };
 FLASH_DEVICE_T flash_device;

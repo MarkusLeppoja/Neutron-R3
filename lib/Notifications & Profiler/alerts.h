@@ -4,14 +4,6 @@
 #include <Arduino.h>
 #include <definitions.h>
 
-
-// @brief Stores temporarely new alerts, until they get logged to flash. 
-// @note Has a max size of 48 alerts
-extern String _alert_buffer[];
-
-// @brief Returns the fullness of the _alert_buffer. If 0 then buffer is empty
-extern uint8_t _alert_buffer_size;
-
 // @brief Will contain all alerts from the start to end
 extern String _alert_string;
 
@@ -26,13 +18,6 @@ enum e_alert_type
     warning = 3,
     error = 4
 };
-
-void clear_alert_buffer();
-uint8_t get_alert_buffer_size();
-
-// @brief Stores alert onto general alert string and into a temp buffer for data logging 
-// @note Contains overflow protection for temp buffer. Alert string is always updated
-void save_alert_to_buffer(String alert);
 
 // @brief Returns a string containing all alerts from vehicle power on
 String get_all_alerts();

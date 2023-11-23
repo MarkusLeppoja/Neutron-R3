@@ -74,16 +74,16 @@ typedef struct {
 
     // The data that gets logged &| casted
     // Basic (On time, Mission Time, State)
-    uint8_t enable_datasave_basic : 2;
+    uint8_t enable_datasave_basic : 1;
 
     // Pyro (Pyro fire status, Pyro voltage)
-    uint8_t enable_datasave_pyro : 2;
+    uint8_t enable_datasave_pyro : 1;
     
     // Sensor (IMU, Baro, V-Divider) 
-    uint8_t enable_datasave_imu_data : 2;
-    uint8_t enable_datasave_baro_data : 2;
-    uint8_t enable_datasave_v_divider_data : 2;
-    uint8_t enable_datasave_performance : 2;
+    uint8_t enable_datasave_imu_data : 1;
+    uint8_t enable_datasave_baro_data : 1;
+    uint8_t enable_datasave_v_divider_data : 1;
+    uint8_t enable_datasave_performance : 1;
 
     /* Indicator */
     uint8_t enable_status_indicator : 1;
@@ -103,6 +103,7 @@ typedef struct {
     const double _st_detect_launch_accel_threshold;
     const double _st_detect_landing_touchdown_altitude_threshold;
     const double _st_max_mission_duration;
+    const double _st_max_ascent_time;
 
 } Neutron_Vehicle_Config_t;                                       
 
@@ -110,7 +111,7 @@ typedef struct {
   {                                                                                       \
     /* Software info */                                                                   \
     .software_name = "Neutron R3 Software",                                               \
-    .software_version = "1.5.1",                                                          \
+    .software_version = "1.5.2",                                                          \
     .software_compile_date = __DATE__,  /* Combile time */                                \
     /* Overall sensors functionality */                                                   \
     .enable_sensors = 1,                                                                  \
@@ -135,31 +136,31 @@ typedef struct {
     /* Pyro voltage divider ratio */                                                      \
     .pyro_voltage_divider_ratio = (3.3 / 4096 * 10.),  /* RP2040 has 12bit ADC */         \
     /* Overall flash functionality */                                                     \
-    .enable_flash_log = 0,                                                                \
+    .enable_flash_log = 1,                                                                \
     /* Data that gets logged to flash */                                                  \
     .enable_flash_notification_log = 1,                                                   \
     .enable_flash_file_0_log = 1,                                                         \
     .enable_flash_file_1_log = 1,                                                         \
     /* Interval in which data gets logged to flash (microseconds) */                      \
-    .flash_log_interval_mode_0 = 250000,                                                  \
+    .flash_log_interval_mode_0 = 200000,                                                  \
     .flash_log_interval_mode_1 = 100000,                                                  \
     .flash_log_interval_mode_2 = 50000,                                                   \
     .flash_log_interval_mode_3 = 20000,                                                   \
     .flash_log_interval_mode_4 = 10000,                                                   \
     /* Flash data file name & format */                                                   \
-    .flash_data_file_0_name = "",   /* Important TLM */                                   \
-    .flash_data_file_1_name = "",   /* Less important TLM */                              \
-    .flash_data_file_2_name = "",   /* Notifications */                                   \
-    .flash_data_file_3_name = "",   /* Current Config */                                  \
+    .flash_data_file_0_name = "Neutron R3 F0",    /* Important TLM */                     \
+    .flash_data_file_1_name = "Neutron R3 F1",    /* Less important TLM */                \
+    .flash_data_file_2_name = "Neutron R3 F2",    /* Notifications */                     \
+    .flash_data_file_3_name = "NONE",             /* Current Config */                    \
     .flash_data_file_0_format = ".csv",                                                   \
     .flash_data_file_1_format = ".csv",                                                   \
     .flash_data_file_2_format = ".txt",                                                   \
-    .flash_data_file_3_format = ".txt",                                                   \
+    .flash_data_file_3_format = "NONE",                                                   \
     /* Overall serial functionality */                                                    \
     .enable_serial_stream = 1,                                                            \
     /* Data that gets casted from serial */                                               \
     .enable_serial_notification_stream = 1,                                               \
-    .enable_serial_file_0_stream = 1,                                                     \
+    .enable_serial_file_0_stream = 0,                                                     \
     .enable_serial_file_1_stream = 0,                                                     \
     /* Interval in which data gets logged to serial (microseconds) */                     \
     .serial_stream_interval_mode_0 = 500000,                                              \
@@ -170,33 +171,30 @@ typedef struct {
     /* Where data gets saved (0 - Doesn't get saved, 1 - Main file, 2 - Second file) */   \
     .enable_datasave_basic = 1,                                                           \
     /* Pyro (Pyro fire status, Pyro voltage, pyro loop duration & rate) */                \
-    .enable_datasave_pyro = 1,                                                            \
+    .enable_datasave_pyro = 0,                                                            \
     /* Sensor (IMU, Baro, V-Divider) */                                                   \
     .enable_datasave_imu_data = 1,                                                        \
     .enable_datasave_baro_data = 1,                                                       \
     .enable_datasave_v_divider_data = 1,                                                  \
     .enable_datasave_performance = 1,                                                     \
     /* Indicator */                                                                       \
-    .enable_status_indicator = 0,                                                         \
-    .enable_led = 0,                                                                      \
-    .enable_buzzer = 0,                                                                   \
+    .enable_status_indicator = 1,                                                         \
+    .enable_led = 1,                                                                      \
+    .enable_buzzer = 1,                                                                   \
     /* Communications */                                                                  \
-    .enable_coms = 0,                                                                     \
-    .enable_coms_message_echo = 0,                                                        \
+    .enable_coms = 1,                                                                     \
+    .enable_coms_message_echo = 1,                                                        \
     .coms_notification_start_char = "<",                                                  \
     .coms_notification_end_char = ">",                                                    \
     .coms_csv_string_layout_start_char = "<<",                                            \
     .coms_csv_string_layout_end_char = ">>",                                              \
     /* State Transition */                                                                \
-    ._st_detect_launch_accel_threshold = 0,                                               \
-    ._st_detect_landing_touchdown_altitude_threshold = 0,                                 \
-    ._st_max_mission_duration = 0,                                                        \
+    ._st_detect_launch_accel_threshold = 10.2,                                            \
+    ._st_detect_landing_touchdown_altitude_threshold = 3,                                 \
+    ._st_max_mission_duration = 50,                                                       \
+    ._st_max_ascent_time = 6,                                                             \
   }                                                                                       
 
 extern Neutron_Vehicle_Config_t active_vehicle_config;
-
-// @brief Get current (readonly) instance of vehicle config
-Neutron_Vehicle_Config_t get_active_config();
-
 
 #endif
