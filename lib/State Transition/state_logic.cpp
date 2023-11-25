@@ -91,6 +91,8 @@ void _on_mission_state_change(e_mission_state new_state)
         set_flash_log_interval(active_vehicle_config.flash_log_interval_mode_2, 0);
         set_flash_log_interval(active_vehicle_config.flash_log_interval_mode_0, 1);
 
+        // Now that baro sensor has warmed up begin the re-calibration
+
         // Reset mission duration just in case
         Clock.mission_duration = 0;
 
@@ -172,8 +174,8 @@ void update_state_machine()
         if (_state_duration >= 60 && !_has_calibration_started)
         {
             _has_calibration_started = true;
-            baro_enable_calibration();
             imu_enable_calibration();
+            baro_enable_calibration();
         }
         // 10 Sec after beginning calibration switch mission state
         if (_state_duration >= 70 && _has_calibration_started)

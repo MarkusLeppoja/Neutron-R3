@@ -1,8 +1,10 @@
 #include "data_recorder.h"
 #include "storing_logic.h"
 #include "flash.h"
+
 #define zero 0
 #define one 1
+#define two 2
 
 uint64_t file_0_update_interval, file_1_update_interval = 1000000;
 uint64_t serial_0_cast_interval, serial_1_cast_interval = 1000000;
@@ -195,12 +197,12 @@ void _file_1_conversion_logic()
     profiler_file_func_dur.begin_function();
     storing_logic.clear_buffer();
 
-    if (active_vehicle_config.enable_datasave_basic)
+    /*if (active_vehicle_config.enable_datasave_basic)
     {
         storing_logic.convert_variable(Clock.seconds, -8, 3);
         storing_logic.convert_variable(Clock.mission_duration, -8, 3);
         storing_logic.convert_variable(get_mission_state());
-    }
+    }*/
 
     if (active_vehicle_config.enable_datasave_pyro)
     {
@@ -235,12 +237,12 @@ void _file_1_conversion_layout()
 {
     storing_logic.clear_buffer();
 
-    if (active_vehicle_config.enable_datasave_basic)
+    /*if (active_vehicle_config.enable_datasave_basic)
     {
         storing_logic.convert_variable("On Time (sec)");
         storing_logic.convert_variable("Mission Duration (sec)");
         storing_logic.convert_variable("Mission State");
-    }
+    }*/
 
     if (active_vehicle_config.enable_datasave_pyro)
     {

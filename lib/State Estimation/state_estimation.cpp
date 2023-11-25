@@ -22,9 +22,9 @@ Profiler profiler_v_divider;
 
 // Local variables
 uint64_t _imu_update_prev, _baro_update_prev, _v_divider_update_prev, _accel_prev, _gyro_prev;
-float _sensors_imu_accel_cal_x[400], _sensors_imu_accel_cal_y[400], _sensors_imu_accel_cal_z[400];
-float _sensors_imu_gyro_cal_x[400], _sensors_imu_gyro_cal_y[400], _sensors_imu_gyro_cal_z[400];
-float _sensors_baro_altitude_cal[100];
+double _sensors_imu_accel_cal_x[400], _sensors_imu_accel_cal_y[400], _sensors_imu_accel_cal_z[400];
+double _sensors_imu_gyro_cal_x[400], _sensors_imu_gyro_cal_y[400], _sensors_imu_gyro_cal_z[400];
+double _sensors_baro_altitude_cal[100];
 int _sensors_imu_calibration_list_index, _sensors_baro_calibration_list_index;
 
 //position_kalman_filter kf_position;
@@ -164,7 +164,7 @@ void _accel_update()
     accel_instance.readSensor();
 
     // Calculate dt
-    float accel_dt = (micros() - _accel_prev) / 1000000.f;
+    double accel_dt = (micros() - _accel_prev) / 1000000.f;
     _accel_prev = micros();
 
     Sensors.raw_acceleration.x = accel_instance.getAccelY_mss();
@@ -204,7 +204,7 @@ void _gyro_update()
     gyro_instance.readSensor();
 
     // Calculate dt
-    float gyro_dt = (micros() - _gyro_prev) / 1000000.f;
+    double gyro_dt = (micros() - _gyro_prev) / 1000000.f;
     _gyro_prev = micros();
 
     Sensors.raw_gyro_velocity_rps.x = -gyro_instance.getGyroX_rads();
@@ -405,12 +405,12 @@ void _imu_calibrate_calculate_deviation()
         gyro_sum.z += _sensors_imu_gyro_cal_z[i] = _sensors_imu_gyro_cal_z[i] - Sensors._gyro_offset_z;
     }
 
-    float accel_avg_x = accel_sum.x / 400.f;
-    float accel_avg_y = accel_sum.y / 400.f;
-    float accel_avg_z = accel_sum.z / 400.f;
-    float gyro_avg_x = gyro_sum.x / 400.f;
-    float gyro_avg_y = gyro_sum.y / 400.f;
-    float gyro_avg_z = gyro_sum.z / 400.f;
+    double accel_avg_x = accel_sum.x / 400.f;
+    double accel_avg_y = accel_sum.y / 400.f;
+    double accel_avg_z = accel_sum.z / 400.f;
+    double gyro_avg_x = gyro_sum.x / 400.f;
+    double gyro_avg_y = gyro_sum.y / 400.f;
+    double gyro_avg_z = gyro_sum.z / 400.f;
 
     // Reset variables
     accel_sum.x = accel_sum.y = accel_sum.z = 0;
@@ -523,7 +523,7 @@ void _baro_calibrate_calculate_offset()
     
     // Set standard deviation in kalman filter
     kf_position.R = {
-        Sensors._baro_standard_deviation_altitude
+        (float)sq(Sensors._baro_standard_deviation_altitude) //TODO: remove SQ. It was for a test
     };
 
     // After calibrating reset position kalman filter

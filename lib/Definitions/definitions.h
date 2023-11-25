@@ -120,20 +120,20 @@ struct s_sensors
     double internal_voltage;
 
     // Calibration (private variables)
-    float _gyro_offset_x;
-    float _gyro_offset_y;
-    float _gyro_offset_z;
-    float _accel_offset_x;
-    float _accel_offset_y;
-    float _accel_offset_z;
-    float _baro_offset_altitude;
-    float _gyro_standard_deviation_x;
-    float _gyro_standard_deviation_y;
-    float _gyro_standard_deviation_z;
-    float _accel_standard_deviation_x;
-    float _accel_standard_deviation_y;
-    float _accel_standard_deviation_z;
-    float _baro_standard_deviation_altitude;
+    double _gyro_offset_x;
+    double _gyro_offset_y;
+    double _gyro_offset_z;
+    double _accel_offset_x;
+    double _accel_offset_y;
+    double _accel_offset_z;
+    double _baro_offset_altitude;
+    double _gyro_standard_deviation_x;
+    double _gyro_standard_deviation_y;
+    double _gyro_standard_deviation_z;
+    double _accel_standard_deviation_x;
+    double _accel_standard_deviation_y;
+    double _accel_standard_deviation_z;
+    double _baro_standard_deviation_altitude;
 };
 extern s_sensors Sensors;
 

@@ -8,8 +8,6 @@
 #include <SdFat.h>
 #include <alerts.h>
 
-#define CUSTOM_DIRECTORY "/data/"
-
 SPIClassRP2040 spi_flash_instance(spi0, e_pins::pin_spi_miso, e_pins::pin_cs_flash, e_pins::pin_spi_sck, e_pins::pin_spi_mosi);
 Adafruit_FlashTransport_SPI flashTransport(e_pins::pin_cs_flash, &spi_flash_instance);
 Adafruit_SPIFlash flash(&flashTransport);
@@ -35,6 +33,8 @@ public:
             return 1;
         }
 
+        spi_flash_instance.begin();
+
         if (!flash.begin())
         {
             is_flash_chip_usable = 0;
@@ -51,8 +51,6 @@ public:
             flash_alerts.create_alert(e_alert_type::error, "Failed to mount a filesystem!");
             return 0;
         }
-
-        //TODO: DIRECTORY?
 
         is_flash_chip_usable = 1;
         flash_alerts.create_alert(e_alert_type::success, "Flash startup was successful");
