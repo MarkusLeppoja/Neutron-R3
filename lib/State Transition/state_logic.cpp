@@ -63,7 +63,7 @@ void _on_mission_state_change(e_mission_state new_state)
         // Reset STARTUP state indicator
         reset_power_on_indication();
 
-        check_if_3_files_exists();
+        list_all_existing_files();
         // Create log 
         alerts_state_logic.create_alert(e_alert_type::success, "Startup was successful! Changing state to Navigation Startup");
         // Change state and begin calibration
@@ -90,8 +90,6 @@ void _on_mission_state_change(e_mission_state new_state)
         // Put the flash update rate to before launch config
         set_flash_log_interval(active_vehicle_config.flash_log_interval_mode_2, 0);
         set_flash_log_interval(active_vehicle_config.flash_log_interval_mode_0, 1);
-
-        // Now that baro sensor has warmed up begin the re-calibration
 
         // Reset mission duration just in case
         Clock.mission_duration = 0;

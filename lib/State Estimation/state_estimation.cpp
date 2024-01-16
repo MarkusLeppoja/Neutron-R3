@@ -54,10 +54,10 @@ int _baro_begin()
     }
 
     // Configure
-    baro_instance.setTimeStandby(TIME_STANDBY_20MS);
-    baro_instance.setPresOversampling(OVERSAMPLING_X4);
-    baro_instance.setTempOversampling(OVERSAMPLING_X4);
-    baro_instance.setIIRFilter(IIR_FILTER_OFF);
+    /*baro_instance.setTimeStandby(TIME_STANDBY_160MS);
+    baro_instance.setPresOversampling(OVERSAMPLING_X32);
+    baro_instance.setTempOversampling(OVERSAMPLING_X32);
+    baro_instance.setIIRFilter(IIR_FILTER_OFF);*/
     baro_instance.startNormalConversion();
 
     // Enable baro functionality and create alert
@@ -146,7 +146,7 @@ void _imu_update()
     _gyro_update();
 
     // Update kalman filter
-    kf_position.predict_accel(Sensors.acceleration.z - active_vehicle_config.gravity);
+    kf_position.predict_accel((float)Sensors.acceleration.x, (float)Sensors.acceleration.y, (float)Sensors.acceleration.z - active_vehicle_config.gravity);
     
     // Get kalman filter data
     Sensors.position.z = kf_position.get_position();
@@ -164,7 +164,7 @@ void _accel_update()
     accel_instance.readSensor();
 
     // Calculate dt
-    double accel_dt = (micros() - _accel_prev) / 1000000.f;
+    double accel_dt = (micros() - _accel_prev) / 1000000.;
     _accel_prev = micros();
 
     Sensors.raw_acceleration.x = accel_instance.getAccelY_mss();
@@ -204,7 +204,7 @@ void _gyro_update()
     gyro_instance.readSensor();
 
     // Calculate dt
-    double gyro_dt = (micros() - _gyro_prev) / 1000000.f;
+    double gyro_dt = (micros() - _gyro_prev) / 1000000.;
     _gyro_prev = micros();
 
     Sensors.raw_gyro_velocity_rps.x = -gyro_instance.getGyroX_rads();
@@ -233,7 +233,7 @@ void _baro_update()
     update_mcu_clock();
     profiler_baro.begin_loop();
 
-    if (Clock.microseconds - _baro_update_prev < 20000.f) return;
+    if (Clock.microseconds - _baro_update_prev < 160000.f) return;
     _baro_update_prev = Clock.microseconds;
 
     // Check is sensor is supposed to be used
@@ -295,11 +295,11 @@ int sensors_begin()
     }
     
     // Sets the i2c clock rate to around 400 kHz 
-    i2c_sensors_instance.setClock(1000000);
+    //i2c_sensors_instance.setClock(1000000);
 
     // Begin sensors and save their status
-    boolean baro_status = _baro_begin();
     boolean imu_status = _imu_begin();
+    boolean baro_status = _baro_begin();
     _v_divider_begin();
 
     // If all sensors didn't initialize correctly create alert and disable sensors functionality
@@ -382,12 +382,12 @@ void _imu_calibrate_calculate_deviation()
     }
     
     // Calculate average deviation
-    Sensors._gyro_offset_x = gyro_sum.x / 400.f;
-    Sensors._gyro_offset_y = gyro_sum.y / 400.f;
-    Sensors._gyro_offset_z = gyro_sum.z / 400.f;
-    Sensors._accel_offset_x = accel_sum.x / 400.f;
-    Sensors._accel_offset_y = accel_sum.y / 400.f;
-    Sensors._accel_offset_z = accel_sum.z / 400.f;
+    Sensors._gyro_offset_x = gyro_sum.x / 400.;
+    Sensors._gyro_offset_y = gyro_sum.y / 400.;
+    Sensors._gyro_offset_z = gyro_sum.z / 400.;
+    Sensors._accel_offset_x = accel_sum.x / 400.;
+    Sensors._accel_offset_y = accel_sum.y / 400.;
+    Sensors._accel_offset_z = accel_sum.z / 400.;
 
     // Reset variables
     accel_sum.x = accel_sum.y = accel_sum.z = 0;
@@ -405,12 +405,12 @@ void _imu_calibrate_calculate_deviation()
         gyro_sum.z += _sensors_imu_gyro_cal_z[i] = _sensors_imu_gyro_cal_z[i] - Sensors._gyro_offset_z;
     }
 
-    double accel_avg_x = accel_sum.x / 400.f;
-    double accel_avg_y = accel_sum.y / 400.f;
-    double accel_avg_z = accel_sum.z / 400.f;
-    double gyro_avg_x = gyro_sum.x / 400.f;
-    double gyro_avg_y = gyro_sum.y / 400.f;
-    double gyro_avg_z = gyro_sum.z / 400.f;
+    double accel_avg_x = accel_sum.x / 400.;
+    double accel_avg_y = accel_sum.y / 400.;
+    double accel_avg_z = accel_sum.z / 400.;
+    double gyro_avg_x = gyro_sum.x / 400.;
+    double gyro_avg_y = gyro_sum.y / 400.;
+    double gyro_avg_z = gyro_sum.z / 400.;
 
     // Reset variables
     accel_sum.x = accel_sum.y = accel_sum.z = 0;
@@ -429,13 +429,13 @@ void _imu_calibrate_calculate_deviation()
         gyro_sum.z += sq(_sensors_imu_gyro_cal_z[i] - gyro_avg_z);
     }
 
-    Sensors._gyro_standard_deviation_x = sqrtf(gyro_sum.x / 400.f);
-    Sensors._gyro_standard_deviation_y = sqrtf(gyro_sum.y / 400.f);
-    Sensors._gyro_standard_deviation_z = sqrtf(gyro_sum.z / 400.f);
+    Sensors._gyro_standard_deviation_x = sqrt(gyro_sum.x / 400.);
+    Sensors._gyro_standard_deviation_y = sqrt(gyro_sum.y / 400.);
+    Sensors._gyro_standard_deviation_z = sqrt(gyro_sum.z / 400.);
 
-    Sensors._accel_standard_deviation_x = sqrtf(accel_sum.x / 400.f);
-    Sensors._accel_standard_deviation_y = sqrtf(accel_sum.y / 400.f);
-    Sensors._accel_standard_deviation_z = sqrtf(accel_sum.z / 400.f);
+    Sensors._accel_standard_deviation_x = sqrt(accel_sum.x / 400.);
+    Sensors._accel_standard_deviation_y = sqrt(accel_sum.y / 400.);
+    Sensors._accel_standard_deviation_z = sqrt(accel_sum.z / 400.);
 
     // Create notification
     String offsets_string = 
@@ -503,7 +503,7 @@ void _baro_calibrate_calculate_offset()
         baro_sum += _sensors_baro_altitude_cal[i];
     }
     
-    Sensors._baro_offset_altitude = baro_sum / 100.f; 
+    Sensors._baro_offset_altitude = baro_sum / 100.; 
     
     // Calculate average error without bias
     baro_sum = 0;
@@ -512,14 +512,14 @@ void _baro_calibrate_calculate_offset()
         baro_sum += _sensors_baro_altitude_cal[i] = _sensors_baro_altitude_cal[i] - Sensors._baro_offset_altitude;
     }
 
-    baro_average = baro_sum / 100.f;
+    baro_average = baro_sum / 100.;
     baro_sum = 0;
     for (int i = 0; i < 100; i++)
     {
         baro_sum += sq(_sensors_baro_altitude_cal[i] - baro_average);
     }
 
-    Sensors._baro_standard_deviation_altitude = sqrt(baro_sum / 100.f);
+    Sensors._baro_standard_deviation_altitude = sqrt(baro_sum / 100.);
     
     // Set standard deviation in kalman filter
     kf_position.R = {

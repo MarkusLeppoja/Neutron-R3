@@ -30,8 +30,7 @@ void cast_message_to_serial(String message);
 
 void cast_file_0_data();
 void cast_file_1_data();
-void cast_file_2_data();
 
-void check_if_3_files_exists();
+void list_all_existing_files();
 
 #endif

@@ -310,10 +310,6 @@ void _execute_command_from_list(int command)
       cast_file_1_data();
       break;
     case 67:
-      coms_alerts.create_alert(e_alert_type::alert, "Cast file 2 data to serial");
-      cast_file_2_data();
-      break;
-    case 68:
       //coms_alerts.create_alert(e_alert_type::alert, "");
       break;
 

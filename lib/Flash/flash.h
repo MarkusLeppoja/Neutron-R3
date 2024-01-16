@@ -13,8 +13,8 @@ Adafruit_FlashTransport_SPI flashTransport(e_pins::pin_cs_flash, &spi_flash_inst
 Adafruit_SPIFlash flash(&flashTransport);
 Alerts flash_alerts("Flash");
 FatVolume fatfs;
-File32 data_file_0; 
-File32 data_file_2; 
+File32 data_file_tlm; 
+File32 data_file_logs; 
 
 class FLASH_DEVICE_T;
 extern FLASH_DEVICE_T flash_device;
@@ -186,15 +186,14 @@ public:
         switch (file_count)
         {
             case 0:
-                return data_file_0;
+                return data_file_tlm;
                 break;
-            case 2:
-                return data_file_2;
+            case 1:
+                return data_file_logs;
                 break;
             default: break;
         }
-        return data_file_0;
-        
+        return data_file_tlm;
     }
 
 private:
